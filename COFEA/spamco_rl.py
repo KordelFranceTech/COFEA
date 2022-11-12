@@ -153,6 +153,16 @@ def spaco(configs,
     # print(pred_probs.shape)
     # print(pred_y[:5])
     # print(pred_probs[:5])
+    # x
+    """
+    (12000,)
+    (1, 2, 12000)
+    [0 0 1 1 1]
+    [[[9.52617917e-01 2.93698450e-45 2.33533050e-02 ... 2.13062579e-01
+       7.10208324e-01 6.27235356e-03]
+      [9.42939850e-01 2.60956677e-45 2.62884064e-02 ... 2.15199374e-01
+       6.92717870e-01 2.01726063e-02]]]
+    """
     for obs in range(0, 1):
         sel_id, weight = dp.get_ids_weights(pred_probs[obs],
                                             pred_y,
@@ -188,7 +198,8 @@ def spaco(configs,
             mu.train(net, train_env, configs[obs])
 
             # update y
-            # print(pred_probs.shape)
+            print(pred_probs.shape)
+            # (1, 2, 12000)
             # pred_probs.reshape(pred_probs.shape[0], pred_probs.shape[1])
             pred_probs[obs] = mu.predict_prob(net, untrain_env,
                                                configs[obs], obs)
@@ -214,6 +225,9 @@ def spaco(configs,
         final_results.append(results)
         add_num +=  4000 * num_obs
         fuse_y = []
+        print(len(test_preds)) # 2
+        print(len(test_preds[0])) #12000
+        print(len(test_preds[1])) #12000
         for k in range(0, len(test_preds[0])):
             a = test_preds[0][k]
             b = test_preds[1][k]

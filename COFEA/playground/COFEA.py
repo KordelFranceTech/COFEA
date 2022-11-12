@@ -104,8 +104,7 @@ def build_osi_network():
             if np.random.random() < eps:
                 action = np.random.randint(0, env.action_space.n)
             else:
-                action = np.argmax(
-                  model.best_individual.predict(np.identity(env.observation_space.n)[state:state + 1]))
+                action = np.argmax(model.best_individual.predict(np.identity(env.observation_space.n)[state:state + 1]))
             new_state, reward, done, _ = env.step(action)
             target = reward + discount_factor * np.max(model.best_individual.predict(np.identity(env.observation_space.n)[new_state:new_state + 1]))
             target_vector = model.best_individual.predict(np.identity(env.observation_space.n)[state:state + 1])[0]

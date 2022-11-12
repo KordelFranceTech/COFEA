@@ -6,7 +6,6 @@ import numpy as np
 import random
 
 
-
 def train_model(model, env, config, debug=False):
     """
     train model given the dataloader the criterion,
@@ -149,8 +148,10 @@ def predict_prob(model, env, config, device):
         s = env.reset()
         total_reward = 0
         for i in range(max_steps):
-            a = np.argmax(q_table[s, :])
-            prob = softmax(q_table[s, :])
+            # a = np.argmax(q_table[s, :])
+            a = np.argmax(q_table.best_individual.predict(np.identity(env.observation_space.n)[s, :]))
+            # prob = softmax(q_table[s, :])
+            prob = softmax(q_table.best_individual.predict(np.identity(env.observation_space.n)[s, :]))
             probs += [prob]
             s, r, done, info = env.step(a)
             total_reward += r
@@ -201,7 +202,8 @@ def evaluate(model, env, config, device):
         s = env.reset()
         total_reward = 0
         for i in range(max_steps):
-            a = np.argmax(q_table[s, :])
+            # a = np.argmax(q_table[s, :])
+            a = np.argmax(q_table.best_individual.predict(np.identity(env.observation_space.n)[s, :]))
             s, r, done, info = env.step(a)
             total_reward += r
             if done:
@@ -210,8 +212,8 @@ def evaluate(model, env, config, device):
                 break
     env.close()
     # return 100*np.sum(rewards)/len(rewards)
-    current_policy = get_best_policy(q_table=model.Q)
-    benchmark_policy = get_best_policy(q_table=benchmark_q_table)
+    current_policy = get_best_policy_osi(pso_nn=model.Q, env=env)
+    benchmark_policy = get_best_policy(benchmark_q_table)
     accuracy = get_policy_accuracy(current_policy, benchmark_policy)
     return accuracy
 

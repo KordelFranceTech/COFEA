@@ -6,7 +6,7 @@ import argparse
 # import model_utils as mu
 import model_utils_rl_osi as mu
 # from util.data import data_process as dp
-from util.data import data_process_rl as dp
+from util.data import data_process_rl_osi as dp
 # from config import Config
 from config import ConfigRL
 from benchmark import get_best_policy, benchmark_q_table
@@ -57,7 +57,8 @@ def adjust_config(config, num_examples, iter_step):
     epochs = list(range(300, 20, -20))
     config.epochs = epochs[iter_step]
     config.epochs = int((50000 * repeat) // num_examples)
-    config.epochs = 3
+    # config.epochs = 200
+    config.epochs = 20
     config.step_size = max(int(config.epochs // 3), 1)
     return config
 
@@ -113,8 +114,13 @@ def spaco(configs,
         untrain_data, _, _ = mu.train(net, untrain_env, configs[obs])
         # train_data = train_data[:5]
         # untrain_data = untrain_data[:5]
-        pred_probs.append(mu.predict_prob(net, untrain_env, configs[obs], obs).tolist())
-        test_preds.append(mu.predict_prob(net, test_env, configs[obs], obs).tolist())
+        # print(mu.predict_prob(net, untrain_env, configs[obs], obs).shape)
+        # print(np.concatenate(mu.predict_prob(net, untrain_env, configs[obs], obs),axis=0).shape)
+        # x
+        pred_probs.append(np.concatenate(mu.predict_prob(net, untrain_env, configs[obs], obs), axis=0).tolist())
+        test_preds.append(np.concatenate(mu.predict_prob(net, test_env, configs[obs], obs), axis=0).tolist())
+        # pred_probs.append(mu.predict_prob(net, untrain_env, configs[obs], obs).tolist())
+        # test_preds.append(mu.predict_prob(net, test_env, configs[obs], obs).tolist())
         acc = mu.evaluate(net, test_env, configs[obs], obs)
         # print(f"accuracy is: {acc}")
         # save_checkpoint(
@@ -149,10 +155,16 @@ def spaco(configs,
     # print(pred_probs.shape)
 
     pred_y = np.array(pred_y)
-    # print(pred_y.shape)
-    # print(pred_probs.shape)
-    # print(pred_y[:5])
-    # print(pred_probs[:5])
+    print(pred_y.shape)
+    print(pred_probs.shape)
+    # pred_probs = np.reshape(pred_probs, [pred_probs.shape[0], pred_probs.shape[1], pred_probs.shape[2]])
+    # pred_probs = np.concatenate(pred_probs, axis=-1)
+    # pred_probs = np.expand_dims(pred_probs, axis=-1)
+    # pred_probs = np.array([i for i in zip(pred_probs)])
+    print(pred_probs.shape)
+    print(pred_y[:5])
+    print(pred_probs[:5])
+    # x
     for obs in range(0, 1):
         sel_id, weight = dp.get_ids_weights(pred_probs[obs],
                                             pred_y,
@@ -188,14 +200,14 @@ def spaco(configs,
             mu.train(net, train_env, configs[obs])
 
             # update y
-            # print(pred_probs.shape)
+            print(pred_probs.shape)
+            # (1, 2, 8000)
             # pred_probs.reshape(pred_probs.shape[0], pred_probs.shape[1])
-            pred_probs[obs] = mu.predict_prob(net, untrain_env,
-                                               configs[obs], obs)
+            pred_probs[obs] = np.concatenate(mu.predict_prob(net, untrain_env, configs[obs], obs), axis=0)
 
             # evaluation current model and save it
             acc = mu.evaluate(net, test_env, configs[obs], obs)
-            predictions = mu.predict_prob(net, train_env, configs[obs], device=obs)
+            predictions = np.concatenate(mu.predict_prob(net, train_env, configs[obs], device=obs), axis=0)
             # save_checkpoint(
             #   {
             #     'state_dict': net.state_dict(),
@@ -206,7 +218,7 @@ def spaco(configs,
             #   False,
             #   fpath=os.path.join(
             #     'spaco/%s.epoch%d' % (configs[view].model_name, step + 1)))
-            test_preds[obs] = mu.predict_prob(net, test_env, configs[obs], device=obs)
+            test_preds[obs] = np.concatenate(mu.predict_prob(net, test_env, configs[obs], device=obs), axis=0)
             if debug:
                 print(f"accuracy: {acc}\n\n_____")
             results.append(acc)
@@ -214,6 +226,9 @@ def spaco(configs,
         final_results.append(results)
         add_num +=  4000 * num_obs
         fuse_y = []
+        print(len(test_preds)) # 2
+        print(len(test_preds[0])) #12000
+        print(len(test_preds[1])) #12000
         for k in range(0, len(test_preds[0])):
             a = test_preds[0][k]
             b = test_preds[1][k]
@@ -249,7 +264,7 @@ data_dir = os.path.join(cur_path, 'data', dataset)
 # config1 = ConfigRL(model_name='sarsa')
 # config2 = ConfigRL(model_name='sarsa')
 config1 = ConfigRL(model_name='q_learn_osi')
-config2 = ConfigRL(model_name='e_sarsa_osi')
+config2 = ConfigRL(model_name='q_learn_osi')
 
 spaco([config1, config2],
       iter_steps=1,

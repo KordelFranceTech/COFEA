@@ -9,6 +9,8 @@ from MaciNet.deep_learning import NeuralNetwork
 from MaciNet.deep_learning.layers import Activation, Dense
 from MaciNet.deep_learning.loss_functions import CrossEntropy
 from MaciNet.deep_learning.optimizers import Adam
+import gym
+env = gym.make('CliffWalking-v0')
 
 
 def expected_sarsa_osi_agent():
@@ -53,7 +55,7 @@ class ExpectedSarsaAgentOsi(Agent):
         Returns:
             None
         """
-        predict = self.Q[prev_state, prev_action]
+        # predict = self.Q[prev_state, prev_action]
 
         expected_q = 0
         # q_max = np.max(self.Q[next_state, :])
@@ -85,7 +87,7 @@ class ExpectedSarsaAgentOsi(Agent):
         target_vector[prev_action] = target
         self.Q.cofea_evolve(np.identity(env.observation_space.n)[prev_state:prev_state + 1],
                             target_vector.reshape(-1, env.action_space.n),
-                            n_generations=10)
+                            n_generations=3)
 
 
     def build_nn(self, n_inputs, n_outputs):
@@ -100,8 +102,8 @@ class ExpectedSarsaAgentOsi(Agent):
 
         # Print the model summary of a individual in the population
         model_builder(n_inputs=env.observation_space.n, n_outputs=env.action_space.n).summary()
-        population_size = 100
-        n_generations = 10
+        population_size = 10
+        n_generations = 3
         inertia_weight = 0.8
         cognitive_weight = 0.8
         social_weight = 0.8
@@ -121,7 +123,7 @@ class ExpectedSarsaAgentOsi(Agent):
                                          model_builder=model_builder)
 
         state = env.reset()
-        target_vector = np.array([0, 0, 0, 0])
+        target_vector = np.array([1, 0, 0, 0])
         model = model.cofea_evolve(np.identity(env.observation_space.n)[state:state + 1],
                                    target_vector.reshape(-1, env.action_space.n),
                                    n_generations=n_generations)
