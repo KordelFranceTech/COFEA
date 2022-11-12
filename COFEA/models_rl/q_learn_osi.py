@@ -5,7 +5,6 @@ import numpy as np
 from .params import *
 from .agent import Agent
 from MaciNet.supervised_learning import ParticleSwarmOptimizedNN
-from MaciNet.utils import train_test_split, to_categorical, normalize, Plot
 from MaciNet.deep_learning import NeuralNetwork
 from MaciNet.deep_learning.layers import Activation, Dense
 from MaciNet.deep_learning.loss_functions import CrossEntropy
@@ -35,11 +34,10 @@ class QLearningAgentOsi(Agent):
 		self.gamma = gamma
 		self.num_state = num_state
 		self.num_actions = num_actions
+		self.action_space = action_space
 		pso_nn = self.build_nn(self.num_state, self.num_actions)
-
 		self.Q = pso_nn
 		# self.Q = np.zeros((self.num_state, self.num_actions))
-		self.action_space = action_space
 
 
 	def update(self, state, state2, reward, action, action2):
@@ -59,7 +57,7 @@ class QLearningAgentOsi(Agent):
 		# target = reward + self.gamma * np.max(self.Q[state2, :])
 		# self.Q[state, action] += self.alpha * (target - predict)
 
-		target = reward + self.gamma * np.max(self.Q.best_individual.predict(np.identity(env.observation_space.n)[state2:state2 + 1]))
+		target = reward + self.gamma * np.max(self.Q.best_individual.predict(np.identity(env.observation_space.n)[state2, :]))
 		target_vector = self.Q.best_individual.predict(np.identity(env.observation_space.n)[state:state + 1])[0]
 		# target_vector = np.random.randint(0, env.action_space.n)
 		target_vector[action] = target

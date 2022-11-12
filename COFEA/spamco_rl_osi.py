@@ -249,7 +249,7 @@ data_dir = os.path.join(cur_path, 'data', dataset)
 # config1 = ConfigRL(model_name='sarsa')
 # config2 = ConfigRL(model_name='sarsa')
 config1 = ConfigRL(model_name='q_learn_osi')
-config2 = ConfigRL(model_name='q_learn_osi')
+config2 = ConfigRL(model_name='e_sarsa_osi')
 
 spaco([config1, config2],
       iter_steps=1,
