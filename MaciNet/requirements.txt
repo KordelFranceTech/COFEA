@@ -1,0 +1,11 @@
+terminaltables==3.1.0
+matplotlib==3.3.1
+pandas==1.1.1
+numpy==1.19.5
+decision_tree==0.04
+naive_bayes==0.1.1
+progressbar33==2.4
+regression==1.0.5
+scikit_learn==1.1.2
+support_vector_machine==0.0.0
+xgboost==1.6.2
