@@ -4,6 +4,7 @@ from .resnet import *
 from .q_learn import *
 from .q_learn_osi import *
 from .sarsa import *
+from .sarsa import *
 from .e_sarsa import *
 from .e_sarsa_osi import *
 
@@ -17,9 +18,10 @@ __factory = {
     'vgg': VGG,
     'densenet121': DenseNet121,
     'sarsa': sarsa_agent,
+    'sarsa_osi': sarsa_osi_agent,
     'e_sarsa': expected_sarsa_agent,
-    'q_learn': q_learn_agent,
     'e_sarsa_osi': expected_sarsa_osi_agent,
+    'q_learn': q_learn_agent,
     'q_learn_osi': q_learn_osi_agent,
 }
 

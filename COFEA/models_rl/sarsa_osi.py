@@ -1,4 +1,4 @@
-# ExpectedSarsaAgent.py
+# SarsaAgent.py
 
 
 import numpy as np
@@ -10,17 +10,22 @@ from MaciNet.deep_learning.layers import Activation, Dense
 from MaciNet.deep_learning.loss_functions import CrossEntropy
 from MaciNet.deep_learning.optimizers import Adam
 import gym
+
 env = gym.make('CliffWalking-v0')
 
 
-def expected_sarsa_osi_agent():
-    expectedSarsaAgent = ExpectedSarsaAgentOsi(
+def sarsa_osi_agent():
+    sarsaOsiAgent = SarsaOsiAgent(
         epsilon, alpha, gamma, env.observation_space.n,
         env.action_space.n, env.action_space)
-    return expectedSarsaAgent
+    return sarsaOsiAgent
 
 
-class ExpectedSarsaOsiAgent(Agent):
+class SarsaOsiAgent(Agent):
+    """
+    The Agent that uses SARSA update to improve it's behaviour
+    """
+
     def __init__(self, epsilon, alpha, gamma, num_state, num_actions, action_space):
         """
         Constructor
@@ -29,23 +34,22 @@ class ExpectedSarsaOsiAgent(Agent):
             gamma: The discount factor
             num_state: The number of states
             num_actions: The number of actions
-            action_space: To call the expected action
+            action_space: To call the random action
         """
         self.epsilon = epsilon
         self.alpha = alpha
         self.gamma = gamma
         self.num_state = num_state
         self.num_actions = num_actions
-        self.action_space = action_space
         pso_nn = self.build_nn(self.num_state, self.num_actions)
         self.Q = pso_nn
-        # self.Q = np.zeros((self.num_state, self.num_actions))
 
+    # self.Q = np.zeros((self.num_state, self.num_actions))
 
     def update(self, prev_state, next_state, reward, prev_action, next_action):
         """
-        Update the action value function using the Expected SARSA update.
-        Q(S, A) = Q(S, A) + alpha(reward + (pi * Q(S_, A_) - Q(S, A))
+        Update the action value function using the SARSA update.
+        Q(S, A) = Q(S, A) + alpha(reward + (gamma * Q(S_, A_) - Q(S, A))
         Args:
             prev_state: The previous state
             next_state: The next state
@@ -56,38 +60,16 @@ class ExpectedSarsaOsiAgent(Agent):
             None
         """
         # predict = self.Q[prev_state, prev_action]
-
-        expected_q = 0
-        # q_max = np.max(self.Q[next_state, :])
-        q_max = np.max(self.Q.best_individual.predict(np.identity(env.observation_space.n)[next_state, :]))
-        greedy_actions = 0
-        for i in range(self.num_actions):
-            # if self.Q[next_state][i] == q_max:
-            if self.Q.best_individual.predict(np.identity(env.observation_space.n)[next_state][i]) == q_max:
-                greedy_actions += 1
-
-        non_greedy_action_probability = self.epsilon / self.num_actions
-        greedy_action_probability = ((1 - self.epsilon) / greedy_actions) + non_greedy_action_probability
-
-        for i in range(self.num_actions):
-            # if self.Q[next_state][i] == q_max:
-            if self.Q.best_individual.predict(np.identity(env.observation_space.n)[next_state][i]) == q_max:
-                # expected_q += self.Q[next_state][i] * greedy_action_probability
-                expected_q += self.Q.best_individual.predict(np.identity(env.observation_space.n)[next_state][i]) * greedy_action_probability
-            else:
-                # expected_q += self.Q[next_state][i] * non_greedy_action_probability
-                expected_q += self.Q.best_individual.predict(np.identity(env.observation_space.n)[next_state][i]) * non_greedy_action_probability
-
-        target = reward + self.gamma * expected_q
+        # target = reward + self.gamma * self.Q[next_state, next_action]
         # self.Q[prev_state, prev_action] += self.alpha * (target - predict)
 
-        # target = reward + self.gamma * np.max(self.Q.best_individual.predict(np.identity(env.observation_space.n)[next_state:next_state + 1]))
+        target = reward + self.gamma * np.max(
+            self.Q.best_individual.predict(np.identity(env.observation_space.n)[next_state:next_state + 1]))
         target_vector = self.Q.best_individual.predict(np.identity(env.observation_space.n)[prev_state:prev_state + 1])[0]
-        # target_vector = np.random.randint(0, env.action_space.n)
         target_vector[prev_action] = target
         self.Q.cofea_evolve(np.identity(env.observation_space.n)[prev_state:prev_state + 1],
-                            target_vector.reshape(-1, env.action_space.n),
-                            n_generations=3)
+                        target_vector.reshape(-1, env.action_space.n),
+                        n_generations=3)
 
 
     def build_nn(self, n_inputs, n_outputs):

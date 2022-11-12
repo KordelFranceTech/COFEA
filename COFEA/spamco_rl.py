@@ -62,12 +62,12 @@ def adjust_config(config, num_examples, iter_step):
     return config
 
 
-def spaco(configs,
-          iter_steps=10,
-          gamma=0,
-          train_ratio=0.2,
-          regularizer='soft',
-          debug=False):
+def spaco_rl(configs,
+            iter_steps=10,
+            gamma=0,
+            train_ratio=0.2,
+            regularizer='soft',
+            debug=False):
     """
     self-paced co-training model implementation based on Pytroch
     params:
@@ -262,7 +262,7 @@ data_dir = os.path.join(cur_path, 'data', dataset)
 
 config1 = ConfigRL(model_name='sarsa')
 config2 = ConfigRL(model_name='sarsa')
-# spaco([config1, config2],
+# spaco_rl([config1, config2],
 #       iter_steps=1,
 #       gamma=0.3,
 #       regularizer="soft")
@@ -270,7 +270,7 @@ config2 = ConfigRL(model_name='sarsa')
 
 # for i in range(0, 1000):
 #     try:
-#         spaco([config1, config2],
+#         spaco_rl([config1, config2],
 #           iter_steps=1,
 #           gamma=0.8,
 #           regularizer="soft")
@@ -319,7 +319,7 @@ def gimme_results(N: int,
                 if success_runs == N:
                     break
                 try:
-                    res = spaco([config1, config2], iter_steps=iter_steps, gamma=gamma, regularizer=regularizer)
+                    res = spaco_rl([config1, config2], iter_steps=iter_steps, gamma=gamma, regularizer=regularizer)
                     success_runs += 1
                     success_results.append(res)
                 except AssertionError:

@@ -14,13 +14,13 @@ env = gym.make('CliffWalking-v0')
 
 
 def q_learn_osi_agent():
-    qLearningAgent = QLearningAgentOsi(
+    qLearningAgent = QLearningOsiAgent(
         epsilon, alpha, gamma, env.observation_space.n,
         env.action_space.n, env.action_space)
     return qLearningAgent
 
 
-class QLearningAgentOsi(Agent):
+class QLearningOsiAgent(Agent):
 	def __init__(self, epsilon, alpha, gamma, num_state, num_actions, action_space):
 		"""
 		Constructor
@@ -81,7 +81,7 @@ class QLearningAgentOsi(Agent):
 		# Print the model summary of a individual in the population
 		model_builder(n_inputs=env.observation_space.n, n_outputs=env.action_space.n).summary()
 		population_size = 3
-		n_generations = 2
+		n_generations = 3
 		inertia_weight = 0.8
 		cognitive_weight = 0.8
 		social_weight = 0.8

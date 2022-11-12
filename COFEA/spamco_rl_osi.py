@@ -63,12 +63,17 @@ def adjust_config(config, num_examples, iter_step):
     return config
 
 
-def spaco(configs,
-          iter_steps=10,
-          gamma=0,
-          train_ratio=0.2,
-          regularizer='soft',
-          debug=False):
+def spaco_rl_osi(configs,
+                 iter_steps=10,
+                 gamma=0,
+                 train_ratio=0.2,
+                 regularizer='soft',
+                 population_size=3,
+                 n_generations = 3,
+                 inertia_weight = 0.8,
+                 cognitive_weight = 0.8,
+                 social_weight = 0.8,
+                 debug=False):
     """
     self-paced co-training model implementation based on Pytroch
     params:
@@ -266,25 +271,25 @@ data_dir = os.path.join(cur_path, 'data', dataset)
 config1 = ConfigRL(model_name='q_learn_osi')
 config2 = ConfigRL(model_name='q_learn_osi')
 
-spaco([config1, config2],
+print(spaco_rl_osi([config1, config2],
       iter_steps=1,
       gamma=0.3,
-      regularizer="soft")
+      regularizer="soft"))
 
 
-# for i in range(0, 1000):
-#     try:
-#         spaco([config1, config2],
-#           iter_steps=1,
-#           gamma=0.8,
-#           regularizer="soft")
-#         sys.exit()
-#     except AssertionError:
-#         print("assertion error")
-#     except IndexError:
-#         print("index error")
-#     except ValueError:
-#         print("value error")
+for i in range(0, 1000):
+    try:
+        spaco([config1, config2],
+          iter_steps=1,
+          gamma=0.8,
+          regularizer="soft")
+        sys.exit()
+    except AssertionError:
+        print("assertion error")
+    except IndexError:
+        print("index error")
+    except ValueError:
+        print("value error")
 
 
 def gimme_results(N: int,
@@ -296,7 +301,7 @@ def gimme_results(N: int,
     results_dict["gamma"] = gamma
     results_dict["regularizer"] = regularizer
     results_dict["N"] = N
-    agents: list = ["e_sarsa", "sarsa", "q_learn"]
+    agents: list = ["e_sarsa_osi", "sarsa_osi", "q_learn_osi"]
     # agents: list = ["q_learn"]
 
     for agent_i in agents:
@@ -323,7 +328,7 @@ def gimme_results(N: int,
                 if success_runs == N:
                     break
                 try:
-                    res = spaco([config1, config2], iter_steps=iter_steps, gamma=gamma, regularizer=regularizer)
+                    res = spaco_rl_osi([config1, config2], iter_steps=iter_steps, gamma=gamma, regularizer=regularizer)
                     success_runs += 1
                     success_results.append(res)
                 except AssertionError:
