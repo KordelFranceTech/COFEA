@@ -9,3 +9,12 @@ def get_best_policy(q_table):
         a = np.argmax(state)
         policy.append(a)
     return policy
+
+
+def get_best_policy_osi(pso_nn, env):
+    # return pso_nn.best_individual
+    policy: list = []
+    for state in range(env.observation_space.n):
+        a = np.argmax(pso_nn.best_individual.predict(np.identity(env.observation_space.n)[state:state + 1]))
+        policy.append(a)
+    return policy
