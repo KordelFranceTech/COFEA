@@ -2,6 +2,7 @@ from __future__ import print_function, division
 import numpy as np
 import copy
 
+
 class ParticleSwarmOptimizedNN():
     """ Particle Swarm Optimization of Neural Network.
 
@@ -16,17 +17,14 @@ class ParticleSwarmOptimizedNN():
     social_weight:      float [0,1)
     max_velocity: float
         The maximum allowed value for the velocity.
-
-    Reference:
-        Neural Network Training Using Particle Swarm Optimization
-        https://visualstudiomagazine.com/articles/2013/12/01/neural-network-training-using-particle-swarm-optimization.aspx 
     """
-    def __init__(self, population_size, 
-                        model_builder, 
-                        inertia_weight=0.8, 
-                        cognitive_weight=2, 
-                        social_weight=2, 
-                        max_velocity=20):
+
+    def __init__(self, population_size,
+                 model_builder,
+                 inertia_weight=0.8,
+                 cognitive_weight=2,
+                 social_weight=2,
+                 max_velocity=20):
         self.population_size = population_size
         self.model_builder = model_builder
         self.best_individual = None
@@ -88,14 +86,14 @@ class ParticleSwarmOptimizedNN():
                 # Update layer weights with velocity
                 individual.layers[i].W += individual.velocity[i]["W"]
                 individual.layers[i].w0 += individual.velocity[i]["w0"]
-        
+
     def _calculate_fitness(self, individual):
         """ Evaluate the individual on the test set to get fitness scores """
         loss, acc = individual.test_on_batch(self.X, self.y)
         individual.fitness = 1 / (loss + 1e-8)
         individual.accuracy = acc
 
-    def evolve(self, X, y, n_generations):
+    def evolve(self, X, y, n_generations, debug: bool = False):
         """ Will evolve the population for n_generations based on dataset X and labels y"""
         self.X, self.y = X, y
 
@@ -121,14 +119,15 @@ class ParticleSwarmOptimizedNN():
                 if individual.fitness > self.best_individual.fitness:
                     self.best_individual = copy.copy(individual)
 
-            print ("[%d Best Individual - ID: %d Fitness: %.5f, Accuracy: %.1f%%]" % (epoch,
-                                                                            self.best_individual.id,
-                                                                            self.best_individual.fitness,
-                                                                            100*float(self.best_individual.accuracy)))
+            if debug:
+                print("[%d Best Individual - ID: %d Fitness: %.5f, Accuracy: %.1f%%]" % (epoch,
+                                                                                         self.best_individual.id,
+                                                                                         self.best_individual.fitness,
+                                                                                         100 * float(
+                                                                                             self.best_individual.accuracy)))
         return self.best_individual
 
-
-    def cofea_evolve(self, X, y, n_generations):
+    def cofea_evolve(self, X, y, n_generations, debug: bool = False):
         """ Will evolve the population for n_generations based on dataset X and labels y"""
         self.X, self.y = X, y
 
@@ -154,8 +153,10 @@ class ParticleSwarmOptimizedNN():
                 if individual.fitness > self.best_individual.fitness:
                     self.best_individual = copy.copy(individual)
 
-            print ("[%d Best Individual - ID: %d Fitness: %.5f, Accuracy: %.1f%%]" % (epoch,
-                                                                            self.best_individual.id,
-                                                                            self.best_individual.fitness,
-                                                                            100*float(self.best_individual.accuracy)))
+            if debug:
+                print("[%d Best Individual - ID: %d Fitness: %.5f, Accuracy: %.1f%%]" % (epoch,
+                                                                                         self.best_individual.id,
+                                                                                         self.best_individual.fitness,
+                                                                                         100 * float(
+                                                                                             self.best_individual.accuracy)))
         return self

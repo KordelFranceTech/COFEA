@@ -14,7 +14,7 @@ env = gym.make('CliffWalking-v0')
 
 
 def expected_sarsa_osi_agent():
-    expectedSarsaAgent = ExpectedSarsaAgentOsi(
+    expectedSarsaAgent = ExpectedSarsaOsiAgent(
         epsilon, alpha, gamma, env.observation_space.n,
         env.action_space.n, env.action_space)
     return expectedSarsaAgent

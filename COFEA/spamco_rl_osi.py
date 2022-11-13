@@ -3,6 +3,7 @@ import sys
 import torch
 import gym
 import argparse
+import copy
 # import model_utils as mu
 import model_utils_rl_osi as mu
 # from util.data import data_process as dp
@@ -12,6 +13,7 @@ from config import ConfigRL
 from benchmark import get_best_policy, benchmark_q_table
 from util.serialization import load_checkpoint, save_checkpoint
 import datasets
+from environments import env_frozen_lake, env_cliff_walking, environment
 # import models
 import models_rl as models
 import numpy as np
@@ -63,9 +65,10 @@ def adjust_config(config, num_examples, iter_step):
     return config
 
 
-def spaco_rl_osi(configs,
+def spaco_rl_osi(map,
+                 configs,
                  iter_steps=10,
-                 gamma=0,
+                 gamma=0.0,
                  train_ratio=0.2,
                  regularizer='soft',
                  population_size=3,
@@ -86,9 +89,18 @@ def spaco_rl_osi(configs,
     """
     num_obs = len(configs)
     add_num = 40
-    train_env = gym.make('CliffWalking-v0')
-    untrain_env = gym.make('CliffWalking-v0')
-    test_env = gym.make('CliffWalking-v0')
+    # train_env = gym.make('CliffWalking-v0')
+    # untrain_env = gym.make('CliffWalking-v0')
+    # test_env = gym.make('CliffWalking-v0')
+    # train_env = gym.make('FrozenLake8x8-v1', is_slippery=False)
+    # untrain_env = gym.make('FrozenLake8x8-v1', is_slippery=False)
+    # test_env = gym.make('FrozenLake8x8-v1', is_slippery=False)
+    # train_env = copy.deepcopy(map)
+    # untrain_env = copy.deepcopy(map)
+    # test_env = copy.deepcopy(map)
+    train_env = map
+    untrain_env = map
+    test_env = map
     # train_env = gym.make('FrozenLake-v1', desc=None, map_name="4x4", is_slippery=True)
     # untrain_env = gym.make('FrozenLake-v1', desc=None, map_name="4x4", is_slippery=True)
     # test_env = gym.make('FrozenLake-v1', desc=None, map_name="4x4", is_slippery=True)
@@ -160,16 +172,11 @@ def spaco_rl_osi(configs,
     # print(pred_probs.shape)
 
     pred_y = np.array(pred_y)
-    print(pred_y.shape)
-    print(pred_probs.shape)
-    # pred_probs = np.reshape(pred_probs, [pred_probs.shape[0], pred_probs.shape[1], pred_probs.shape[2]])
-    # pred_probs = np.concatenate(pred_probs, axis=-1)
-    # pred_probs = np.expand_dims(pred_probs, axis=-1)
-    # pred_probs = np.array([i for i in zip(pred_probs)])
-    print(pred_probs.shape)
-    print(pred_y[:5])
-    print(pred_probs[:5])
-    # x
+    # print(pred_y.shape)
+    # print(pred_probs.shape)
+    # print(pred_probs.shape)
+    # print(pred_y[:5])
+    # print(pred_probs[:5])
     for obs in range(0, 1):
         sel_id, weight = dp.get_ids_weights(pred_probs[obs],
                                             pred_y,
@@ -205,7 +212,7 @@ def spaco_rl_osi(configs,
             mu.train(net, train_env, configs[obs])
 
             # update y
-            print(pred_probs.shape)
+            # print(pred_probs.shape)
             # (1, 2, 8000)
             # pred_probs.reshape(pred_probs.shape[0], pred_probs.shape[1])
             pred_probs[obs] = np.concatenate(mu.predict_prob(net, untrain_env, configs[obs], obs), axis=0)
@@ -231,9 +238,9 @@ def spaco_rl_osi(configs,
         final_results.append(results)
         add_num +=  4000 * num_obs
         fuse_y = []
-        print(len(test_preds)) # 2
-        print(len(test_preds[0])) #12000
-        print(len(test_preds[1])) #12000
+        # print(len(test_preds)) # 2
+        # print(len(test_preds[0])) #12000
+        # print(len(test_preds[1])) #12000
         for k in range(0, len(test_preds[0])):
             a = test_preds[0][k]
             b = test_preds[1][k]
@@ -259,10 +266,10 @@ def spaco_rl_osi(configs,
     return avg
 
 
-dataset = "cifar10"
-cur_path = os.getcwd()
-logs_dir = os.path.join(cur_path, 'logs')
-data_dir = os.path.join(cur_path, 'data', dataset)
+# dataset = "cifar10"
+# cur_path = os.getcwd()
+# logs_dir = os.path.join(cur_path, 'logs')
+# data_dir = os.path.join(cur_path, 'data', dataset)
 # data = datasets.create(dataset, data_dir)
 
 
@@ -271,31 +278,43 @@ data_dir = os.path.join(cur_path, 'data', dataset)
 config1 = ConfigRL(model_name='q_learn_osi')
 config2 = ConfigRL(model_name='q_learn_osi')
 
-print(spaco_rl_osi([config1, config2],
-      iter_steps=1,
+e = env_cliff_walking.CliffWalkingEnv()
+# e = env_frozen_lake.FrozenLakeEnv()
+environment.current_environment = e
+print(spaco_rl_osi(
+      e,
+      [config1, config2],
+      iter_steps=3,
       gamma=0.3,
       regularizer="soft"))
-
-
-for i in range(0, 1000):
-    try:
-        spaco([config1, config2],
-          iter_steps=1,
-          gamma=0.8,
-          regularizer="soft")
-        sys.exit()
-    except AssertionError:
-        print("assertion error")
-    except IndexError:
-        print("index error")
-    except ValueError:
-        print("value error")
+x
+#
+# for i in range(0, 1000):
+#     try:
+#         spaco_rl_osi([config1, config2],
+#           iter_steps=1,
+#           gamma=0.8,
+#           regularizer="soft")
+#         sys.exit()
+#     except AssertionError:
+#         print("assertion error")
+#     except IndexError:
+#         print("index error")
+#     except ValueError:
+#         print("value error")
 
 
 def gimme_results(N: int,
                   iter_steps: int = 1,
                   gamma: float = 0.3,
-                  regularizer: str = "soft"):
+                  regularizer: str = "soft",
+                  population_size=3,
+                  n_generations=3,
+                  inertia_weight=0.8,
+                  cognitive_weight=0.8,
+                  social_weight=0.8,
+                  debug=False
+                  ):
     results_dict: dict = {}
     results_dict["iter_steps"] = iter_steps
     results_dict["gamma"] = gamma
@@ -303,65 +322,75 @@ def gimme_results(N: int,
     results_dict["N"] = N
     agents: list = ["e_sarsa_osi", "sarsa_osi", "q_learn_osi"]
     # agents: list = ["q_learn"]
-
-    for agent_i in agents:
-        for agent_j in agents:
-            # if agent_i == "sarsa" and agent_j == "q_learn":
-            #     break
-            # if agent_i == "q_learn" and agent_j == "sarsa":
-            #     break
-            if agent_i == "q_learn" and agent_j != "q_learn":
-                break
-            if agent_j == "q_learn" and agent_i != "q_learn":
-                break
-
-            print(f"agent i: {agent_i}")
-            print(f"agent j: {agent_j}")
-
-            config1 = ConfigRL(model_name=agent_i)
-            config2 = ConfigRL(model_name=agent_j)
-            success_runs: int = 0
-            success_results: list = []
-
-            # while success_runs < N:
-            for v in range(100):
-                if success_runs == N:
+    for map in maps:
+        for agent_i in agents:
+            for agent_j in agents:
+                # if agent_i == "sarsa" and agent_j == "q_learn":
+                #     break
+                # if agent_i == "q_learn" and agent_j == "sarsa":
+                #     break
+                if agent_i == "q_learn_osi" and agent_j != "q_learn_osi":
                     break
-                try:
-                    res = spaco_rl_osi([config1, config2], iter_steps=iter_steps, gamma=gamma, regularizer=regularizer)
-                    success_runs += 1
-                    success_results.append(res)
-                except AssertionError:
-                    print(f"{v} assertion error")
-                except IndexError:
-                    print(f"{v} index error")
-                except ValueError:
-                    print(f"{v} value error")
-            model = f"{agent_i}-{agent_j}"
-            # results_dict[model] = sum([i for i in success_results]) / N
-            results_dict[model] = [success_results, sum([i for i in success_results]) / N]
+                if agent_j == "q_learn_osi" and agent_i != "q_learn_osi":
+                    break
+
+                print(f"agent i: {agent_i}")
+                print(f"agent j: {agent_j}")
+
+                config1 = ConfigRL(model_name=agent_i)
+                config2 = ConfigRL(model_name=agent_j)
+                success_runs: int = 0
+                success_results: list = []
+
+                # while success_runs < N:
+                for v in range(100):
+                    if success_runs == N:
+                        break
+                    try:
+                        res = spaco_rl_osi(map,
+                                           [config1, config2],
+                                           iter_steps=iter_steps,
+                                           gamma=gamma,
+                                           regularizer=regularizer,
+                                           population_size=population_size,
+                                           n_generations=n_generations,
+                                           inertia_weight=inertia_weight,
+                                           cognitive_weight=cognitive_weight,
+                                           social_weight=social_weight,
+                                           )
+                        success_runs += 1
+                        success_results.append(res)
+                    except AssertionError:
+                        print(f"{v} assertion error")
+                    except IndexError:
+                        print(f"{v} index error")
+                    except ValueError:
+                        print(f"{v} value error")
+                model = f"{agent_i}-{agent_j}"
+                # results_dict[model] = sum([i for i in success_results]) / N
+                results_dict[model] = [success_results, sum([i for i in success_results]) / N]
     print(results_dict)
     return results_dict
 
 
 
 a = gimme_results(100, iter_steps=1, gamma=0.3, regularizer="soft")
-with open('results.txt', 'w') as f:
+with open('osi_results.txt', 'w') as f:
         f.write(f"{a}\n\n")
 a = gimme_results(100, iter_steps=3, gamma=0.3, regularizer="soft")
-with open('results.txt', 'a') as f:
+with open('os-osi_results.txt', 'a') as f:
     f.write(f"{a}\n\n")
 a = gimme_results(100, iter_steps=1, gamma=0.5, regularizer="soft")
-with open('results.txt', 'a') as f:
+with open('osi_results.txt', 'a') as f:
         f.write(f"{a}\n\n")
 a = gimme_results(100, iter_steps=1, gamma=0.8, regularizer="soft")
-with open('results.txt', 'a') as f:
+with open('osi_results.txt', 'a') as f:
         f.write(f"{a}\n\n")
 a = gimme_results(100, iter_steps=3, gamma=0.5, regularizer="soft")
-with open('results.txt', 'a') as f:
+with open('osi_results.txt', 'a') as f:
         f.write(f"{a}\n\n")
 a = gimme_results(100, iter_steps=3, gamma=0.8, regularizer="soft")
-with open('results.txt', 'a') as f:
+with open('osi_results.txt', 'a') as f:
         f.write(f"{a}\n\n")
 
 # a = gimme_results(10, iter_steps=1, gamma=0.3, regularizer="soft")

@@ -85,11 +85,11 @@ def update_train_untrain_rl(sel_idx,
     # weights = np.concatenate(weights)
     # pred_y = np.expand_dims(pred_y, 1)
     # weights = np.expand_dims(weights, 1)
-    print(f"train data: {len(train_data)}")
-    print(f"untrain data: {len(untrain_data)}")
-    print(f"pred_y data: {len(pred_y)}")
-    print(f"weights data: {len(weights)}")
-    print(f"sel idx: {len(sel_idx)}")
+    # print(f"train data: {len(train_data)}")
+    # print(f"untrain data: {len(untrain_data)}")
+    # print(f"pred_y data: {len(pred_y)}")
+    # print(f"weights data: {len(weights)}")
+    # print(f"sel idx: {len(sel_idx)}")
     """
     train data: 2000
     untrain data: 2000
@@ -176,15 +176,15 @@ def get_lambda_class(score, pred_y, train_data, max_add):
     y = train_data[1]
     score = np.array(score)
     pred_y = np.array(pred_y)
-    print(f"score: {score}")
-    print(f"pred_y: {pred_y}")
-    print(f"score shape: {score.shape}")
-    print(f"pred y shape: {pred_y.shape}")
+    # print(f"score: {score}")
+    # print(f"pred_y: {pred_y}")
+    # print(f"score shape: {score.shape}")
+    # print(f"pred y shape: {pred_y.shape}")
     # score = np.expand_dims(score, axis=0)
     pred_y = np.expand_dims(pred_y, axis=0)
-    print(f"score shape: {score.shape}")
-    print(f"pred y shape: {pred_y.shape}")
-    print(score.shape)
+    # print(f"score shape: {score.shape}")
+    # print(f"pred y shape: {pred_y.shape}")
+    # print(score.shape)
     score = score.T
     # pred_y = pred_y.T
     # print(f"score shape: {score.shape}")
@@ -205,9 +205,9 @@ def get_lambda_class(score, pred_y, train_data, max_add):
                       indices.shape[0])
         add_ids[indices[idx_sort[-add_num:]]] = 1
         idx_sort = np.array(i[random.randint(0, 1)] for i in idx_sort)
-        print(cls)
-        print(idx_sort)
-        print(add_num)
+        # print(cls)
+        # print(idx_sort)
+        # print(add_num)
         # lambdas[cls] = cls_score[idx_sort[-add_num]] - 0.1
     return add_ids.astype('bool'), lambdas, pred_y
 

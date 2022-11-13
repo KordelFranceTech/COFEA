@@ -18,7 +18,6 @@ __factory = {
     'vgg': VGG,
     'densenet121': DenseNet121,
     'sarsa': sarsa_agent,
-    'sarsa_osi': sarsa_osi_agent,
     'e_sarsa': expected_sarsa_agent,
     'e_sarsa_osi': expected_sarsa_osi_agent,
     'q_learn': q_learn_agent,
