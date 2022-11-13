@@ -4,6 +4,7 @@
 import numpy as np
 from .params import *
 from .agent import Agent
+from CoFEA.environments import environment
 from MaciNet.supervised_learning import ParticleSwarmOptimizedNN
 from MaciNet.deep_learning import NeuralNetwork
 from MaciNet.deep_learning.layers import Activation, Dense
@@ -12,6 +13,7 @@ from MaciNet.deep_learning.optimizers import Adam
 import gym
 
 env = gym.make('CliffWalking-v0')
+# env = environment.current_environment
 
 
 def sarsa_osi_agent():
@@ -72,7 +74,7 @@ class SarsaOsiAgent(Agent):
                         n_generations=3)
 
 
-    def build_nn(self, n_inputs, n_outputs):
+    def build_nn(self, n_inputs, n_outputs, debug:bool=False):
         # Model builder
         def model_builder(n_inputs, n_outputs):
             model = NeuralNetwork(optimizer=Adam(), loss=CrossEntropy)
@@ -90,12 +92,13 @@ class SarsaOsiAgent(Agent):
         cognitive_weight = 0.8
         social_weight = 0.8
 
-        print("\nPopulation Size: %d" % population_size)
-        print("Generations: %d" % n_generations)
-        print("")
-        print("\nInertia Weight: %.2f" % inertia_weight)
-        print("Cognitive Weight: %.2f" % cognitive_weight)
-        print("Social Weight: %.2f" % social_weight)
+        if debug:
+            print("\nPopulation Size: %d" % population_size)
+            print("Generations: %d" % n_generations)
+            print("")
+            print("\nInertia Weight: %.2f" % inertia_weight)
+            print("Cognitive Weight: %.2f" % cognitive_weight)
+            print("Social Weight: %.2f" % social_weight)
 
         model = ParticleSwarmOptimizedNN(population_size=population_size,
                                          inertia_weight=inertia_weight,

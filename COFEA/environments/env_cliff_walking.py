@@ -12,7 +12,7 @@ UP = 0
 RIGHT = 1
 DOWN = 2
 LEFT = 3
-SIZE = "large"
+SIZE = "mega"
 
 
 class CliffWalkingEnv(Env):
@@ -68,6 +68,10 @@ class CliffWalkingEnv(Env):
             self.shape = (4, 12)
         elif SIZE == "large":
             self.shape = (8, 24)
+        elif SIZE == "mega":
+            self.shape = (16, 48)
+        elif SIZE == "giga":
+            self.shape = (32, 96)
         self.start_state_index = np.ravel_multi_index((3, 0), self.shape)
 
         self.nS = np.prod(self.shape)
@@ -77,9 +81,15 @@ class CliffWalkingEnv(Env):
         if SIZE == "small":
             self._cliff = np.zeros(self.shape, dtype=bool)
             self._cliff[3, 1:-1] = True
-        else:
+        elif SIZE == "large":
             self._cliff = np.zeros(self.shape, dtype=bool)
-            self._cliff[6, 1:-1] = True
+            self._cliff[6, 1:-2] = True
+        elif SIZE == "mega":
+            self._cliff = np.zeros(self.shape, dtype=bool)
+            self._cliff[12, 1:-4] = True
+        elif SIZE == "giga":
+            self._cliff = np.zeros(self.shape, dtype=bool)
+            self._cliff[24, 1:-8] = True
 
         # Calculate transition probabilities and rewards
         self.P = {}
