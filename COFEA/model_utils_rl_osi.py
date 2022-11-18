@@ -16,6 +16,8 @@ def train_model(model, env, config, debug=False):
         config: training config
         criterion
     """
+
+
     global episodeReward
     episodeReward = 0
     totalReward = {
@@ -44,8 +46,11 @@ def train_model(model, env, config, debug=False):
             action2 = model.choose_action_osi(state2, env)
 
             # Learning the Q-value
-            model.update(state1, state2, reward, action1, action2)
+            target = model.update(state1, state2, reward, action1, action2)
             # trajectory.append([state1, action1, state2, action2])
+            # if debug:
+            print(f'epoch {epoch}\n\tstate: {state1}\taction: {action2}\treward: {reward}\tnew state: {state2}\ttarget: {target}')
+
             trajectory.append([state1, action1])
             state1 = state2
             action1 = action2
@@ -59,7 +64,7 @@ def train_model(model, env, config, debug=False):
                 break
         # Append the sum of reward at the end of the episode
         totalReward[type(model).__name__].append(episodeReward)
-    # print(f"q_table: {model.Q}")
+    env.close()
     current_policy = get_best_policy_osi(pso_nn=model.Q, env=env)
     benchmark_policy = get_best_policy(benchmark_q_table)
     if debug:
@@ -67,16 +72,16 @@ def train_model(model, env, config, debug=False):
 
     # print(f"model name: {type(model).__name__}")
     # print(f"reward: {totalReward}\n")
-    return trajectory, current_policy, benchmark_policy
+    return trajectory, current_policy, benchmark_policy, totalReward
 
 
 def train(model, env, config):
     #  model = models.create(config.model_name)
     #  model = nn.DataParallel(model).cuda()
     # dataloader = dp.get_dataloader(train_data, config, is_training=True)
-    trajectory, current_policy, benchmark_policy = train_model(model, env, config)
+    trajectory, current_policy, benchmark_policy, total_reward = train_model(model, env, config)
     #  return model
-    return trajectory, current_policy, benchmark_policy
+    return trajectory, current_policy, benchmark_policy, total_reward
 
 
 def get_policy_accuracy(current: list, benchmark: list):
@@ -215,7 +220,23 @@ def evaluate(model, env, config, device):
     current_policy = get_best_policy_osi(pso_nn=model.Q, env=env)
     benchmark_policy = get_best_policy(benchmark_q_table)
     accuracy = get_policy_accuracy(current_policy, benchmark_policy)
-    return accuracy
+
+    print(f"\n\n\tOPTIMAL POLICY:\n{current_policy}")
+    policy_str: str = ""
+    for i in range(0, len(benchmark_policy)):
+        policy_str += f"{benchmark_policy[i]} "
+        if (i + 1) % 12 == 0:
+            policy_str += "\n"
+    print(policy_str)
+
+    print(f"\n\n\tCURRENT POLICY:\n{current_policy}")
+    policy_str: str = ""
+    for i in range(0, len(current_policy)):
+        policy_str += f"{current_policy[i]} "
+        if (i + 1) % 12 == 0:
+            policy_str += "\n"
+    print(policy_str)
+    return accuracy, policy_str
 
 
 

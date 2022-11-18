@@ -61,29 +61,23 @@ class ConfigRL(object):
     # logs dir
     logs_dir = 'logs'
     # model training parameters
-    epsilon = 0.1
+    epsilon = 0.5
     alpha = 0.5
-    gamma = 1
+    gamma = 0.8
     workers = 8
     sampler = None
     print_freq = 40
+    epsilon_decay_factor = 0.999
 
     def __init__(self,
-                 model_name='e_sarsa',
-                 epochs=500,
-                 max_steps=100,
+                 model_name='e_sarsa_osi',
+                 epochs=50,
+                 max_steps=300,
                  envi=env,
-                 checkpoint=None,
-                 mean=[0.4914, 0.4822, 0.4465],
-                 std=[0.2023, 0.1994, 0.2010],
-                 early_transform=['rc', 'rf'],
-                 later_transform=['re']):
+                 checkpoint=None
+                 ):
         self.model_name = model_name
         self.epochs = epochs
         self.max_steps = max_steps
         self.envi = envi
         self.checkpoint = checkpoint
-        self.early_transform = early_transform
-        self.later_transform = later_transform
-        self.mean = mean
-        self.std = std

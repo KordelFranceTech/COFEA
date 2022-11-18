@@ -72,9 +72,18 @@ class SarsaOsiAgent(Agent):
         self.Q.cofea_evolve(np.identity(env.observation_space.n)[prev_state:prev_state + 1],
                         target_vector.reshape(-1, env.action_space.n),
                         n_generations=3)
+        return target
 
 
-    def build_nn(self, n_inputs, n_outputs, debug:bool=False):
+    def build_nn(self,
+                 n_inputs,
+                 n_outputs,
+                 population_size=10,
+                 n_generations=3,
+                 inertia_weight=0.8,
+                 cognitive_weight=0.8,
+                 social_weight=0.8,
+                 debug: bool = False):
         # Model builder
         def model_builder(n_inputs, n_outputs):
             model = NeuralNetwork(optimizer=Adam(), loss=CrossEntropy)
@@ -85,12 +94,7 @@ class SarsaOsiAgent(Agent):
             return model
 
         # Print the model summary of a individual in the population
-        model_builder(n_inputs=env.observation_space.n, n_outputs=env.action_space.n).summary()
-        population_size = 10
-        n_generations = 3
-        inertia_weight = 0.8
-        cognitive_weight = 0.8
-        social_weight = 0.8
+        model_builder(n_inputs=n_inputs, n_outputs=n_outputs).summary()
 
         if debug:
             print("\nPopulation Size: %d" % population_size)
@@ -113,3 +117,4 @@ class SarsaOsiAgent(Agent):
                                    target_vector.reshape(-1, env.action_space.n),
                                    n_generations=n_generations)
         return model
+

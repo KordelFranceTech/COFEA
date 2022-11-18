@@ -12,7 +12,7 @@ UP = 0
 RIGHT = 1
 DOWN = 2
 LEFT = 3
-SIZE = "mega"
+SIZE = "large"
 
 
 class CliffWalkingEnv(Env):
@@ -66,30 +66,34 @@ class CliffWalkingEnv(Env):
     def __init__(self):
         if SIZE == "small":
             self.shape = (4, 12)
+            self.start_state_index = np.ravel_multi_index((3, 0), self.shape)
         elif SIZE == "large":
             self.shape = (8, 24)
+            self.start_state_index = np.ravel_multi_index((7, 0), self.shape)
         elif SIZE == "mega":
             self.shape = (16, 48)
+            self.start_state_index = np.ravel_multi_index((15, 0), self.shape)
         elif SIZE == "giga":
             self.shape = (32, 96)
-        self.start_state_index = np.ravel_multi_index((3, 0), self.shape)
+            self.start_state_index = np.ravel_multi_index((31, 0), self.shape)
 
+        # print(np.ravel_multi_index((3, 0), self.shape))
         self.nS = np.prod(self.shape)
         self.nA = 4
 
         # Cliff Location
         if SIZE == "small":
             self._cliff = np.zeros(self.shape, dtype=bool)
-            self._cliff[3, 1:-1] = True
+            self._cliff[-1, 1:-1] = True
         elif SIZE == "large":
             self._cliff = np.zeros(self.shape, dtype=bool)
-            self._cliff[6, 1:-2] = True
+            self._cliff[-2:, 2:-2] = True
         elif SIZE == "mega":
             self._cliff = np.zeros(self.shape, dtype=bool)
-            self._cliff[12, 1:-4] = True
+            self._cliff[-4:, 4:-4] = True
         elif SIZE == "giga":
             self._cliff = np.zeros(self.shape, dtype=bool)
-            self._cliff[24, 1:-8] = True
+            self._cliff[-8:, 8:-8] = True
 
         # Calculate transition probabilities and rewards
         self.P = {}
@@ -162,13 +166,19 @@ class CliffWalkingEnv(Env):
 
     def render(self, mode="human"):
         outfile = StringIO() if mode == "ansi" else sys.stdout
-
+        out = []
         for s in range(self.nS):
             position = np.unravel_index(s, self.shape)
             if self.s == s:
                 output = " x "
             # Print terminal state
-            elif position == (3, 11):
+            elif position == (3, 11) and SIZE == "small":
+                output = " T "
+            elif position == (7, 23) and SIZE == "large":
+                output = " T "
+            elif position == (15, 47) and SIZE == "mega":
+                output = " T "
+            elif position == (31, 95) and SIZE == "giga":
                 output = " T "
             elif self._cliff[position]:
                 output = " C "
@@ -182,7 +192,9 @@ class CliffWalkingEnv(Env):
                 output += "\n"
 
             outfile.write(output)
+            out.append(output)
         outfile.write("\n")
+        print(out)
 
         # No need to return anything for human
         if mode != "human":

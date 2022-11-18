@@ -1,5 +1,6 @@
 # ExpectedSarsaAgent.py
 
+import keras
 
 import numpy as np
 from .params import *
@@ -18,13 +19,33 @@ env = environment.current_environment
 
 def expected_sarsa_osi_agent():
     expectedSarsaAgent = ExpectedSarsaOsiAgent(
-        epsilon, alpha, gamma, env.observation_space.n,
-        env.action_space.n, env.action_space)
+        epsilon,
+        alpha,
+        gamma,
+        env.observation_space.n,
+        env.action_space.n,
+        env.action_space,
+        population_size=3,
+        n_generations=3,
+        inertia_weight=0.8,
+        cognitive_weight=0.8,
+        social_weight=0.8)
     return expectedSarsaAgent
 
 
 class ExpectedSarsaOsiAgent(Agent):
-    def __init__(self, epsilon, alpha, gamma, num_state, num_actions, action_space):
+    def __init__(self,
+                 epsilon,
+                 alpha,
+                 gamma,
+                 num_state,
+                 num_actions,
+                 action_space,
+                 population_size=3,
+                 n_generations = 3,
+                 inertia_weight = 0.8,
+                 cognitive_weight = 0.8,
+                 social_weight = 0.8):
         """
         Constructor
         Args:
@@ -40,7 +61,13 @@ class ExpectedSarsaOsiAgent(Agent):
         self.num_state = num_state
         self.num_actions = num_actions
         self.action_space = action_space
-        pso_nn = self.build_nn(self.num_state, self.num_actions)
+        pso_nn = self.build_nn(self.num_state,
+                               self.num_actions,
+							   population_size,
+							   n_generations,
+							   inertia_weight,
+							   cognitive_weight,
+							   social_weight)
         self.Q = pso_nn
         # self.Q = np.zeros((self.num_state, self.num_actions))
 
@@ -59,14 +86,19 @@ class ExpectedSarsaOsiAgent(Agent):
             None
         """
         # predict = self.Q[prev_state, prev_action]
-
+        # a = self.Q.best_individual.predict(np.identity(env.observation_space.n)[next_state])[0]
+        # print(a)
+        # print(a[0])
+        # a0 = a[0]
+        # print(a0[0])
         expected_q = 0
         # q_max = np.max(self.Q[next_state, :])
         q_max = np.max(self.Q.best_individual.predict(np.identity(env.observation_space.n)[next_state, :]))
         greedy_actions = 0
         for i in range(self.num_actions):
             # if self.Q[next_state][i] == q_max:
-            if self.Q.best_individual.predict(np.identity(env.observation_space.n)[next_state][i]) == q_max:
+            preds = self.Q.best_individual.predict(np.identity(env.observation_space.n)[next_state])[0]
+            if preds[i] == q_max:
                 greedy_actions += 1
 
         non_greedy_action_probability = self.epsilon / self.num_actions
@@ -74,12 +106,13 @@ class ExpectedSarsaOsiAgent(Agent):
 
         for i in range(self.num_actions):
             # if self.Q[next_state][i] == q_max:
-            if self.Q.best_individual.predict(np.identity(env.observation_space.n)[next_state][i]) == q_max:
+            preds = self.Q.best_individual.predict(np.identity(env.observation_space.n)[next_state])[0]
+            if preds[i] == q_max:
                 # expected_q += self.Q[next_state][i] * greedy_action_probability
-                expected_q += self.Q.best_individual.predict(np.identity(env.observation_space.n)[next_state][i]) * greedy_action_probability
+                expected_q += preds[i] * greedy_action_probability
             else:
                 # expected_q += self.Q[next_state][i] * non_greedy_action_probability
-                expected_q += self.Q.best_individual.predict(np.identity(env.observation_space.n)[next_state][i]) * non_greedy_action_probability
+                expected_q += preds[i] * non_greedy_action_probability
 
         target = reward + self.gamma * expected_q
         # self.Q[prev_state, prev_action] += self.alpha * (target - predict)
@@ -91,25 +124,31 @@ class ExpectedSarsaOsiAgent(Agent):
         self.Q.cofea_evolve(np.identity(env.observation_space.n)[prev_state:prev_state + 1],
                             target_vector.reshape(-1, env.action_space.n),
                             n_generations=3)
+        return target
 
 
-    def build_nn(self, n_inputs, n_outputs, debug:bool=False):
+    def build_nn(self,
+                 n_inputs,
+                 n_outputs,
+                 population_size=10,
+                 n_generations=3,
+                 inertia_weight=0.8,
+                 cognitive_weight=0.8,
+                 social_weight=0.8,
+                 debug: bool = False):
+
         # Model builder
         def model_builder(n_inputs, n_outputs):
             model = NeuralNetwork(optimizer=Adam(), loss=CrossEntropy)
-            model.add(Dense(16, input_shape=(n_inputs,)))
+            model.add(Dense(20, input_shape=(n_inputs,)))
             model.add(Activation('relu'))
             model.add(Dense(n_outputs))
-            model.add(Activation('softmax'))
+            model.add(Activation('linear'))
+            # model.add(Activation('softmax'))
             return model
 
         # Print the model summary of a individual in the population
-        model_builder(n_inputs=env.observation_space.n, n_outputs=env.action_space.n).summary()
-        population_size = 10
-        n_generations = 3
-        inertia_weight = 0.8
-        cognitive_weight = 0.8
-        social_weight = 0.8
+        model_builder(n_inputs=n_inputs, n_outputs=n_outputs).summary()
 
         if debug:
             print("\nPopulation Size: %d" % population_size)
