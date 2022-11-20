@@ -29,7 +29,7 @@ def names():
     return sorted(__factory.keys())
 
 
-def create(name, *args, **kwargs):
+def create(name, env, *args, **kwargs):
     """
     Create a model instance.
     Parameters
@@ -61,4 +61,4 @@ def create(name, *args, **kwargs):
     """
     if name not in __factory:
         raise KeyError("Unknown model:", name)
-    return __factory[name](*args, **kwargs)
+    return __factory[name](env, *args, **kwargs)

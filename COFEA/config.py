@@ -42,10 +42,6 @@ class Config(object):
 
 
 
-import gym
-
-env = gym.make('CliffWalking-v0')
-
 """
 self.epsilon = epsilon
 self.alpha = alpha
@@ -68,16 +64,17 @@ class ConfigRL(object):
     sampler = None
     print_freq = 40
     epsilon_decay_factor = 0.999
+    til_done = True
 
     def __init__(self,
-                 model_name='e_sarsa_osi',
-                 epochs=50,
+                 model_name='q_learn_osi',
+                 epochs=100,
                  max_steps=300,
-                 envi=env,
+                 env=None,
                  checkpoint=None
                  ):
         self.model_name = model_name
         self.epochs = epochs
         self.max_steps = max_steps
-        self.envi = envi
+        self.env = env
         self.checkpoint = checkpoint

@@ -1,27 +1,17 @@
 # ExpectedSarsaAgent.py
 
-import keras
-
 import numpy as np
 from .params import *
 from .agent import Agent
-from CoFEA.environments import environment
-from MaciNet.supervised_learning import ParticleSwarmOptimizedNN
-from MaciNet.deep_learning import NeuralNetwork
-from MaciNet.deep_learning.layers import Activation, Dense
-from MaciNet.deep_learning.loss_functions import CrossEntropy
-from MaciNet.deep_learning.optimizers import Adam
-import gym
-
-# env = gym.make('CliffWalking-v0')
-env = environment.current_environment
+from CoFEA.models_rl.neural_net_arch import build_nn
 
 
-def expected_sarsa_osi_agent():
+def expected_sarsa_osi_agent(env):
     expectedSarsaAgent = ExpectedSarsaOsiAgent(
         epsilon,
         alpha,
         gamma,
+        env,
         env.observation_space.n,
         env.action_space.n,
         env.action_space,
@@ -38,6 +28,7 @@ class ExpectedSarsaOsiAgent(Agent):
                  epsilon,
                  alpha,
                  gamma,
+                 env,
                  num_state,
                  num_actions,
                  action_space,
@@ -58,16 +49,18 @@ class ExpectedSarsaOsiAgent(Agent):
         self.epsilon = epsilon
         self.alpha = alpha
         self.gamma = gamma
+        self.env = env
         self.num_state = num_state
         self.num_actions = num_actions
         self.action_space = action_space
-        pso_nn = self.build_nn(self.num_state,
-                               self.num_actions,
-							   population_size,
-							   n_generations,
-							   inertia_weight,
-							   cognitive_weight,
-							   social_weight)
+        pso_nn = build_nn(self.num_state,
+                           self.num_actions,
+                           env,
+                           population_size,
+                           n_generations,
+                           inertia_weight,
+                           cognitive_weight,
+                           social_weight)
         self.Q = pso_nn
         # self.Q = np.zeros((self.num_state, self.num_actions))
 
@@ -93,11 +86,11 @@ class ExpectedSarsaOsiAgent(Agent):
         # print(a0[0])
         expected_q = 0
         # q_max = np.max(self.Q[next_state, :])
-        q_max = np.max(self.Q.best_individual.predict(np.identity(env.observation_space.n)[next_state, :]))
+        q_max = np.max(self.Q.best_individual.predict(np.identity(self.env.observation_space.n)[next_state, :]))
         greedy_actions = 0
         for i in range(self.num_actions):
             # if self.Q[next_state][i] == q_max:
-            preds = self.Q.best_individual.predict(np.identity(env.observation_space.n)[next_state])[0]
+            preds = self.Q.best_individual.predict(np.identity(self.env.observation_space.n)[next_state])[0]
             if preds[i] == q_max:
                 greedy_actions += 1
 
@@ -106,7 +99,7 @@ class ExpectedSarsaOsiAgent(Agent):
 
         for i in range(self.num_actions):
             # if self.Q[next_state][i] == q_max:
-            preds = self.Q.best_individual.predict(np.identity(env.observation_space.n)[next_state])[0]
+            preds = self.Q.best_individual.predict(np.identity(self.env.observation_space.n)[next_state])[0]
             if preds[i] == q_max:
                 # expected_q += self.Q[next_state][i] * greedy_action_probability
                 expected_q += preds[i] * greedy_action_probability
@@ -118,56 +111,11 @@ class ExpectedSarsaOsiAgent(Agent):
         # self.Q[prev_state, prev_action] += self.alpha * (target - predict)
 
         # target = reward + self.gamma * np.max(self.Q.best_individual.predict(np.identity(env.observation_space.n)[next_state:next_state + 1]))
-        target_vector = self.Q.best_individual.predict(np.identity(env.observation_space.n)[prev_state:prev_state + 1])[0]
+        target_vector = self.Q.best_individual.predict(np.identity(self.env.observation_space.n)[prev_state:prev_state + 1])[0]
         # target_vector = np.random.randint(0, env.action_space.n)
         target_vector[prev_action] = target
-        self.Q.cofea_evolve(np.identity(env.observation_space.n)[prev_state:prev_state + 1],
-                            target_vector.reshape(-1, env.action_space.n),
+        self.Q.cofea_evolve(np.identity(self.env.observation_space.n)[prev_state:prev_state + 1],
+                            target_vector.reshape(-1, self.env.action_space.n),
                             n_generations=3)
         return target
 
-
-    def build_nn(self,
-                 n_inputs,
-                 n_outputs,
-                 population_size=10,
-                 n_generations=3,
-                 inertia_weight=0.8,
-                 cognitive_weight=0.8,
-                 social_weight=0.8,
-                 debug: bool = False):
-
-        # Model builder
-        def model_builder(n_inputs, n_outputs):
-            model = NeuralNetwork(optimizer=Adam(), loss=CrossEntropy)
-            model.add(Dense(20, input_shape=(n_inputs,)))
-            model.add(Activation('relu'))
-            model.add(Dense(n_outputs))
-            model.add(Activation('linear'))
-            # model.add(Activation('softmax'))
-            return model
-
-        # Print the model summary of a individual in the population
-        model_builder(n_inputs=n_inputs, n_outputs=n_outputs).summary()
-
-        if debug:
-            print("\nPopulation Size: %d" % population_size)
-            print("Generations: %d" % n_generations)
-            print("")
-            print("\nInertia Weight: %.2f" % inertia_weight)
-            print("Cognitive Weight: %.2f" % cognitive_weight)
-            print("Social Weight: %.2f" % social_weight)
-
-        model = ParticleSwarmOptimizedNN(population_size=population_size,
-                                         inertia_weight=inertia_weight,
-                                         cognitive_weight=cognitive_weight,
-                                         social_weight=social_weight,
-                                         max_velocity=5,
-                                         model_builder=model_builder)
-
-        state = env.reset()
-        target_vector = np.array([1, 0, 0, 0])
-        model = model.cofea_evolve(np.identity(env.observation_space.n)[state:state + 1],
-                                   target_vector.reshape(-1, env.action_space.n),
-                                   n_generations=n_generations)
-        return model

@@ -1,20 +1,9 @@
-import os
-import sys
+
 import torch
-import gym
-import argparse
-import copy
-# import model_utils as mu
 import model_utils_rl_osi as mu
-# from util.data import data_process as dp
 from util.data import data_process_rl_osi as dp
-# from config import Config
 from config import ConfigRL
-from benchmark import get_best_policy, benchmark_q_table
-from util.serialization import load_checkpoint, save_checkpoint
-import datasets
 from environments import env_frozen_lake, env_cliff_walking, environment
-# import models
 import models_rl as models
 import numpy as np
 import torch.multiprocessing as mp
@@ -56,9 +45,9 @@ def parallel_train(nets, train_data, data_dir, configs):
 
 def adjust_config(config, num_examples, iter_step):
     repeat = 20 * (1.1 ** iter_step)
-    epochs = list(range(300, 20, -20))
+    epochs = list(range(60, 20, -20))
     config.epochs = epochs[iter_step]
-    config.epochs = int((50000 * repeat) // num_examples)
+    config.epochs = int((50000 * repeat) // num_examples / 50)
     # config.epochs = 200
     config.epochs = 20
     config.step_size = max(int(config.epochs // 3), 1)
@@ -68,7 +57,7 @@ def adjust_config(config, num_examples, iter_step):
 def spaco_rl_osi(map,
                  configs,
                  iter_steps=10,
-                 gamma=0.0,
+                 gamma=0.8,
                  train_ratio=0.2,
                  regularizer='soft',
                  population_size=3,
@@ -120,7 +109,7 @@ def spaco_rl_osi(map,
 
     for obs in range(num_obs):
         configs[obs] = adjust_config(configs[obs], 1000, 0)
-        net = models.create(configs[obs].model_name)
+        net = models.create(configs[obs].model_name, map)
         if debug:
             print(type(net))
         train_data, _, _, _ = mu.train(net, train_env, configs[obs])
@@ -208,7 +197,7 @@ def spaco_rl_osi(map,
             new_train_data = train_data
 
 
-            net = models.create(configs[obs].model_name)
+            net = models.create(configs[obs].model_name, map)
             mu.train(net, train_env, configs[obs])
 
             # update y
@@ -273,21 +262,34 @@ def spaco_rl_osi(map,
 # data = datasets.create(dataset, data_dir)
 
 
-config1 = ConfigRL(model_name='e_sarsa_osi')
-config2 = ConfigRL(model_name='e_sarsa_osi')
+# e = {"map":env_cliff_walking.CliffWalkingEnv(), "type": "small"}
+# environment.set_environment(e)
+# env_cliff_walking.update_map_type()
+#
+# config1 = ConfigRL(model_name='e_sarsa_osi', env=e)
+# config2 = ConfigRL(model_name='e_sarsa_osi', env=e)
+#
+# print(spaco_rl_osi(
+#       e["map"],
+#       [config1, config2],
+#       iter_steps=3,
+#       gamma=0.8,
+#       regularizer="soft"))
+
+
 # config1 = ConfigRL(model_name='q_learn_osi')
 # config2 = ConfigRL(model_name='q_learn_osi')
-
-e = env_cliff_walking.CliffWalkingEnv()
-# e = env_frozen_lake.FrozenLakeEnv()
-environment.current_environment = e
-print(spaco_rl_osi(
-      e,
-      [config1, config2],
-      iter_steps=3,
-      gamma=0.3,
-      regularizer="soft"))
-x
+#
+# e = env_cliff_walking.CliffWalkingEnv()
+# e.reset()
+# environment.current_environment = e
+# print(spaco_rl_osi(
+#       e,
+#       [config1, config2],
+#       iter_steps=3,
+#       gamma=0.8,
+#       regularizer="soft"))
+# x
 
 #
 # for i in range(0, 1000):
@@ -326,10 +328,12 @@ def gimme_results(N: int,
     results_dict["inertia_weight"] = inertia_weight
     results_dict["cognitive_weight"] = cognitive_weight
     results_dict["social_weight"] = social_weight
-    maps = [env_cliff_walking.CliffWalkingEnv()]
-    # agents: list = ["e_sarsa_osi", "sarsa_osi", "q_learn_osi"]
+    maps = [{"map":env_cliff_walking.CliffWalkingEnv(), "type": "large"}]
     agents: list = ["e_sarsa_osi"]
+    # agents: list = ["e_sarsa_osi", "q_learn_osi"]
+    # agents: list = ["q_learn_osi"]
     for map in maps:
+        environment.set_environment(map)
         for agent_i in agents:
             for agent_j in agents:
                 # if agent_i == "sarsa" and agent_j == "q_learn":
@@ -344,8 +348,8 @@ def gimme_results(N: int,
                 print(f"agent i: {agent_i}")
                 print(f"agent j: {agent_j}")
 
-                config1 = ConfigRL(model_name=agent_i)
-                config2 = ConfigRL(model_name=agent_j)
+                config1 = ConfigRL(model_name=agent_i, env=map["map"])
+                config2 = ConfigRL(model_name=agent_j, env=map["map"])
                 success_runs: int = 0
                 success_results: list = []
 
@@ -354,7 +358,7 @@ def gimme_results(N: int,
                     if success_runs == N:
                         break
                     try:
-                        res = spaco_rl_osi(map,
+                        res = spaco_rl_osi(map["map"],
                                            [config1, config2],
                                            iter_steps=iter_steps,
                                            gamma=gamma,
@@ -367,7 +371,6 @@ def gimme_results(N: int,
                                            )
                         success_runs += 1
                         success_results.append(res)
-                        map.render()
 
                     except AssertionError:
                         print(f"{v} assertion error")
@@ -385,13 +388,51 @@ def gimme_results(N: int,
 
 
 
-# a = gimme_results(1, iter_steps=1, gamma=0.3, regularizer="soft", population_size=3, n_generations=3)
+# a = gimme_results(1, iter_steps=3, gamma=0.3, regularizer="soft", population_size=3, n_generations=3)
 # with open('osi_results.txt', 'w') as f:
 #     f.write(f"{a}\n\n")
+# a = gimme_results(1, iter_steps=1, gamma=0.3, regularizer="soft", population_size=3, n_generations=3)
+# with open('osi_results.txt', 'a') as f:
+#     f.write(f"{a}\n\n")
+# a = gimme_results(1, iter_steps=1, gamma=0.3, regularizer="soft", population_size=10, n_generations=3)
+# with open('osi_results.txt', 'a') as f:
+#     f.write(f"{a}\n\n")
+# a = gimme_results(1, iter_steps=1, gamma=0.3, regularizer="soft", population_size=3, n_generations=10)
+# with open('osi_results.txt', 'a') as f:
+#     f.write(f"{a}\n\n")
+# a = gimme_results(1, iter_steps=1, gamma=0.3, regularizer="soft", population_size=10, n_generations=10)
+# with open('osi_results.txt', 'a') as f:
+#     f.write(f"{a}\n\n")
+# a = gimme_results(3, iter_steps=3, gamma=0.3, regularizer="soft", population_size=20, n_generations=3)
+# with open('osi_results.txt', 'a') as f:
+#     f.write(f"{a}\n\n")
 
-a = gimme_results(1, iter_steps=10, gamma=0.3, regularizer="soft", population_size=10, n_generations=3)
+
+a = gimme_results(3, iter_steps=1, gamma=0.3, regularizer="soft", population_size=10, n_generations=3, inertia_weight=0.9)
+with open('osi_results.txt', 'w') as f:
+    f.write(f"{a}\n\n")
+a = gimme_results(3, iter_steps=3, gamma=0.3, regularizer="soft", population_size=10, n_generations=3, inertia_weight=0.9)
 with open('osi_results.txt', 'a') as f:
     f.write(f"{a}\n\n")
+a = gimme_results(3, iter_steps=1, gamma=0.3, regularizer="soft", population_size=100, n_generations=3, inertia_weight=0.9)
+with open('osi_results.txt', 'a') as f:
+    f.write(f"{a}\n\n")
+
+
+# a = gimme_results(3, iter_steps=1, gamma=0.3, regularizer="soft", population_size=10, n_generations=3, inertia_weight=0.5)
+# with open('osi_results.txt', 'w') as f:
+#     f.write(f"{a}\n\n")
+# a = gimme_results(3, iter_steps=1, gamma=0.3, regularizer="soft", population_size=10, n_generations=3, inertia_weight=0.9)
+# with open('osi_results.txt', 'a') as f:
+#     f.write(f"{a}\n\n")
+# a = gimme_results(3, iter_steps=1, gamma=0.3, regularizer="soft", population_size=10, n_generations=3, inertia_weight=1.5)
+# with open('osi_results.txt', 'a') as f:
+#     f.write(f"{a}\n\n")
+# a = gimme_results(3, iter_steps=1, gamma=0.3, regularizer="soft", population_size=10, n_generations=3, inertia_weight=2.0)
+# with open('osi_results.txt', 'a') as f:
+#     f.write(f"{a}\n\n")
+
+
 # a = gimme_results(100, iter_steps=1, gamma=0.5, regularizer="soft")
 # with open('osi_results.txt', 'a') as f:
 #         f.write(f"{a}\n\n")
@@ -404,14 +445,12 @@ with open('osi_results.txt', 'a') as f:
 # a = gimme_results(100, iter_steps=3, gamma=0.8, regularizer="soft")
 # with open('osi_results.txt', 'a') as f:
 #         f.write(f"{a}\n\n")
-
 # a = gimme_results(10, iter_steps=1, gamma=0.3, regularizer="soft")
 # with open('results_q.txt', 'a') as f:
 #         f.write(f"{a}\n\n")
 # a = gimme_results(10, iter_steps=1, gamma=0.5, regularizer="soft")
 # with open('results_q.txt', 'a') as f:
 #         f.write(f"{a}\n\n")
-
 # a = gimme_results(10, iter_steps=3, gamma=0.3, regularizer="soft")
 # with open('results_q.txt', 'a') as f:
 #         f.write(f"{a}\n\n")

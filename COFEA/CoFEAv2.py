@@ -27,31 +27,41 @@ def spaco_rl_osi(map,
     gamma: spaco hyperparameter
     train_ratio: initiate training dataset ratio
     """
-    net = models.create(configs[0].model_name)
+    net = models.create(configs[0].model_name, map)
     traj, current_policy, benchmark_policy, total_reward = mu.train(net, map, configs[0])
     acc, p = mu.evaluate(net, map, configs[0], 0)
     print(f"accuracy is: {acc}")
     print(f"total reward: {total_reward}")
-    return p
+    return acc
 
 
-#
-config1 = ConfigRL(model_name='e_sarsa_osi')
-config2 = ConfigRL(model_name='e_sarsa_osi')
-# config1 = ConfigRL(model_name='q_learn_osi')
-# config2 = ConfigRL(model_name='q_learn_osi')
+e = {"map":env_cliff_walking.CliffWalkingEnv(), "type": "large"}
+environment.set_environment(e)
 
-e = env_cliff_walking.CliffWalkingEnv()
-# e = env_frozen_lake.FrozenLakeEnv()
-environment.current_environment = e
+config1 = ConfigRL(model_name='e_sarsa_osi', env=e)
+config2 = ConfigRL(model_name='e_sarsa_osi', env=e)
 print(spaco_rl_osi(
-      e,
+      e["map"],
       [config1, config2],
       iter_steps=3,
       gamma=0.8,
       regularizer="soft"))
+t
+#
+# e = {"map":env_cliff_walking.CliffWalkingEnv(), "type": "small"}
+# environment.set_environment(e)
+# env_cliff_walking.update_map_type()
+#
+# config1 = ConfigRL(model_name='q_learn_osi', env=e)
+# config2 = ConfigRL(model_name='q_learn_osi', env=e)
+#
+# print(spaco_rl_osi(
+#       e["map"],
+#       [config1, config2],
+#       iter_steps=3,
+#       gamma=0.8,
+#       regularizer="soft"))
 
-x
 
 
 def gimme_results(N: int,
@@ -75,10 +85,14 @@ def gimme_results(N: int,
     results_dict["inertia_weight"] = inertia_weight
     results_dict["cognitive_weight"] = cognitive_weight
     results_dict["social_weight"] = social_weight
-    maps = [env_cliff_walking.CliffWalkingEnv()]
-    # agents: list = ["e_sarsa_osi", "sarsa_osi", "q_learn_osi"]
-    agents: list = ["e_sarsa_osi"]
+    maps = [{"map": env_cliff_walking.CliffWalkingEnv(), "type": "large"}]
+    # maps = [{"map": env_frozen_lake.FrozenLakeEnv(), "type": "16x16"}]
+    agents: list = ["e_sarsa_osi", "q_learn_osi"]
+    # agents: list = ["q_learn_osi"]
+    # agents: list = ["e_sarsa_osi"]
     for map in maps:
+        # print(map["map"])
+        environment.set_environment(map)
         for agent_i in agents:
             for agent_j in agents:
                 # if agent_i == "sarsa" and agent_j == "q_learn":
@@ -92,9 +106,8 @@ def gimme_results(N: int,
 
                 print(f"agent i: {agent_i}")
                 print(f"agent j: {agent_j}")
-
-                config1 = ConfigRL(model_name=agent_i)
-                config2 = ConfigRL(model_name=agent_j)
+                config1 = ConfigRL(model_name=agent_i, env=map["map"])
+                config2 = ConfigRL(model_name=agent_j, env=map["map"])
                 success_runs: int = 0
                 success_results: list = []
 
@@ -103,7 +116,7 @@ def gimme_results(N: int,
                     if success_runs == N:
                         break
                     try:
-                        res = spaco_rl_osi(map,
+                        res = spaco_rl_osi(map["map"],
                                            [config1, config2],
                                            iter_steps=iter_steps,
                                            gamma=gamma,
@@ -116,7 +129,6 @@ def gimme_results(N: int,
                                            )
                         success_runs += 1
                         success_results.append(res)
-                        map.render()
 
                     except AssertionError:
                         print(f"{v} assertion error")
@@ -127,10 +139,10 @@ def gimme_results(N: int,
                     # except AttributeError:
                     #     print(f"{v} attribution error")
                 model = f"{agent_i}-{agent_j}"
+                print(f"success results: {success_results}")
                 # results_dict[model] = sum([i for i in success_results]) / N
                 results_dict[model] = [success_results, sum([i for i in success_results]) / N]
     print(results_dict)
-    x
     return results_dict
 
 
@@ -139,9 +151,13 @@ def gimme_results(N: int,
 # with open('osi_results.txt', 'w') as f:
 #     f.write(f"{a}\n\n")
 
-a = gimme_results(1, iter_steps=10, gamma=0.3, regularizer="soft", population_size=10, n_generations=3)
-with open('osi_results.txt', 'a') as f:
+a = gimme_results(3, iter_steps=1, gamma=0.3, regularizer="soft", population_size=100, n_generations=5, inertia_weight=0.9)
+with open('osi_results.txt', 'w') as f:
     f.write(f"{a}\n\n")
+# a = gimme_results(3, iter_steps=1, gamma=0.3, regularizer="soft", population_size=10, n_generations=3, inertia_weight=0.9)
+# with open('osi_results.txt', 'a') as f:
+#     f.write(f"{a}\n\n")
+
 # a = gimme_results(100, iter_steps=1, gamma=0.5, regularizer="soft")
 # with open('osi_results.txt', 'a') as f:
 #         f.write(f"{a}\n\n")
@@ -154,14 +170,12 @@ with open('osi_results.txt', 'a') as f:
 # a = gimme_results(100, iter_steps=3, gamma=0.8, regularizer="soft")
 # with open('osi_results.txt', 'a') as f:
 #         f.write(f"{a}\n\n")
-
 # a = gimme_results(10, iter_steps=1, gamma=0.3, regularizer="soft")
 # with open('results_q.txt', 'a') as f:
 #         f.write(f"{a}\n\n")
 # a = gimme_results(10, iter_steps=1, gamma=0.5, regularizer="soft")
 # with open('results_q.txt', 'a') as f:
 #         f.write(f"{a}\n\n")
-
 # a = gimme_results(10, iter_steps=3, gamma=0.3, regularizer="soft")
 # with open('results_q.txt', 'a') as f:
 #         f.write(f"{a}\n\n")
@@ -171,7 +185,6 @@ with open('osi_results.txt', 'a') as f:
 # a = gimme_results(10, iter_steps=3, gamma=0.8, regularizer="soft")
 # with open('results.txt', 'a') as f:
 #         f.write(f"{a}\n\n")
-
 # a = gimme_results(10, iter_steps=3, gamma=3, regularizer="soft")
 # with open('results_q.txt', 'a') as f:
 #         f.write(f"{a}\n\n")

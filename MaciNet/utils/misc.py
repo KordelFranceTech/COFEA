@@ -14,6 +14,7 @@ bar_widgets = [
     ' ', progressbar.ETA()
 ]
 
+
 class Plot():
     def __init__(self): 
         self.cmap = plt.get_cmap('viridis')

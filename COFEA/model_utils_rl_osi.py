@@ -1,9 +1,103 @@
 import torch
 from torch import nn
 # from util.data_rl import data_process as dp
-from benchmark import get_best_policy, get_best_policy_osi, benchmark_q_table
+from benchmark import get_best_policy, get_best_policy_osi, get_benchmark_policy, print_policy_string
 import numpy as np
 import random
+
+
+def train_model_extended_trajectories(model, env, config, debug=False):
+    """
+    train model given the dataloader the criterion,
+    stop when epochs are reached
+    params:
+        model: model for training
+        dataloader: training data
+        config: training config
+        criterion
+    """
+    global episodeReward
+    episodeReward = 0
+    totalReward = {
+        type(model).__name__: [],
+    }
+
+    if debug:
+        print(f"model name: {type(model).__name__}")
+        print(f"reward: {totalReward}\n")
+    global trajectory
+    trajectory = []
+    til_done = config.til_done
+
+    for epoch in range(0, config.epochs):
+        # Initialize the necessary parameters before
+        # the start of the episode
+        t = 0
+        state1 = env.reset()
+        action1 = model.choose_action_osi(state1, env)
+        state2, reward, done, info = env.step(action1)
+        action2 = model.choose_action_osi(state2, env)
+        episodeReward = 0
+        done = False
+        if til_done:
+            while not done:
+                state2, reward, done, info = env.step(action1)
+                # Choosing the next action
+                action2 = model.choose_action_osi(state2, env)
+                # Getting the next state, reward, and other parameters
+                state3, reward, done, info = env.step(action2)
+                # Choosing the next action
+                action3 = model.choose_action_osi(state3, env)
+                # Learning the Q-value
+                target = model.update(state2, state3, reward, action2, action3)
+                # trajectory.append([state1, action1, state2, action2])
+                if debug:
+                    print(f'epoch {epoch}\n\tstate: {state2}\taction: {action3}\treward: {reward}\tnew state: {state3}\ttarget: {target}')
+                trajectory.append([state1, action1, state2, action2])
+                state1 = state2
+                action1 = action2
+                state2 = state3
+                action2 = action3
+                # Updating the respective values
+                t += 1
+                episodeReward += reward
+        else:
+            while t < config.max_steps:
+                state2, reward, done, info = env.step(action1)
+                # Choosing the next action
+                action2 = model.choose_action_osi(state2, env)
+                # Getting the next state, reward, and other parameters
+                state3, reward, done, info = env.step(action2)
+                # Choosing the next action
+                action3 = model.choose_action_osi(state3, env)
+                # Learning the Q-value
+                target = model.update(state2, state3, reward, action2, action3)
+                # trajectory.append([state1, action1, state2, action2])
+                if debug:
+                    print(f'epoch {epoch}\n\tstate: {state2}\taction: {action3}\treward: {reward}\tnew state: {state3}\ttarget: {target}')
+                trajectory.append([state1, action1, state2, action2])
+                state1 = state2
+                action1 = action2
+                state2 = state3
+                action2 = action3
+                # Updating the respective values
+                t += 1
+                episodeReward += reward
+                # If at the end of learning process
+                if done:
+                    break
+
+        # Append the sum of reward at the end of the episode
+        totalReward[type(model).__name__].append(episodeReward)
+    env.close()
+    current_policy = get_best_policy_osi(pso_nn=model.Q, env=env)
+    benchmark_policy = get_best_policy(get_benchmark_policy(type(model).__name__))
+    if debug:
+        print(f"accuracy: {get_policy_accuracy(current_policy, benchmark_policy)}")
+    # print(f"model name: {type(model).__name__}")
+    # print(f"reward: {totalReward}\n")
+    return trajectory, current_policy, benchmark_policy, totalReward
+
 
 
 def train_model(model, env, config, debug=False):
@@ -16,8 +110,6 @@ def train_model(model, env, config, debug=False):
         config: training config
         criterion
     """
-
-
     global episodeReward
     episodeReward = 0
     totalReward = {
@@ -29,6 +121,7 @@ def train_model(model, env, config, debug=False):
         print(f"reward: {totalReward}\n")
     global trajectory
     trajectory = []
+    til_done = config.til_done
 
     for epoch in range(0, config.epochs):
         # Initialize the necessary parameters before
@@ -37,39 +130,52 @@ def train_model(model, env, config, debug=False):
         state1 = env.reset()
         action1 = model.choose_action_osi(state1, env)
         episodeReward = 0
-        while t < config.max_steps:
 
+        if til_done:
             # Getting the next state, reward, and other parameters
             state2, reward, done, info = env.step(action1)
-
             # Choosing the next action
             action2 = model.choose_action_osi(state2, env)
-
             # Learning the Q-value
             target = model.update(state1, state2, reward, action1, action2)
             # trajectory.append([state1, action1, state2, action2])
-            # if debug:
-            print(f'epoch {epoch}\n\tstate: {state1}\taction: {action2}\treward: {reward}\tnew state: {state2}\ttarget: {target}')
-
+            if debug:
+                print(f'epoch {epoch}\n\tstate: {state1}\taction: {action2}\treward: {reward}\tnew state: {state2}\ttarget: {target}')
             trajectory.append([state1, action1])
             state1 = state2
             action1 = action2
-
             # Updating the respective values
             t += 1
             episodeReward += reward
+        else:
+            while t < config.max_steps:
+                # Getting the next state, reward, and other parameters
+                state2, reward, done, info = env.step(action1)
+                # Choosing the next action
+                action2 = model.choose_action_osi(state2, env)
 
-            # If at the end of learning process
-            if done:
-                break
+                # Learning the Q-value
+                target = model.update(state1, state2, reward, action1, action2)
+                # trajectory.append([state1, action1, state2, action2])
+                if debug:
+                    print(f'epoch {epoch}\n\tstate: {state1}\taction: {action2}\treward: {reward}\tnew state: {state2}\ttarget: {target}')
+                trajectory.append([state1, action1])
+                state1 = state2
+                action1 = action2
+                # Updating the respective values
+                t += 1
+                episodeReward += reward
+                # If at the end of learning process
+                if done:
+                    break
+
         # Append the sum of reward at the end of the episode
         totalReward[type(model).__name__].append(episodeReward)
     env.close()
     current_policy = get_best_policy_osi(pso_nn=model.Q, env=env)
-    benchmark_policy = get_best_policy(benchmark_q_table)
+    benchmark_policy = get_best_policy(get_benchmark_policy(type(model).__name__))
     if debug:
         print(f"accuracy: {get_policy_accuracy(current_policy, benchmark_policy)}")
-
     # print(f"model name: {type(model).__name__}")
     # print(f"reward: {totalReward}\n")
     return trajectory, current_policy, benchmark_policy, totalReward
@@ -218,26 +324,14 @@ def evaluate(model, env, config, device):
     env.close()
     # return 100*np.sum(rewards)/len(rewards)
     current_policy = get_best_policy_osi(pso_nn=model.Q, env=env)
-    benchmark_policy = get_best_policy(benchmark_q_table)
+    benchmark_policy = get_best_policy(get_benchmark_policy(type(model).__name__))
     accuracy = get_policy_accuracy(current_policy, benchmark_policy)
 
-    print(f"\n\n\tOPTIMAL POLICY:\n{current_policy}")
-    policy_str: str = ""
-    for i in range(0, len(benchmark_policy)):
-        policy_str += f"{benchmark_policy[i]} "
-        if (i + 1) % 12 == 0:
-            policy_str += "\n"
-    print(policy_str)
-
-    print(f"\n\n\tCURRENT POLICY:\n{current_policy}")
-    policy_str: str = ""
-    for i in range(0, len(current_policy)):
-        policy_str += f"{current_policy[i]} "
-        if (i + 1) % 12 == 0:
-            policy_str += "\n"
-    print(policy_str)
+    curr_policy_str: str = print_policy_string(benchmark_policy)
+    print(f"\n\n\tOPTIMAL POLICY:\n{curr_policy_str}")
+    policy_str: str = print_policy_string(current_policy)
+    print(f"\n\n\tCURRENT POLICY:\n{policy_str}")
     return accuracy, policy_str
-
 
 
 
