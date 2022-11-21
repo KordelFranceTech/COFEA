@@ -411,12 +411,15 @@ def gimme_results(N: int,
 a = gimme_results(3, iter_steps=1, gamma=0.3, regularizer="soft", population_size=10, n_generations=3, inertia_weight=0.9)
 with open('osi_results.txt', 'w') as f:
     f.write(f"{a}\n\n")
-a = gimme_results(3, iter_steps=3, gamma=0.3, regularizer="soft", population_size=10, n_generations=3, inertia_weight=0.9)
-with open('osi_results.txt', 'a') as f:
-    f.write(f"{a}\n\n")
 a = gimme_results(3, iter_steps=1, gamma=0.3, regularizer="soft", population_size=100, n_generations=3, inertia_weight=0.9)
 with open('osi_results.txt', 'a') as f:
     f.write(f"{a}\n\n")
+# a = gimme_results(3, iter_steps=2, gamma=0.3, regularizer="soft", population_size=10, n_generations=3, inertia_weight=0.9)
+# with open('osi_results.txt', 'a') as f:
+#     f.write(f"{a}\n\n")
+# a = gimme_results(3, iter_steps=2, gamma=0.3, regularizer="soft", population_size=100, n_generations=3, inertia_weight=0.9)
+# with open('osi_results.txt', 'a') as f:
+#     f.write(f"{a}\n\n")
 
 
 # a = gimme_results(3, iter_steps=1, gamma=0.3, regularizer="soft", population_size=10, n_generations=3, inertia_weight=0.5)

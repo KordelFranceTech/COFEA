@@ -82,5 +82,12 @@
 {'iter_steps': 1, 'gamma': 0.3, 'regularizer': 'soft', 'N': 3, 'population_size': 100, 'n_generations': 3, 'inertia_weight': 0.9, 'cognitive_weight': 0.8, 'social_weight': 0.8, 'e_sarsa_osi-e_sarsa_osi': [[0.515625, 0.234375, 0.2760416666666667], 0.3420138888888889], 'e_sarsa_osi-q_learn_osi': [[0.140625, 0.4375, 0.3125], 0.296875], 'q_learn_osi-e_sarsa_osi': [[0.20833333333333334, 0.2604166666666667, 0.21354166666666666], 0.22743055555555555], 'q_learn_osi-q_learn_osi': [[0.2760416666666667, 0.078125, 0.4583333333333333], 0.2708333333333333]}
 
 
-# run 6 - trajectory of length 3, large map
+# run 6 - NO CO-TRAINING
+{'iter_steps': 1, 'gamma': 0.3, 'regularizer': 'soft', 'N': 3, 'population_size': 10, 'n_generations': 3, 'inertia_weight': 0.9, 'cognitive_weight': 0.8, 'social_weight': 0.8, 'e_sarsa_osi-e_sarsa_osi': [[0.4791666666666667, 0.328125, 0.234375], 0.34722222222222227], 'e_sarsa_osi-q_learn_osi': [[0.3541666666666667, 0.11458333333333333, 0.11979166666666667], 0.19618055555555555], 'q_learn_osi-e_sarsa_osi': [[0.234375, 0.11979166666666667, 0.3333333333333333], 0.22916666666666666], 'q_learn_osi-q_learn_osi': [[0.3072916666666667, 0.13020833333333334, 0.28125], 0.23958333333333334]}
+
+{'iter_steps': 3, 'gamma': 0.3, 'regularizer': 'soft', 'N': 3, 'population_size': 10, 'n_generations': 3, 'inertia_weight': 0.9, 'cognitive_weight': 0.8, 'social_weight': 0.8, 'e_sarsa_osi-e_sarsa_osi': [[0.3645833333333333, 0.10416666666666667, 0.3854166666666667], 0.28472222222222227], 'e_sarsa_osi-q_learn_osi': [[0.22395833333333334, 0.15625, 0.296875], 0.22569444444444445], 'q_learn_osi-e_sarsa_osi': [[0.171875, 0.24479166666666666, 0.40625], 0.2743055555555555], 'q_learn_osi-q_learn_osi': [[0.296875, 0.140625, 0.078125], 0.171875]}
+
+{'iter_steps': 1, 'gamma': 0.3, 'regularizer': 'soft', 'N': 3, 'population_size': 100, 'n_generations': 3, 'inertia_weight': 0.9, 'cognitive_weight': 0.8, 'social_weight': 0.8, 'e_sarsa_osi-e_sarsa_osi': [[0.3177083333333333, 0.22916666666666666, 0.21354166666666666], 0.2534722222222222], 'e_sarsa_osi-q_learn_osi': [[0.2708333333333333, 0.3072916666666667, 0.2760416666666667], 0.28472222222222227], 'q_learn_osi-e_sarsa_osi': [[0.19791666666666666, 0.1875, 0.140625], 0.1753472222222222], 'q_learn_osi-q_learn_osi': [[0.24479166666666666, 0.0625, 0.3697916666666667], 0.22569444444444442]}
+
+
 

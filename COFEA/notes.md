@@ -15,5 +15,4 @@
 * Increasing the particle count helps with non Co:
     * general observation shows that a 4x increase in map size warrants a square of particle size.
     
-    
-    
+* Expected SARSA + Co-training benefit more from increased swarm populations.

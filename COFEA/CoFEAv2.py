@@ -35,18 +35,18 @@ def spaco_rl_osi(map,
     return acc
 
 
-e = {"map":env_cliff_walking.CliffWalkingEnv(), "type": "large"}
-environment.set_environment(e)
-
-config1 = ConfigRL(model_name='e_sarsa_osi', env=e)
-config2 = ConfigRL(model_name='e_sarsa_osi', env=e)
-print(spaco_rl_osi(
-      e["map"],
-      [config1, config2],
-      iter_steps=3,
-      gamma=0.8,
-      regularizer="soft"))
-t
+# e = {"map":env_cliff_walking.CliffWalkingEnv(), "type": "large"}
+# environment.set_environment(e)
+#
+# config1 = ConfigRL(model_name='e_sarsa_osi', env=e)
+# config2 = ConfigRL(model_name='e_sarsa_osi', env=e)
+# print(spaco_rl_osi(
+#       e["map"],
+#       [config1, config2],
+#       iter_steps=3,
+#       gamma=0.8,
+#       regularizer="soft"))
+# t
 #
 # e = {"map":env_cliff_walking.CliffWalkingEnv(), "type": "small"}
 # environment.set_environment(e)
@@ -87,8 +87,8 @@ def gimme_results(N: int,
     results_dict["social_weight"] = social_weight
     maps = [{"map": env_cliff_walking.CliffWalkingEnv(), "type": "large"}]
     # maps = [{"map": env_frozen_lake.FrozenLakeEnv(), "type": "16x16"}]
-    agents: list = ["e_sarsa_osi", "q_learn_osi"]
-    # agents: list = ["q_learn_osi"]
+    # agents: list = ["e_sarsa_osi", "q_learn_osi"]
+    agents: list = ["q_learn_osi"]
     # agents: list = ["e_sarsa_osi"]
     for map in maps:
         # print(map["map"])
@@ -151,12 +151,29 @@ def gimme_results(N: int,
 # with open('osi_results.txt', 'w') as f:
 #     f.write(f"{a}\n\n")
 
-a = gimme_results(3, iter_steps=1, gamma=0.3, regularizer="soft", population_size=100, n_generations=5, inertia_weight=0.9)
-with open('osi_results.txt', 'w') as f:
-    f.write(f"{a}\n\n")
 # a = gimme_results(3, iter_steps=1, gamma=0.3, regularizer="soft", population_size=10, n_generations=3, inertia_weight=0.9)
+# with open('osi_results.txt', 'w') as f:
+#     f.write(f"{a}\n\n")
+# a = gimme_results(3, iter_steps=3, gamma=0.3, regularizer="soft", population_size=10, n_generations=3, inertia_weight=0.9)
 # with open('osi_results.txt', 'a') as f:
 #     f.write(f"{a}\n\n")
+
+
+a = gimme_results(1, iter_steps=1, gamma=0.3, regularizer="soft", population_size=10, n_generations=3, inertia_weight=0.9)
+with open('osi_results.txt', 'w') as f:
+    f.write(f"{a}\n\n")
+
+
+# a = gimme_results(3, iter_steps=1, gamma=0.3, regularizer="soft", population_size=10, n_generations=3, inertia_weight=0.9)
+# with open('osi_results.txt', 'w') as f:
+#     f.write(f"{a}\n\n")
+# a = gimme_results(3, iter_steps=3, gamma=0.3, regularizer="soft", population_size=10, n_generations=3, inertia_weight=0.9)
+# with open('osi_results.txt', 'a') as f:
+#     f.write(f"{a}\n\n")
+# a = gimme_results(3, iter_steps=1, gamma=0.3, regularizer="soft", population_size=100, n_generations=3, inertia_weight=0.9)
+# with open('osi_results.txt', 'a') as f:
+#     f.write(f"{a}\n\n")
+
 
 # a = gimme_results(100, iter_steps=1, gamma=0.5, regularizer="soft")
 # with open('osi_results.txt', 'a') as f:

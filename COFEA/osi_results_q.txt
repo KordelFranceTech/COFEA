@@ -55,21 +55,13 @@
 
 
 
-
+***
 # max steps 300
 # episodes 100
 #run 7 NO Co-training - mega map
 {'iter_steps': 1, 'gamma': 0.3, 'regularizer': 'soft', 'N': 1, 'population_size': 10, 'n_generations': 3, 'inertia_weight': 0.9, 'cognitive_weight': 0.8, 'social_weight': 0.8, 'q_learn_osi-q_learn_osi': [[0.23307291666666666], 0.23307291666666666]}
-
 {'iter_steps': 1, 'gamma': 0.3, 'regularizer': 'soft', 'N': 3, 'population_size': 10, 'n_generations': 3, 'inertia_weight': 0.9, 'cognitive_weight': 0.8, 'social_weight': 0.8, 'q_learn_osi-q_learn_osi': [[0.2838541666666667, 0.18098958333333334, 0.17708333333333334], 0.21397569444444445]}
-
-
-# max steps 3000
-# episodes 100
-#run 8 NO Co-training - mega map
-{'iter_steps': 1, 'gamma': 0.3, 'regularizer': 'soft', 'N': 1, 'population_size': 10, 'n_generations': 3, 'inertia_weight': 0.9, 'cognitive_weight': 0.8, 'social_weight': 0.8, 'q_learn_osi-q_learn_osi': [[0.3020833333333333], 0.3020833333333333]}
-
-{'iter_steps': 1, 'gamma': 0.3, 'regularizer': 'soft', 'N': 3, 'population_size': 10, 'n_generations': 3, 'inertia_weight': 0.9, 'cognitive_weight': 0.8, 'social_weight': 0.8, 'q_learn_osi-q_learn_osi': [[0.19401041666666666, 0.20703125, 0.15885416666666666], 0.18663194444444442]}
+{'iter_steps': 1, 'gamma': 0.3, 'regularizer': 'soft', 'N': 3, 'population_size': 100, 'n_generations': 3, 'inertia_weight': 0.9, 'cognitive_weight': 0.8, 'social_weight': 0.8, 'q_learn_osi-q_learn_osi': [[0.1796875, 0.08984375, 0.16015625], 0.14322916666666666]}
 
 
 # max steps 3000
@@ -78,8 +70,11 @@
 {'iter_steps': 1, 'gamma': 0.3, 'regularizer': 'soft', 'N': 3, 'population_size': 10, 'n_generations': 3, 'inertia_weight': 0.9, 'cognitive_weight': 0.8, 'social_weight': 0.8, 'q_learn_osi-q_learn_osi': [[0.4192708333333333, 0.2864583333333333, 0.1015625], 0.2690972222222222]}
 
 
+***
 # max steps 3000
 # episodes 100
 # run 10 NO Co-training - mega map
+{'iter_steps': 1, 'gamma': 0.3, 'regularizer': 'soft', 'N': 1, 'population_size': 10, 'n_generations': 3, 'inertia_weight': 0.9, 'cognitive_weight': 0.8, 'social_weight': 0.8, 'q_learn_osi-q_learn_osi': [[0.3020833333333333], 0.3020833333333333]}
+{'iter_steps': 1, 'gamma': 0.3, 'regularizer': 'soft', 'N': 3, 'population_size': 10, 'n_generations': 3, 'inertia_weight': 0.9, 'cognitive_weight': 0.8, 'social_weight': 0.8, 'q_learn_osi-q_learn_osi': [[0.19401041666666666, 0.20703125, 0.15885416666666666], 0.18663194444444442]}
 {'iter_steps': 1, 'gamma': 0.3, 'regularizer': 'soft', 'N': 1, 'population_size': 100, 'n_generations': 3, 'inertia_weight': 0.9, 'cognitive_weight': 0.8, 'social_weight': 0.8, 'q_learn_osi-q_learn_osi': [[0.2825520833333333], 0.2825520833333333]}
 {'iter_steps': 1, 'gamma': 0.3, 'regularizer': 'soft', 'N': 3, 'population_size': 100, 'n_generations': 3, 'inertia_weight': 0.9, 'cognitive_weight': 0.8, 'social_weight': 0.8, 'q_learn_osi-q_learn_osi': [[0.3723958333333333, 0.10677083333333333, 0.4986979166666667], 0.3259548611111111]}
