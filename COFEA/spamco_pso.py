@@ -1,19 +1,11 @@
 import os
-import sys
 import torch
 import gym
-import argparse
-# import model_utils as mu
 import model_utils_rl as mu
-# from util.data import data_process as dp
 from util.data import data_process_rl as dp
-# from config import Config
 from config import ConfigRL
-from benchmark import get_best_policy, benchmark_q_table
-from util.serialization import load_checkpoint, save_checkpoint
-import datasets
-# import models
 import models_rl as models
+from environments import env_frozen_lake, env_cliff_walking, environment
 import numpy as np
 import torch.multiprocessing as mp
 
@@ -24,9 +16,6 @@ import torch.multiprocessing as mp
 # parser.add_argument('--gamma', type=float, default=0.3)
 # parser.add_argument('--iter-steps', type=int, default=5)
 # parser.add_argument('--num-per-class', type=int, default=400)
-
-
-
 
 
 torch.manual_seed(0)
@@ -49,8 +38,6 @@ def parallel_train(nets, train_data, data_dir, configs):
         p.join()
 
 
-
-
 def adjust_config(config, num_examples, iter_step):
     repeat = 20 * (1.1 ** iter_step)
     epochs = list(range(300, 20, -20))
@@ -61,30 +48,36 @@ def adjust_config(config, num_examples, iter_step):
     return config
 
 
-def spaco(configs,
-          iter_steps=10,
-          gamma=0,
-          train_ratio=0.2,
-          regularizer='soft',
-          debug=False):
+def spaco_pso(map,
+              configs,
+              iter_steps=10,
+              gamma=0.8,
+              train_ratio=0.2,
+              regularizer='soft',
+              population_size=3,
+              n_generations=3,
+              inertia_weight=0.8,
+              cognitive_weight=0.8,
+              social_weight=0.8,
+              debug=False):
     """
     self-paced co-training model implementation based on Pytroch
     params:
     model_names: model names for spaco, such as ['resnet50','densenet121']
     data: dataset for spaco model
-    save_patts: save paths for two models
+    save_pathts: save paths for two models
     iter_step: iteration round for spaco
     gamma: spaco hyperparameter
     train_ratio: initiate training dataset ratio
     """
     num_obs = len(configs)
     add_num = 40
-    train_env = gym.make('CliffWalking-v0')
-    untrain_env = gym.make('CliffWalking-v0')
-    test_env = gym.make('CliffWalking-v0')
-    # train_env = gym.make('FrozenLake-v1', desc=None, map_name="4x4", is_slippery=False)
-    # untrain_env = gym.make('FrozenLake-v1', desc=None, map_name="4x4", is_slippery=False)
-    # test_env = gym.make('FrozenLake-v1', desc=None, map_name="4x4", is_slippery=False)
+    # train_env = gym.make('CliffWalking-v0')
+    # untrain_env = gym.make('CliffWalking-v0')
+    # test_env = gym.make('CliffWalking-v0')
+    train_env = map
+    untrain_env = map
+    test_env = map
     # train_env = gym.make('FrozenLake-v0')
     # untrain_env = gym.make('FrozenLake-v0')
     # test_env = gym.make('FrozenLake-v0')
@@ -107,7 +100,7 @@ def spaco(configs,
 
     for obs in range(num_obs):
         configs[obs] = adjust_config(configs[obs], 1000, 0)
-        net = models.create(configs[obs].model_name)
+        net = models.create(configs[obs].model_name, map)
         if debug:
             print(type(net))
         train_data, _, _ = mu.train(net, train_env, configs[obs])
@@ -145,7 +138,6 @@ def spaco(configs,
     # print(len(pred_y))
     # print(len(pred_y[0]))
 
-
     # initiate weights for unlabled examples
     pred_probs = np.array(pred_probs)
     # print(pred_probs.shape)
@@ -176,18 +168,17 @@ def spaco(configs,
         results: list = []
         for obs in range(0, 1):
             if debug:
-                print('Iter step: %d, obs: %d, model name: %s' % (step+1,obs,configs[obs].model_name))
+                print('Iter step: %d, obs: %d, model name: %s' % (step + 1, obs, configs[obs].model_name))
 
             # update sample weights
             sel_ids[obs], weights[obs] = dp.update_ids_weights(
-              obs, pred_probs, sel_ids, weights, pred_y, train_data,
-              add_num, gamma, regularizer)
+                obs, pred_probs, sel_ids, weights, pred_y, train_data,
+                add_num, gamma, regularizer)
             # update model parameter
             new_train_data, _ = dp.update_train_untrain_rl(
-              sel_ids[obs], train_data, untrain_data, pred_y, weights[obs])
+                sel_ids[obs], train_data, untrain_data, pred_y, weights[obs])
             configs[obs] = adjust_config(configs[obs], len(train_data), 0)
             new_train_data = train_data
-
 
             net = models.create(configs[obs].model_name)
             mu.train(net, train_env, configs[obs])
@@ -196,7 +187,7 @@ def spaco(configs,
             # print(pred_probs.shape)
             # pred_probs.reshape(pred_probs.shape[0], pred_probs.shape[1])
             pred_probs[obs] = mu.predict_prob(net, untrain_env,
-                                               configs[obs], obs)
+                                              configs[obs], obs)
 
             # evaluation current model and save it
             acc = mu.evaluate(net, test_env, configs[obs], obs)
@@ -217,7 +208,7 @@ def spaco(configs,
             results.append(acc)
 
         final_results.append(results)
-        add_num +=  4000 * num_obs
+        add_num += 4000 * num_obs
         fuse_y = []
         for k in range(0, len(test_preds[0])):
             a = test_preds[0][k]
@@ -244,15 +235,20 @@ def spaco(configs,
     return avg
 
 
-dataset = "cifar10"
-cur_path = os.getcwd()
-logs_dir = os.path.join(cur_path, 'logs')
-data_dir = os.path.join(cur_path, 'data', dataset)
-# data = datasets.create(dataset, data_dir)
+e = {"map": env_cliff_walking.CliffWalkingEnv(), "type": "small"}
+environment.set_environment(e)
+
+config1 = ConfigRL(model_name='e_sarsa', env=e["map"])
+config2 = ConfigRL(model_name='e_sarsa', env=e["map"])
+
+print(spaco_pso(
+    e["map"],
+    [config1, config2],
+    iter_steps=3,
+    gamma=0.8,
+    regularizer="soft"))
 
 
-config1 = ConfigRL(model_name='sarsa')
-config2 = ConfigRL(model_name='sarsa')
 # spaco([config1, config2],
 #       iter_steps=1,
 #       gamma=0.3,
@@ -328,19 +324,18 @@ def gimme_results(N: int,
     return results_dict
 
 
-
 a = gimme_results(10, iter_steps=1, gamma=0.3, regularizer="soft")
 with open('results_fl.txt', 'w') as f:
-        f.write(f"{a}\n\n")
+    f.write(f"{a}\n\n")
 a = gimme_results(10, iter_steps=3, gamma=0.3, regularizer="soft")
 with open('results_fl.txt', 'a') as f:
     f.write(f"{a}\n\n")
 a = gimme_results(10, iter_steps=1, gamma=0.5, regularizer="soft")
 with open('results_fl.txt', 'a') as f:
-        f.write(f"{a}\n\n")
+    f.write(f"{a}\n\n")
 a = gimme_results(10, iter_steps=1, gamma=0.8, regularizer="soft")
 with open('results_fl.txt', 'a') as f:
-        f.write(f"{a}\n\n")
+    f.write(f"{a}\n\n")
 
 # a = gimme_results(10, iter_steps=3, gamma=0.5, regularizer="soft")
 # with open('results.txt', 'a') as f:

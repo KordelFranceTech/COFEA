@@ -1,7 +1,7 @@
 
 import torch
-import model_utils_rl_fea as mu
-from util.data import data_process_rl as dp
+import model_utils_rl_osi as mu
+from util.data import data_process_rl_osi as dp
 from config import ConfigRL
 from environments import env_frozen_lake, env_cliff_walking, environment
 import models_rl as models
@@ -55,7 +55,6 @@ def adjust_config(config, num_examples, iter_step):
 
 
 def spaco_rl_osi(map,
-                 map_type,
                  configs,
                  iter_steps=10,
                  gamma=0.8,
@@ -113,12 +112,12 @@ def spaco_rl_osi(map,
         net = models.create(configs[obs].model_name, map)
         if debug:
             print(type(net))
-        train_data, _, _ = mu.train(net, train_env, map_type, configs[obs])
+        train_data, _, _, _ = mu.train(net, train_env, configs[obs])
         # acc = mu.evaluate(net, test_env, configs[obs], obs)
         # print(acc)
         # x
         # untrain_data = mu.get_randomized_q_table(net.Q, untrain_env)
-        untrain_data, _, _ = mu.train(net, untrain_env, map_type, configs[obs])
+        untrain_data, _, _, _ = mu.train(net, untrain_env, configs[obs])
         # train_data = train_data[:5]
         # untrain_data = untrain_data[:5]
         # print(mu.predict_prob(net, untrain_env, configs[obs], obs).shape)
@@ -199,7 +198,7 @@ def spaco_rl_osi(map,
 
 
             net = models.create(configs[obs].model_name, map)
-            mu.train(net, train_env, map_type, configs[obs])
+            mu.train(net, train_env, configs[obs])
 
             # update y
             # print(pred_probs.shape)
@@ -263,21 +262,20 @@ def spaco_rl_osi(map,
 # data = datasets.create(dataset, data_dir)
 
 
-e = {"map":env_cliff_walking.CliffWalkingEnv(), "type": "mega"}
-environment.set_environment(e)
+# e = {"map":env_cliff_walking.CliffWalkingEnv(), "type": "small"}
+# environment.set_environment(e)
 # env_cliff_walking.update_map_type()
+#
+# config1 = ConfigRL(model_name='e_sarsa_osi', env=e)
+# config2 = ConfigRL(model_name='e_sarsa_osi', env=e)
+#
+# print(spaco_rl_osi(
+#       e["map"],
+#       [config1, config2],
+#       iter_steps=3,
+#       gamma=0.8,
+#       regularizer="soft"))
 
-config1 = ConfigRL(model_name='e_sarsa_fea', env=e)
-config2 = ConfigRL(model_name='e_sarsa_fea', env=e)
-
-print(spaco_rl_osi(
-      e["map"],
-      e["type"],
-      [config1, config2],
-      iter_steps=3,
-      gamma=0.8,
-      regularizer="soft"))
-s
 
 # config1 = ConfigRL(model_name='q_learn_osi')
 # config2 = ConfigRL(model_name='q_learn_osi')

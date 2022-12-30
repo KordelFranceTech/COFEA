@@ -3,10 +3,13 @@ from .densenet import *
 from .resnet import *
 from .q_learn import *
 from .q_learn_osi import *
+from .q_learn_fea import *
 from .sarsa import *
-from .sarsa import *
+from .sarsa_osi import *
+from .sarsa_fea import *
 from .e_sarsa import *
 from .e_sarsa_osi import *
+from .e_sarsa_fea import *
 
 
 __factory = {
@@ -18,10 +21,14 @@ __factory = {
     'vgg': VGG,
     'densenet121': DenseNet121,
     'sarsa': sarsa_agent,
+    'sarsa_osi': sarsa_osi_agent,
+    'sarsa_fea': sarsa_fea_agent,
     'e_sarsa': expected_sarsa_agent,
     'e_sarsa_osi': expected_sarsa_osi_agent,
+    'e_sarsa_fea': expected_sarsa_fea_agent,
     'q_learn': q_learn_agent,
     'q_learn_osi': q_learn_osi_agent,
+    'q_learn_fea': q_learn_fea_agent,
 }
 
 

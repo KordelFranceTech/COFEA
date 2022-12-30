@@ -6,7 +6,7 @@ import numpy as np
 import random
 
 
-def train_model(model, env, config, debug=False):
+def train_model_extended_trajectory(model, env, config, debug=False):
     """
     train model given the dataloader the criterion,
     stop when epochs are reached
@@ -100,7 +100,7 @@ def train_model(model, env, config, debug=False):
 
 
 
-def train_model_x(model, env, config, debug=False):
+def train_model(model, env, config, debug=False):
     """
     train model given the dataloader the criterion,
     stop when epochs are reached

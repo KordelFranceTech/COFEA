@@ -2,16 +2,23 @@ import numpy as np
 import random
 from operator import attrgetter
 from copy import deepcopy, copy
+import model_utils_rl as mu
+from util.data import data_process_rl as dp
+from config import ConfigRL
+from environments import env_frozen_lake, env_cliff_walking, environment
+import models_rl as models
 
 
 class Particle(object):
-    def __init__(self, f, size, position=None, factor=None, global_solution=None, lbest_pos=None):
+    def __init__(self, f, env, size, position=None, factor=None, global_solution=None, lbest_pos=None):
         self.f = f
         self.lbest_fitness = float('inf')
         self.dim = size
         self.factor = factor
+        f_lbound = 0
+        f_ubound = env["map"].observation_space.n
         if position is None:
-            self.position = np.random.uniform(f.lbound, f.ubound, size=size)
+            self.position = np.random.uniform(f_lbound, f_ubound, size=size)
             self.lbest_position = np.array([x for x in self.position])
         elif position is not None:
             self.position = position
@@ -102,9 +109,9 @@ class Particle(object):
 
 
 class PSO(object):
-    def __init__(self, generations, population_size, function, dim, factor=None, global_solution=None, omega=0.729, phi=1.49618):
+    def __init__(self, generations, population_size, function, env, dim, factor=None, global_solution=None, omega=0.729, phi=1.49618):
         self.pop_size = population_size
-        self.pop = [Particle(function, dim, factor=factor, global_solution=global_solution) for x in range(population_size)]
+        self.pop = [Particle(function, env, dim, factor=factor, global_solution=global_solution) for x in range(population_size)]
         pos = [p.position for p in self.pop]
         with open('pso2.o', 'a') as file:
             file.write(str(pos))
@@ -170,9 +177,10 @@ class PSO(object):
 
 
 if __name__ == '__main__':
-    from optimizationproblems.continuous_functions import Function
-
-    f = Function(function_number=1, shift_data_file="f01_o.txt")
-    pso = PSO(generations=1000, population_size=500, function=f, dim=50)
+    env = {"map": env_cliff_walking.CliffWalkingEnv(), "type": "small"}
+    environment.set_environment(env)
+    agent = ConfigRL(model_name='e_sarsa', env=env["map"])
+    # f = Function(function_number=1, shift_data_file="f01_o.txt")
+    pso = PSO(generations=1000, population_size=500, function=agent, env=env, dim=50)
     pso.run()
     # [print(x) for x in pso.pop]

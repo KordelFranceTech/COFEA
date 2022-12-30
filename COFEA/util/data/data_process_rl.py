@@ -115,6 +115,8 @@ def update_train_untrain_rl(sel_idx,
     # untrain_data = untrain_data.T
 
     assert len(train_data) == len(untrain_data)
+    train_data = train_data[:len(pred_y)]
+    untrain_data = untrain_data[:len(pred_y)]
     if weights is None:
         weights = np.ones(len(untrain_data[0]), dtype=np.float32)
     # print(f"untrain_data: {untrain_data}")

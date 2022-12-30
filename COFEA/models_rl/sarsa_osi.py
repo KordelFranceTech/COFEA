@@ -12,11 +12,8 @@ from MaciNet.deep_learning.loss_functions import CrossEntropy
 from MaciNet.deep_learning.optimizers import Adam
 import gym
 
-# env = gym.make('CliffWalking-v0')
-env = environment.current_environment["map"]
 
-
-def sarsa_osi_agent():
+def sarsa_osi_agent(env):
     sarsaOsiAgent = SarsaOsiAgent(
         epsilon, alpha, gamma, env.observation_space.n,
         env.action_space.n, env.action_space)

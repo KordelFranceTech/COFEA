@@ -1,19 +1,24 @@
-# QLearningAgent.py
-
+# QLearningFeaAgent.py
 
 import numpy as np
 from .params import *
 from .agent import Agent
+from CoFEA.models_rl.neural_net_arch import build_nn
 
 
-def q_learn_agent(env):
-    qLearningAgent = QLearningAgent(
-        epsilon, alpha, gamma, env.observation_space.n,
-        env.action_space.n, env.action_space)
-    return qLearningAgent
+def q_learn_fea_agent(env):
+	qLearningAgent = QLearningFeaAgent(
+		epsilon,
+		alpha,
+		gamma,
+		# env,
+		env.observation_space.n,
+		env.action_space.n,
+		env.action_space,)
+	return qLearningAgent
 
 
-class QLearningAgent(Agent):
+class QLearningFeaAgent(Agent):
 	def __init__(self, epsilon, alpha, gamma, num_state, num_actions, action_space):
 		"""
 		Constructor
@@ -50,3 +55,4 @@ class QLearningAgent(Agent):
 		predict = self.Q[state, action]
 		target = reward + self.gamma * np.max(self.Q[state2, :])
 		self.Q[state, action] += self.alpha * (target - predict)
+

@@ -1,19 +1,24 @@
-# ExpectedSarsaAgent.py
-
+# ExpectedSarsaFeaAgent.py
 
 import numpy as np
 from .params import *
 from .agent import Agent
+from CoFEA.models_rl.neural_net_arch import build_nn
 
 
-def expected_sarsa_agent(env):
-    expectedSarsaAgent = ExpectedSarsaAgent(
-        epsilon, alpha, gamma, env.observation_space.n,
-        env.action_space.n, env.action_space)
+def expected_sarsa_fea_agent(env):
+    expectedSarsaAgent = ExpectedSarsaFeaAgent(
+        epsilon,
+        alpha,
+        gamma,
+        # env,
+        env.observation_space.n,
+        env.action_space.n,
+        env.action_space,)
     return expectedSarsaAgent
 
 
-class ExpectedSarsaAgent(Agent):
+class ExpectedSarsaFeaAgent(Agent):
     def __init__(self, epsilon, alpha, gamma, num_state, num_actions, action_space):
         """
         Constructor

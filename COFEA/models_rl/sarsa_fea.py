@@ -4,16 +4,27 @@
 import numpy as np
 from .params import *
 from .agent import Agent
+from CoFEA.environments import environment
+from MaciNet.supervised_learning import ParticleSwarmOptimizedNN
+from MaciNet.deep_learning import NeuralNetwork
+from MaciNet.deep_learning.layers import Activation, Dense
+from MaciNet.deep_learning.loss_functions import CrossEntropy
+from MaciNet.deep_learning.optimizers import Adam
+import gym
 
 
-def sarsa_agent(env):
-    sarsaAgent = SarsaAgent(
-        epsilon, alpha, gamma, env.observation_space.n,
-        env.action_space.n, env.action_space)
-    return sarsaAgent
+def sarsa_fea_agent(env):
+    sarsaOsiAgent = SarsaFeaAgent(
+        epsilon,
+        alpha,
+        gamma,
+        env.observation_space.n,
+        env.action_space.n,
+        env.action_space)
+    return sarsaOsiAgent
 
 
-class SarsaAgent(Agent):
+class SarsaFeaAgent(Agent):
 	"""
 	The Agent that uses SARSA update to improve it's behaviour
 	"""
@@ -53,3 +64,4 @@ class SarsaAgent(Agent):
 		predict = self.Q[prev_state, prev_action]
 		target = reward + self.gamma * self.Q[next_state, next_action]
 		self.Q[prev_state, prev_action] += self.alpha * (target - predict)
+
