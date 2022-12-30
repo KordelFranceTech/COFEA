@@ -1,0 +1,2 @@
+{'iter_steps': 1, 'gamma': 0.3, 'regularizer': 'soft', 'N': 1, 'population_size': 10, 'n_generations': 3, 'inertia_weight': 0.9, 'cognitive_weight': 0.8, 'social_weight': 0.8, 'q_learn_osi-q_learn_osi': [[0.3125], 0.3125]}
+

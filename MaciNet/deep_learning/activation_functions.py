@@ -73,3 +73,10 @@ class SoftPlus():
     def gradient(self, x):
         return 1 / (1 + np.exp(-x))
 
+
+class Linear():
+    def __call__(self, x):
+        return x
+
+    def gradient(self, x):
+        return 1

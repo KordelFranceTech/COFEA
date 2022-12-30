@@ -6,7 +6,7 @@ from .params import *
 from .agent import Agent
 
 
-def q_learn_agent():
+def q_learn_agent(env):
     qLearningAgent = QLearningAgent(
         epsilon, alpha, gamma, env.observation_space.n,
         env.action_space.n, env.action_space)

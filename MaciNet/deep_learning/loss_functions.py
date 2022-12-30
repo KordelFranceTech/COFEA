@@ -3,6 +3,7 @@ import numpy as np
 from MaciNet.utils import accuracy_score
 from MaciNet.deep_learning.activation_functions import Sigmoid
 
+
 class Loss(object):
     def loss(self, y_true, y_pred):
         return NotImplementedError()
@@ -13,6 +14,7 @@ class Loss(object):
     def acc(self, y, y_pred):
         return 0
 
+
 class SquareLoss(Loss):
     def __init__(self): pass
 
@@ -21,6 +23,7 @@ class SquareLoss(Loss):
 
     def gradient(self, y, y_pred):
         return -(y - y_pred)
+
 
 class CrossEntropy(Loss):
     def __init__(self): pass
@@ -38,4 +41,17 @@ class CrossEntropy(Loss):
         p = np.clip(p, 1e-15, 1 - 1e-15)
         return - (y / p) + (1 - y) / (1 - p)
 
+
+class MeanSquaredErrorLoss(object):
+    def loss(self, y_true, y_pred):
+        n = len(y_true)
+        l = np.sum(np.power((y_true - y_pred), 2))
+        l /= n
+        return l
+
+    def gradient(self, y, y_pred):
+        raise NotImplementedError()
+
+    def acc(self, y, y_pred):
+        return 0
 

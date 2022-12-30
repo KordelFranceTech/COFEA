@@ -4,7 +4,7 @@ import math
 import numpy as np
 import copy
 from MaciNet.deep_learning.activation_functions import Sigmoid, ReLU, SoftPlus, LeakyReLU
-from MaciNet.deep_learning.activation_functions import TanH, ELU, SELU, Softmax
+from MaciNet.deep_learning.activation_functions import TanH, ELU, SELU, Softmax, Linear
 
 
 class Layer(object):
@@ -610,7 +610,8 @@ activation_functions = {
     'softmax': Softmax,
     'leaky_relu': LeakyReLU,
     'tanh': TanH,
-    'softplus': SoftPlus
+    'softplus': SoftPlus,
+    'linear': Linear
 }
 
 class Activation(Layer):

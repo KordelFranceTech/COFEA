@@ -84,11 +84,18 @@ def update_train_untrain_rl(sel_idx,
     # weights = np.concatenate(weights)
     # pred_y = np.expand_dims(pred_y, 1)
     # weights = np.expand_dims(weights, 1)
-    # print(f"train data: {len(train_data)}")
-    # print(f"untrain data: {len(untrain_data)}")
-    # print(f"pred_y data: {len(pred_y)}")
-    # print(f"weights data: {len(weights)}")
-    # print(f"sel idx: {len(sel_idx)}")
+    print(f"train data: {len(train_data)}")
+    print(f"untrain data: {len(untrain_data)}")
+    print(f"pred_y data: {len(pred_y)}")
+    print(f"weights data: {len(weights)}")
+    print(f"sel idx: {len(sel_idx)}")
+    """
+    train data: 5147
+    untrain data: 3466
+    pred_y data: 12000
+    weights data: 12000
+    sel idx: 12000
+    """
     # train_data = np.array(train_data)
     # untrain_data = np.array(untrain_data)
     # pred_y = np.array(pred_y)
@@ -108,6 +115,8 @@ def update_train_untrain_rl(sel_idx,
     # untrain_data = untrain_data.T
 
     assert len(train_data) == len(untrain_data)
+    train_data = train_data[:len(pred_y)]
+    untrain_data = untrain_data[:len(pred_y)]
     if weights is None:
         weights = np.ones(len(untrain_data[0]), dtype=np.float32)
     # print(f"untrain_data: {untrain_data}")
@@ -168,16 +177,28 @@ def get_lambda_class(score, pred_y, train_data, max_add):
     y = train_data[1]
     score = np.array(score)
     pred_y = np.array(pred_y)
-    # print(f"score: {score}")
-    # print(f"pred_y: {pred_y}")
-    # print(f"score shape: {score.shape}")
-    # print(f"pred y shape: {pred_y.shape}")
-    # x
+    print(f"score: {score}")
+    print(f"pred_y: {pred_y}")
+    print(f"score shape: {score.shape}")
+    print(f"pred y shape: {pred_y.shape}")
+
+    """
+    score: [[9.44628012e-01 3.14134405e-45 3.01296823e-02 ... 2.13986881e-01
+      7.07114481e-01 9.57993678e-03]
+     [9.45086537e-01 3.66571096e-45 2.98606319e-02 ... 2.15799490e-01
+      6.93122040e-01 2.13262021e-02]]
+    pred_y: [1 1 0 ... 1 0 1]
+    score shape: (2, 12000)
+    pred y shape: (12000,)
+    score shape: (2, 12000)
+    pred y shape: (1, 12000)
+    """
+
     # score = np.expand_dims(score, axis=0)
     pred_y = np.expand_dims(pred_y, axis=0)
-    # print(f"score shape: {score.shape}")
-    # print(f"pred y shape: {pred_y.shape}")
-    # print(score.shape)
+    print(f"score shape: {score.shape}")
+    print(f"pred y shape: {pred_y.shape}")
+    print(score.shape)
     score = score.T
     # pred_y = pred_y.T
     # print(f"score shape: {score.shape}")
@@ -197,6 +218,11 @@ def get_lambda_class(score, pred_y, train_data, max_add):
         add_num = min(int(np.ceil(ratio_per_class[cls] * max_add)),
                       indices.shape[0])
         add_ids[indices[idx_sort[-add_num:]]] = 1
+        print(cls)
+        print(idx_sort)
+        print(add_num)
+        print(len(idx_sort))
+        # x
         lambdas[cls] = cls_score[idx_sort[-add_num]] - 0.1
     return add_ids.astype('bool'), lambdas, pred_y
 

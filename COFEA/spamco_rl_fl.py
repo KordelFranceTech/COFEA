@@ -72,19 +72,19 @@ def spaco(configs,
     params:
     model_names: model names for spaco, such as ['resnet50','densenet121']
     data: dataset for spaco model
-    save_pathts: save paths for two models
+    save_patts: save paths for two models
     iter_step: iteration round for spaco
     gamma: spaco hyperparameter
     train_ratio: initiate training dataset ratio
     """
     num_obs = len(configs)
     add_num = 40
-    # train_env = gym.make('CliffWalking-v0')
-    # untrain_env = gym.make('CliffWalking-v0')
-    # test_env = gym.make('CliffWalking-v0')
-    train_env = gym.make('FrozenLake-v1', desc=None, map_name="4x4", is_slippery=False)
-    untrain_env = gym.make('FrozenLake-v1', desc=None, map_name="4x4", is_slippery=False)
-    test_env = gym.make('FrozenLake-v1', desc=None, map_name="4x4", is_slippery=False)
+    train_env = gym.make('CliffWalking-v0')
+    untrain_env = gym.make('CliffWalking-v0')
+    test_env = gym.make('CliffWalking-v0')
+    # train_env = gym.make('FrozenLake-v1', desc=None, map_name="4x4", is_slippery=False)
+    # untrain_env = gym.make('FrozenLake-v1', desc=None, map_name="4x4", is_slippery=False)
+    # test_env = gym.make('FrozenLake-v1', desc=None, map_name="4x4", is_slippery=False)
     # train_env = gym.make('FrozenLake-v0')
     # untrain_env = gym.make('FrozenLake-v0')
     # test_env = gym.make('FrozenLake-v0')

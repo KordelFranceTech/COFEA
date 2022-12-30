@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 # from util.data_rl import data_process as dp
-from benchmark import get_best_policy, benchmark_q_table
+from benchmark import get_best_policy, get_best_policy_osi, get_benchmark_policy, print_policy_string, k
 import numpy as np
 import random
 
@@ -62,7 +62,7 @@ def train_model(model, env, config, debug=False):
         totalReward[type(model).__name__].append(episodeReward)
     # print(f"q_table: {model.Q}")
     current_policy = get_best_policy(q_table=model.Q)
-    benchmark_policy = get_best_policy(q_table=benchmark_q_table)
+    benchmark_policy = get_best_policy(get_benchmark_policy(type(model).__name__))
     if debug:
         print(f"accuracy: {get_policy_accuracy(current_policy, benchmark_policy)}")
 
@@ -202,6 +202,7 @@ def evaluate(model, env, config, device):
         total_reward = 0
         for i in range(max_steps):
             a = np.argmax(q_table[s, :])
+            # a = np.argmax(q_table.best_individual.predict(np.identity(env.observation_space.n)[s, :]))
             s, r, done, info = env.step(a)
             total_reward += r
             if done:
@@ -211,9 +212,14 @@ def evaluate(model, env, config, device):
     env.close()
     # return 100*np.sum(rewards)/len(rewards)
     current_policy = get_best_policy(q_table=model.Q)
-    benchmark_policy = get_best_policy(q_table=benchmark_q_table)
+    benchmark_policy = get_best_policy(get_benchmark_policy(type(model).__name__))
     accuracy = get_policy_accuracy(current_policy, benchmark_policy)
-    return accuracy
+
+    curr_policy_str: str = print_policy_string(benchmark_policy)
+    print(f"\n\n\tOPTIMAL POLICY:\n{curr_policy_str}")
+    policy_str: str = print_policy_string(current_policy)
+    print(f"\n\n\tCURRENT POLICY:\n{policy_str}")
+    return accuracy, policy_str
 
 
 

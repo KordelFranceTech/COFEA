@@ -6,7 +6,7 @@ from .params import *
 from .agent import Agent
 
 
-def expected_sarsa_agent():
+def expected_sarsa_agent(env):
     expectedSarsaAgent = ExpectedSarsaAgent(
         epsilon, alpha, gamma, env.observation_space.n,
         env.action_space.n, env.action_space)
