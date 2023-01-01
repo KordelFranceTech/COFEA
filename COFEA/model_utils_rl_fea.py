@@ -19,6 +19,8 @@ def get_bounds(map_size: str):
         bounds = [(0, 15), (0, 47)]
     elif map_size == "giga":
         bounds = [(0, 31), (0, 95)]
+    else:
+        bounds = [(1, 10), (1, 35)]
     return bounds
 
 
@@ -194,6 +196,9 @@ def print_map(map_size: str):
     elif map_size == "giga":
         size = 64*12*4
         row_size = 96
+    else:
+        size = 407
+        row_size = 37
     map_str: str = ""
     reward_map_str: str = ""
     for i in range(len(AGENT.Q)):
@@ -250,7 +255,6 @@ def build_trajectories(agent, e, config):
     del env
     del model
     return trajectories
-
 
 
 def train_fea_model(model, env, env_type, config, initial=[0, 0], num_particles=8, max_iter=10, debug=False):

@@ -3,7 +3,7 @@ import torch
 import model_utils_rl_fea as mu
 from util.data import data_process_rl as dp
 from config import ConfigRL
-from environments import env_frozen_lake, env_cliff_walking, environment
+from environments import env_frozen_lake, env_cliff_walking, env_racetrack, env_racetrack_v2, environment
 import models_rl as models
 import numpy as np
 import torch.multiprocessing as mp
@@ -256,17 +256,28 @@ def spaco_rl_osi(map,
     return avg
 
 
-# dataset = "cifar10"
-# cur_path = os.getcwd()
-# logs_dir = os.path.join(cur_path, 'logs')
-# data_dir = os.path.join(cur_path, 'data', dataset)
-# data = datasets.create(dataset, data_dir)
+# e = {"map":env_cliff_walking.CliffWalkingEnv(), "type": "large"}
+# environment.set_environment(e)
+# # env_cliff_walking.update_map_type()
+#
+# config1 = ConfigRL(model_name='e_sarsa_fea', env=e)
+# config2 = ConfigRL(model_name='e_sarsa_fea', env=e)
+#
+# print(spaco_rl_osi(
+#       e["map"],
+#       e["type"],
+#       [config1, config2],
+#       iter_steps=3,
+#       gamma=0.8,
+#       regularizer="soft"))
 
 
-e = {"map":env_cliff_walking.CliffWalkingEnv(), "type": "mega"}
+e = {"map":env_racetrack_v2.Racetrack(), "type": "L"}
 environment.set_environment(e)
 # env_cliff_walking.update_map_type()
-
+# print(e["map"].desc)
+print(f"obs space: {e['map'].observation_space}")
+print(f"action space: {e['map'].action_space}")
 config1 = ConfigRL(model_name='e_sarsa_fea', env=e)
 config2 = ConfigRL(model_name='e_sarsa_fea', env=e)
 
@@ -277,7 +288,8 @@ print(spaco_rl_osi(
       iter_steps=3,
       gamma=0.8,
       regularizer="soft"))
-s
+e["map"].render()
+
 
 # config1 = ConfigRL(model_name='q_learn_osi')
 # config2 = ConfigRL(model_name='q_learn_osi')
