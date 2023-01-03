@@ -1,5 +1,5 @@
-from basealgorithms.ga import GA
-from utilities.util import PopulationMember, add_method
+from FEA.basealgorithms.ga import GA
+from FEA.utilities.util import PopulationMember, add_method
 
 import random
 from tokenize import group
@@ -147,9 +147,13 @@ class FactorArchitecture(object):
         """
         self.method = "ring"
         self.arbiters = list(range(0, self.dim))
-        self.factors = zip(*[rotate(self.arbiters, n) for n in range(0, group_size)])
+        self.factors = [rotate(self.arbiters, n) for n in range(0, group_size)]
+        print([rotate(self.arbiters, n) for n in range(0, group_size)])
+        print(self.factors)
         self.determine_neighbors()
+        print(self.neighbors)
         self.calculate_optimizers()
+        print(self.optimizers)
 
     def classic_random_grouping(self, group_size):
         """
@@ -267,8 +271,8 @@ class FactorArchitecture(object):
                 factors.append(tuple(curr_factor))
 
             # Final adjustments
-            indeces_to_delete = np.searchsorted(dimensions, curr_factor)
-            dimensions = np.delete(dimensions, indeces_to_delete)  # remove j from dimensions
+            indices_to_delete = np.searchsorted(dimensions, curr_factor)
+            dimensions = np.delete(dimensions, indices_to_delete)  # remove j from dimensions
             size = len(dimensions)
             if size != 0:
                 curr_dim_idx = dimensions[0]
@@ -326,9 +330,9 @@ class FactorArchitecture(object):
         p2[i] = p1[i]+.1
         if not moo:
             if m == 0:
-                delta1 = _function.run(p1) - _function.run(p2)
+                delta1 = _function(p1) - _function(p2)
             else:
-                delta1 = _function.run(p1, m_group=m) - _function.run(p2, m_group=m)
+                delta1 = _function(p1, m_group=m) - _function(p2, m_group=m)
         elif moo:
             delta1 = _function.evaluate(p1)[n_obj] - _function.evaluate(p2)[n_obj]
             #print("obj: ", n_obj, "D1: ", delta1)
@@ -343,7 +347,7 @@ class FactorArchitecture(object):
 
             if not moo:
                 if m == 0:
-                    delta2 = _function.run(p3) - _function.run(p4)
+                    delta2 = _function(p3) - _function(p4)
                 else:
                     delta2 = _function.run(p3, m_group=m) - _function.run(p4, m_group=m)
             elif moo:
@@ -503,7 +507,7 @@ class FactorArchitecture(object):
         self.neighbors = neighbors
 
 
-from utilities.util import compare_solutions
+from FEA.utilities.util import compare_solutions
 from networkx import from_numpy_array, connected_components
 
 

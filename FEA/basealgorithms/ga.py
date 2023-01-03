@@ -7,7 +7,7 @@ Can be used a standalone algorithm using run(), or as the base-algorithm for MOO
 
 import numpy as np
 import random
-from utilities.util import *
+from FEA.utilities.util import *
 
 #TODO: seperate out mutation and crossover functions and create switch statement to improve code readability.
 

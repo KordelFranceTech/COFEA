@@ -299,7 +299,7 @@ def f(states):
             # Append the sum of reward at the end of the episode
             totalReward[type(agent).__name__].append(episodeReward)
         rewards += np.mean(totalReward[type(agent).__name__])
-    reward_error = -float(rewards / float(len(states)) ** 2)
+    reward_error = float(rewards / float(len(states)) ** 2)
     return reward_error
 
 
@@ -547,7 +547,7 @@ class Particle(object):
             else:
                 for i, x in zip(self.factor, position):
                     solution[i] = x
-            fitness = self.f.run(np.array(solution))
+            fitness = self.f(np.array(solution))
         return fitness
 
     def update_particle(self, omega, phi, global_best_position, v_max, global_solution=None):
@@ -663,7 +663,7 @@ class PSO(object):
         print(self.pop[-1], self.pop[0])
         partial_solution = [x for i, x in enumerate(global_solution) if i in self.factor] # if i in self.factor
         self.pop[-1].set_position(partial_solution)
-        self.pop[-1].set_fitness(self.f.run(self.global_solution))
+        self.pop[-1].set_fitness(self.f(self.global_solution))
         curr_best = Particle(self.f, self.dim, position=self.pop[0].position, factor=self.factor,
                  global_solution=self.global_solution, lbest_pos=self.pop[0].lbest_position)
         random.shuffle(self.pop)
@@ -677,10 +677,112 @@ class PSO(object):
             # print(self.gbest)
         return self.gbest.position
 
+
+
+class FEA:
+    def __init__(self, function, fea_runs, generations, pop_size, factor_architecture, base_algorithm, continuous=True,
+                 seed=None):
+        if seed is not None:
+            np.random.seed(seed)
+
+        self.function = function
+        self.fea_runs = fea_runs
+        self.base_alg_iterations = generations
+        self.pop_size = pop_size
+        self.factor_architecture = factor_architecture
+        self.dim = factor_architecture.dim
+        self.base_algorithm = base_algorithm
+        self.global_solution = None
+        self.global_fitness = np.inf
+        self.solution_history = []
+        self.set_global_solution(continuous)
+        self.subpopulations = self.initialize_factored_subpopulations()
+
+    def run(self):
+        for fea_run in range(self.fea_runs):
+            for alg in self.subpopulations:
+                # print('NEW SUBPOPULATION\n---------------------------------------------------------------')
+                # alg.run(fea_run)
+                alg.run()
+            self.compete()
+            self.share_solution()
+            print('fea run ', fea_run, self.global_fitness)
+
+    def set_global_solution(self, continuous):
+        if continuous:
+            self.global_solution = np.random.uniform(BOUNDS[0][0], BOUNDS[1][1], size=self.factor_architecture.dim)
+            self.global_fitness = self.function(self.global_solution)
+            self.solution_history = [self.global_solution]
+
+    def initialize_factored_subpopulations(self):
+        fa = self.factor_architecture
+        alg = self.base_algorithm
+        return [
+            alg(function=self.function, dim=len(factor), generations=self.base_alg_iterations, population_size=self.pop_size, factor=factor, global_solution=self.global_solution)
+            for factor in fa.factors]
+
+    def share_solution(self):
+        """
+        Construct new global solution based on best shared variables from all swarms
+        """
+        gs = [x for x in self.global_solution]
+        print('global fitness found: ', self.global_fitness)
+        print('===================================================')
+        for alg in self.subpopulations:
+            # update fitnesses
+            alg.pop = [individual.update_individual_after_compete(gs) for individual in alg.pop]
+            # set best solution and replace worst solution with global solution across FEA
+            alg.replace_worst_solution(gs)
+
+    def compete(self):
+        """
+        For each variable:
+            - gather subpopulations with said variable
+            - replace variable value in global solution with corresponding subpop value
+            - check if it improves fitness for said solution
+            - replace variable if fitness improves
+        Set new global solution after all variables have been checked
+        """
+        sol = [x for x in self.global_solution]
+        f = self.function
+        curr_fitness = f(self.global_solution)
+        for var_idx in range(self.dim):
+            best_value_for_var = sol[var_idx]
+            for pop_idx in self.factor_architecture.optimizers[var_idx]:
+                curr_pop = self.subpopulations[pop_idx]
+                pop_var_idx = np.where(curr_pop.factor == var_idx)
+                position = [x for x in curr_pop.gbest.position]
+                var_candidate_value = position[pop_var_idx[0][0]]
+                sol[var_idx] = var_candidate_value
+                new_fitness = f(sol)
+                if new_fitness < curr_fitness:
+                    print('smaller fitness found')
+                    curr_fitness = new_fitness
+                    best_value_for_var = var_candidate_value
+            sol[var_idx] = best_value_for_var
+        self.global_solution = sol
+        self.global_fitness = f(sol)
+        self.solution_history.append(sol)
+
+
+
+
 if __name__ == "__main__":
     env.reset()
-    # PSO(f, INITIAL, BOUNDS, num_particles=NUM_PARTICLES, maxiter=MAX_ITER)
-    # print_map()
     pso = PSO(generations=10, population_size=15, function=f, dim=len(BOUNDS))
-    pso.run()
-    print_map()
+    # pso.run()
+    # print_map()
+    from FEA.FEA.factorarchitecture import FactorArchitecture
+
+    fa = FactorArchitecture(dim=2)
+    # fa.factors = fa.diff_grouping(f, 0.1)
+    # fa.factors = fa.random_grouping(min_groups=5, max_groups=15, overlap=True)
+    # fa.factors = fa.linear_grouping(group_size=7, offset=5)
+    fa.ring_grouping(group_size=2)
+    # print(fa.factors)
+    fa.get_factor_topology_elements()
+
+    # fa.load_csv_architecture(file="../../results/factors/F1_m4_diff_grouping.csv", dim=50)
+    # func = Function(function_number=1, shift_data_file="f01_o.txt")
+    fea = FEA(f, fea_runs=10, generations=10, pop_size=15, factor_architecture=fa, base_algorithm=PSO)
+    fea.run()

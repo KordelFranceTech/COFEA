@@ -4,7 +4,12 @@
     <bookmark url="file://$PROJECT_DIR$/CoFEA/model_utils_rl_osi.py" description="current_policy = k&#10;# benchmark_policy = get_best_p..." line="360" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="24abfd44-60f3-4cca-b604-224c82bf778b" name="Default Changelist" comment="" />
+    <list default="true" id="24abfd44-60f3-4cca-b604-224c82bf778b" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/FEA/FEA/factorarchitecture.py" beforeDir="false" afterPath="$PROJECT_DIR$/FEA/FEA/factorarchitecture.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FEA/basealgorithms/ga.py" beforeDir="false" afterPath="$PROJECT_DIR$/FEA/basealgorithms/ga.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FEA/basealgorithms/pso2.o" beforeDir="false" afterPath="$PROJECT_DIR$/FEA/basealgorithms/pso2.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FEA/basealgorithms/pso_rl.py" beforeDir="false" afterPath="$PROJECT_DIR$/FEA/basealgorithms/pso_rl.py" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -39,14 +44,44 @@
               </provider>
             </entry>
           </file>
-          <file pinned="false" current-in-tab="true">
+          <file pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/CoFEA/pso_simple_rl.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="303">
-                  <caret line="425" column="48" selection-start-line="425" selection-start-column="48" selection-end-line="425" selection-end-column="48" />
+                <state relative-caret-position="-304">
+                  <caret line="427" column="31" selection-start-line="427" selection-start-column="31" selection-end-line="427" selection-end-column="31" />
                   <folding>
                     <element signature="e#0#18#0" expanded="true" />
                   </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/FEA/FEA/factorarchitecture.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="411">
+                  <caret line="149" column="23" selection-start-line="149" selection-start-column="23" selection-end-line="149" selection-end-column="23" />
+                  <folding>
+                    <element signature="e#0#32#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/FEA/FEA/factorevolution.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="525">
+                  <caret line="97" column="29" selection-start-line="97" selection-start-column="29" selection-end-line="97" selection-end-column="29" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/FEA/utilities/util.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="45">
+                  <caret line="3" column="8" selection-start-line="3" selection-start-column="8" selection-end-line="3" selection-end-column="8" />
                 </state>
               </provider>
             </entry>
@@ -148,14 +183,25 @@
           <file pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/FEA/basealgorithms/pso_rl.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="433">
-                  <caret line="678" lean-forward="true" selection-start-line="678" selection-end-line="678" />
+                <state relative-caret-position="460">
+                  <caret line="301" column="19" selection-start-line="301" selection-start-column="19" selection-end-line="301" selection-end-column="19" />
                   <folding>
                     <element signature="e#0#18#0" expanded="true" />
                     <element signature="e#8759#9978#0" />
                     <element signature="e#10084#12270#0" />
                     <element signature="e#12290#13926#0" />
                     <element signature="e#13950#14956#0" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/FEA/Testing/unittesting/test_factor_architecture_design.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state>
+                  <folding>
+                    <element signature="e#0#59#0" expanded="true" />
                   </folding>
                 </state>
               </provider>
@@ -174,8 +220,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>get</find>
-      <find>add_nu</find>
       <find>train(</find>
       <find>get_best</find>
       <find>relu</find>
@@ -204,6 +248,8 @@
       <find>calculat</find>
       <find>min</find>
       <find>print</find>
+      <find>numba</find>
+      <find>lbo</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -212,9 +258,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/CoFEA/environments/env_frozen_lake.py" />
-        <option value="$PROJECT_DIR$/CoFEA/models_rl/neural_net_arch.py" />
-        <option value="$PROJECT_DIR$/CoFEA/notes.md" />
         <option value="$PROJECT_DIR$/CoFEA/osi_results.txt" />
         <option value="$PROJECT_DIR$/CoFEA/osi_results_q-e.txt" />
         <option value="$PROJECT_DIR$/CoFEA/osi_results_e.txt" />
@@ -262,6 +305,9 @@
         <option value="$PROJECT_DIR$/CoFEA/benchmark.py" />
         <option value="$PROJECT_DIR$/CoFEA/model_utils_rl_fea.py" />
         <option value="$PROJECT_DIR$/CoFEA/environments/env_cliff_walking.py" />
+        <option value="$PROJECT_DIR$/FEA/basealgorithms/ga.py" />
+        <option value="$PROJECT_DIR$/FEA/utilities/util.py" />
+        <option value="$PROJECT_DIR$/FEA/FEA/factorarchitecture.py" />
         <option value="$PROJECT_DIR$/FEA/basealgorithms/pso_rl.py" />
       </list>
     </option>
@@ -325,7 +371,39 @@
               <item name="CoFEA_PSO" type="b2602c69:ProjectViewProjectNode" />
               <item name="CoFEA_PSO" type="462c0819:PsiDirectoryNode" />
               <item name="FEA" type="462c0819:PsiDirectoryNode" />
+              <item name="MOO" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="CoFEA_PSO" type="b2602c69:ProjectViewProjectNode" />
+              <item name="CoFEA_PSO" type="462c0819:PsiDirectoryNode" />
+              <item name="FEA" type="462c0819:PsiDirectoryNode" />
               <item name="optimizationproblems" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="CoFEA_PSO" type="b2602c69:ProjectViewProjectNode" />
+              <item name="CoFEA_PSO" type="462c0819:PsiDirectoryNode" />
+              <item name="FEA" type="462c0819:PsiDirectoryNode" />
+              <item name="predictionalgorithms" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="CoFEA_PSO" type="b2602c69:ProjectViewProjectNode" />
+              <item name="CoFEA_PSO" type="462c0819:PsiDirectoryNode" />
+              <item name="FEA" type="462c0819:PsiDirectoryNode" />
+              <item name="predictionalgorithms" type="462c0819:PsiDirectoryNode" />
+              <item name="CNN_yieldpredictor" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="CoFEA_PSO" type="b2602c69:ProjectViewProjectNode" />
+              <item name="CoFEA_PSO" type="462c0819:PsiDirectoryNode" />
+              <item name="FEA" type="462c0819:PsiDirectoryNode" />
+              <item name="Testing" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="CoFEA_PSO" type="b2602c69:ProjectViewProjectNode" />
+              <item name="CoFEA_PSO" type="462c0819:PsiDirectoryNode" />
+              <item name="FEA" type="462c0819:PsiDirectoryNode" />
+              <item name="Testing" type="462c0819:PsiDirectoryNode" />
+              <item name="unittesting" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -494,12 +572,12 @@
       <workItem from="1671708260964" duration="23935000" />
       <workItem from="1672195700884" duration="36000" />
       <workItem from="1672312277577" duration="17291000" />
-      <workItem from="1672588641547" duration="11934000" />
+      <workItem from="1672588641547" duration="15704000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="206811000" />
+    <option name="totallyTimeSpent" value="210581000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="231" y="25" width="1561" height="1095" extended-state="0" />
@@ -583,7 +661,7 @@
     <SUITE FILE_PATH="coverage/COFEA$monte_carlo_swarm.coverage" NAME="monte_carlo_swarm Coverage Results" MODIFIED="1668722030200" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CoFEA" />
     <SUITE FILE_PATH="coverage/COFEA$factorevolution.coverage" NAME="factorevolution Coverage Results" MODIFIED="1668721289787" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/FEA-master/FEA" />
     <SUITE FILE_PATH="coverage/CoFEA$env_cliff_walking.coverage" NAME="env_cliff_walking Coverage Results" MODIFIED="1668897053609" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CoFEA/environments" />
-    <SUITE FILE_PATH="coverage/CoFEA_PSO$pso_rl.coverage" NAME="pso_rl Coverage Results" MODIFIED="1672699750502" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/FEA/basealgorithms" />
+    <SUITE FILE_PATH="coverage/CoFEA_PSO$pso_rl.coverage" NAME="pso_rl Coverage Results" MODIFIED="1672705030191" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/FEA/basealgorithms" />
     <SUITE FILE_PATH="coverage/CoFEA$pso_example.coverage" NAME="pso_example Coverage Results" MODIFIED="1668880725873" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/MaciNet/neural_networks" />
     <SUITE FILE_PATH="coverage/COFEA$OSI.coverage" NAME="OSI Coverage Results" MODIFIED="1668217729509" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ImageRecognition/playground" />
     <SUITE FILE_PATH="coverage/COFEA$QvDQN.coverage" NAME="QvDQN Coverage Results" MODIFIED="1668218813170" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/COFEA/playground" />
@@ -599,83 +677,6 @@
     <SUITE FILE_PATH="coverage/COFEA$COFEA.coverage" NAME="COFEA Coverage Results" MODIFIED="1668238537626" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/COFEA/playground" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/CoFEA/CoFEAv2.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1366">
-          <caret line="93" column="27" selection-start-line="93" selection-start-column="27" selection-end-line="93" selection-end-column="27" />
-          <folding>
-            <element signature="e#0#31#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/MaciNet/supervised_learning/PSO.gif">
-      <provider selected="true" editor-type-id="images" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/CoFEA/pso_simple_rl_template.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="631">
-          <caret line="226" column="144" selection-start-line="226" selection-start-column="144" selection-end-line="226" selection-end-column="144" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/CoFEA/models_rl/q_learn.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="210">
-          <caret line="16" column="22" selection-start-line="16" selection-start-column="22" selection-end-line="16" selection-end-column="22" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/CoFEA/models_rl/sarsa.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="150">
-          <caret line="12" column="21" lean-forward="true" selection-start-line="12" selection-start-column="21" selection-end-line="12" selection-end-column="21" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.7/lib/python3.7/site-packages/gym/wrappers/step_api_compatibility.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="183">
-          <caret line="28" column="51" selection-start-line="28" selection-start-column="51" selection-end-line="28" selection-end-column="51" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/CoFEA/spamco_pso.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2054">
-          <caret line="246" column="17" selection-start-line="246" selection-start-column="17" selection-end-line="246" selection-end-column="17" />
-          <folding>
-            <element signature="e#0#9#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/CoFEA/models_rl/q_learn_osi.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="225">
-          <caret line="18" column="24" lean-forward="true" selection-start-line="18" selection-start-column="24" selection-end-line="18" selection-end-column="24" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/CoFEA/models_rl/e_sarsa_fea.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="45">
-          <caret line="3" column="21" lean-forward="true" selection-start-line="3" selection-start-column="21" selection-end-line="3" selection-end-column="21" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/CoFEA/util/data/data_process_rl_osi.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/CoFEA/models_rl/agent.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="120">
@@ -952,16 +953,6 @@
     <entry file="file://$PROJECT_DIR$/FEA/basealgorithms/pso2.o">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/FEA/basealgorithms/pso.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-463">
-          <caret line="108" column="25" selection-start-line="108" selection-start-column="25" selection-end-line="108" selection-end-column="25" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/CoFEA/environments/env_racetrack_v2.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="86">
@@ -970,11 +961,6 @@
             <element signature="e#0#10#0" expanded="true" />
           </folding>
         </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/FEA/optimizationproblems/continuous_functions.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-48" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/CoFEA/environments/env_cliff_walking.py">
@@ -1007,20 +993,117 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/CoFEA/pso_simple_rl.py">
+    <entry file="file://$PROJECT_DIR$/FEA/MOO/MOFEA.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="303">
-          <caret line="425" column="48" selection-start-line="425" selection-start-column="48" selection-end-line="425" selection-end-column="48" />
+        <state relative-caret-position="-2629">
+          <folding>
+            <element signature="e#0#9#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/FEA/optimizationproblems/continuous_functions.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <folding>
+            <element signature="e#831#873#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/FEA/utilities/util.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="45">
+          <caret line="3" column="8" selection-start-line="3" selection-start-column="8" selection-end-line="3" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/FEA/__init__.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/FEA/basealgorithms/ga.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-5779">
+          <caret line="4" column="52" selection-start-line="4" selection-start-column="52" selection-end-line="4" selection-end-column="52" />
+          <folding>
+            <element signature="e#321#339#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/FEA/FEA/factorevolution.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="525">
+          <caret line="97" column="29" selection-start-line="97" selection-start-column="29" selection-end-line="97" selection-end-column="29" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/FEA/basealgorithms/pso.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-469">
+          <caret line="108" column="25" selection-start-line="108" selection-start-column="25" selection-end-line="108" selection-end-column="25" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/FEA/FEA/varinteraction.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-3045">
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/FEA/MOO/MOEA.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-10159" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/FEA/MOO/paretofrontevaluation.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-771">
+          <folding>
+            <element signature="e#0#16#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/CoFEA/pso_simple_rl.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-304">
+          <caret line="427" column="31" selection-start-line="427" selection-start-column="31" selection-end-line="427" selection-end-column="31" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/FEA/Testing/unittesting/test_factor_architecture_design.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <folding>
+            <element signature="e#0#59#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/FEA/FEA/factorarchitecture.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="411">
+          <caret line="149" column="23" selection-start-line="149" selection-start-column="23" selection-end-line="149" selection-end-column="23" />
+          <folding>
+            <element signature="e#0#32#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/FEA/basealgorithms/pso_rl.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="433">
-          <caret line="678" lean-forward="true" selection-start-line="678" selection-end-line="678" />
+        <state relative-caret-position="460">
+          <caret line="301" column="19" selection-start-line="301" selection-start-column="19" selection-end-line="301" selection-end-column="19" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
             <element signature="e#8759#9978#0" />
