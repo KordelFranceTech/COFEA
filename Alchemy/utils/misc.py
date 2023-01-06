@@ -5,9 +5,9 @@ import matplotlib.cm as cmx
 import matplotlib.colors as colors
 import numpy as np
 
-from MaciNet.utils.data_operation import calculate_covariance_matrix
-from MaciNet.utils.data_operation import calculate_correlation_matrix
-from MaciNet.utils.data_manipulation import standardize
+from Alchemy.utils.data_operation import calculate_covariance_matrix
+from Alchemy.utils.data_operation import calculate_correlation_matrix
+from Alchemy.utils.data_manipulation import standardize
 
 bar_widgets = [
     'Training: ', progressbar.Percentage(), ' ', progressbar.Bar(marker="-", left="[", right="]"),

@@ -1,5 +1,5 @@
 import numpy as np
-from MaciNet.utils import make_diagonal, normalize
+from Alchemy.utils import make_diagonal, normalize
 
 # Optimizers for models that use gradient based methods for finding the 
 # weights that minimizes the loss.

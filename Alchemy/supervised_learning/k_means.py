@@ -1,7 +1,7 @@
 from __future__ import print_function, division
 import numpy as np
-from MaciNet.utils import normalize, euclidean_distance, Plot
-# from MaciNet.unsupervised_learning import *
+from Alchemy.utils import normalize, euclidean_distance, Plot
+# from Alchemy.unsupervised_learning import *
 
 class KMeans():
     """A simple clustering method that forms k clusters by iteratively reassigning

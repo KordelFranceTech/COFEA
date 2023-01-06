@@ -1,6 +1,6 @@
 from __future__ import print_function, division
 import numpy as np
-from MaciNet.utils import euclidean_distance
+from Alchemy.utils import euclidean_distance
 
 class KNN():
     """ K Nearest Neighbors classifier.

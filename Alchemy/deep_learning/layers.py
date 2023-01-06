@@ -3,8 +3,8 @@ from __future__ import print_function, division
 import math
 import numpy as np
 import copy
-from MaciNet.deep_learning.activation_functions import Sigmoid, ReLU, SoftPlus, LeakyReLU
-from MaciNet.deep_learning.activation_functions import TanH, ELU, SELU, Softmax, Linear
+from Alchemy.deep_learning.activation_functions import Sigmoid, ReLU, SoftPlus, LeakyReLU
+from Alchemy.deep_learning.activation_functions import TanH, ELU, SELU, Softmax, Linear
 
 
 class Layer(object):

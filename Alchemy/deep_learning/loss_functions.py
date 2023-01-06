@@ -1,7 +1,7 @@
 from __future__ import division
 import numpy as np
-from MaciNet.utils import accuracy_score
-from MaciNet.deep_learning.activation_functions import Sigmoid
+from Alchemy.utils import accuracy_score
+from Alchemy.deep_learning.activation_functions import Sigmoid
 
 
 class Loss(object):

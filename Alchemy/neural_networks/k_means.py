@@ -7,8 +7,8 @@
 from __future__ import division, print_function
 from sklearn import datasets
 
-from MaciNet.supervised_learning.k_means import KMeans
-from MaciNet.utils import Plot
+from Alchemy.supervised_learning.k_means import KMeans
+from Alchemy.utils import Plot
 
 
 def build_k_means_clustering(datapath:str, plot_results:bool=True):

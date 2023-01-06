@@ -3,9 +3,9 @@ import numpy as np
 import math
 from sklearn import datasets
 
-from MaciNet.utils import train_test_split, to_categorical, normalize, accuracy_score, Plot
-from MaciNet.deep_learning.activation_functions import Sigmoid, Softmax
-from MaciNet.deep_learning.loss_functions import CrossEntropy
+from Alchemy.utils import train_test_split, to_categorical, normalize, accuracy_score, Plot
+from Alchemy.deep_learning.activation_functions import Sigmoid, Softmax
+from Alchemy.deep_learning.loss_functions import CrossEntropy
 
 class MultilayerPerceptron():
     """Multilayer Perceptron classifier. A fully-connected neural network with one hidden layer.

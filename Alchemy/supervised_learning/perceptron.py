@@ -3,11 +3,11 @@ import math
 import numpy as np
 
 # Import helper functions
-from MaciNet.utils import train_test_split, to_categorical, normalize, accuracy_score
-from MaciNet.deep_learning.activation_functions import Sigmoid, ReLU, SoftPlus, LeakyReLU, TanH, ELU
-from MaciNet.deep_learning.loss_functions import CrossEntropy, SquareLoss
-from MaciNet.utils import Plot
-from MaciNet.utils.misc import bar_widgets
+from Alchemy.utils import train_test_split, to_categorical, normalize, accuracy_score
+from Alchemy.deep_learning.activation_functions import Sigmoid, ReLU, SoftPlus, LeakyReLU, TanH, ELU
+from Alchemy.deep_learning.loss_functions import CrossEntropy, SquareLoss
+from Alchemy.utils import Plot
+from Alchemy.utils.misc import bar_widgets
 import progressbar
 
 class Perceptron():
