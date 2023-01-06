@@ -1,7 +1,7 @@
-# neural_network.py
+# maci_net.py
 # Theta Technologies
 ########################################################################################################################
-# Main driver for training a feedforward neural network (with backprop) over multimodal sensor data.
+# Playground file training a feedforward neural network (with backprop) over multimodal sensor data.
 ########################################################################################################################
 
 
@@ -9,18 +9,21 @@ from __future__ import print_function
 import matplotlib.pyplot as plt
 import numpy as np
 
-from MaciNet.deep_learning import NeuralNetwork
-from MaciNet.utils import train_test_split, to_categorical, Plot
-from MaciNet.deep_learning.optimizers import Adam
-from MaciNet.deep_learning.loss_functions import CrossEntropy
-from MaciNet.deep_learning.layers import Dense, Activation
+from Alchemy.deep_learning import NeuralNetwork
+from Alchemy.utils import train_test_split, to_categorical, Plot
+from Alchemy.deep_learning.optimizers import Adam
+from Alchemy.deep_learning.loss_functions import CrossEntropy
+from Alchemy.deep_learning.layers import Dense, Activation
 import pandas as pd
 
 
-def build_neural_network(datapath:str, plot_results:bool=True):
+def main():
+
+    filename: str = 'Sheet 1-SotechDataset_Sensor1_rev2.csv'
+    # filename: str = "SotechDataset_Sensor1.csv"
 
     # read each value, check for missing / erroneous data, and import the data into a pandas dataframe
-    dataframe: pd.DataFrame = pd.read_csv(datapath, header=None)
+    dataframe: pd.DataFrame = pd.read_csv(filename, header=None)
     dataframe = dataframe.sample(frac=1)
     y_vals_nn = dataframe[16]
     x_vals_nn = dataframe.drop([16], 1)
@@ -65,27 +68,28 @@ def build_neural_network(datapath:str, plot_results:bool=True):
 
     # Training and validation error plot
     n = len(train_err)
-
-    if plot_results:
-        training, = plt.plot(range(n), train_err, label="Training Error")
-        validation, = plt.plot(range(n), val_err, label="Validation Error")
-        plt.legend(handles=[training, validation])
-        plt.title("Error Plot")
-        plt.ylabel('Error')
-        plt.xlabel('Iterations')
-        plt.show()
+    training, = plt.plot(range(n), train_err, label="Training Error")
+    validation, = plt.plot(range(n), val_err, label="Validation Error")
+    plt.legend(handles=[training, validation])
+    plt.title("Error Plot")
+    plt.ylabel('Error')
+    plt.xlabel('Iterations')
+    plt.show()
 
     final_loss, accuracy = model.test_on_batch(X_test, y_test)
     print("Accuracy:", accuracy)
     print(f'loss: {final_loss}')
 
-    if plot_results:
-        # Reduce dimension to 2D using PCA and plot the results
-        y_pred = np.argmax(model.predict(X_test), axis=1)
-        Plot().plot_in_2d(X_test,
-                          y_pred,
-                          title="Theta Breathomics Classifier",
-                          accuracy=accuracy,
-                          legend_labels=["negative","positive"])
-        Plot().plot_in_3d(X_test, y_pred)
+    # Reduce dimension to 2D using PCA and plot the results
+    y_pred = np.argmax(model.predict(X_test), axis=1)
+    Plot().plot_in_2d(X_test,
+                      y_pred,
+                      title="Theta Breathomics Classifier",
+                      accuracy=accuracy,
+                      legend_labels=["negative","positive"])
 
+    Plot().plot_in_3d(X_test, y_pred)
+
+
+if __name__ == "__main__":
+    main()

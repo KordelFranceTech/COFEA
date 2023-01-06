@@ -1,6 +1,6 @@
 
 import torch
-import model_utils_rl_pso_opt as mu
+from model_utils import model_utils_rl_pso_opt as mu
 from util.data import data_process_rl_osi as dp
 from config import ConfigRL
 from environments import env_frozen_lake, env_cliff_walking, environment

@@ -10,7 +10,7 @@ import csv
 import os
 import shutil
 import time
-from MaciNet import config
+from Alchemy import config
 
 
 def find_input_file(filename):

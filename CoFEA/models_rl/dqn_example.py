@@ -1,10 +1,10 @@
 from __future__ import print_function
 import numpy as np
-from MaciNet.utils import to_categorical
-from MaciNet.deep_learning.optimizers import Adam
-from MaciNet.deep_learning.loss_functions import SquareLoss
-from MaciNet.deep_learning.layers import Dense, Dropout, Flatten, Activation, Reshape, BatchNormalization
-from MaciNet.deep_learning import NeuralNetwork
+from Alchemy.utils import to_categorical
+from Alchemy.deep_learning.optimizers import Adam
+from Alchemy.deep_learning.loss_functions import SquareLoss
+from Alchemy.deep_learning.layers import Dense, Dropout, Flatten, Activation, Reshape, BatchNormalization
+from Alchemy.deep_learning import NeuralNetwork
 from .dqn import DeepQNetwork
 
 

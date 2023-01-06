@@ -7,10 +7,10 @@ import progressbar
 
 from sklearn.datasets import fetch_openml
 
-from MaciNet.deep_learning.optimizers import Adam
-from MaciNet.deep_learning.loss_functions import CrossEntropy, SquareLoss
-from MaciNet.deep_learning.layers import Dense, Dropout, Flatten, Activation, Reshape, BatchNormalization
-from MaciNet.deep_learning import NeuralNetwork
+from Alchemy.deep_learning.optimizers import Adam
+from Alchemy.deep_learning.loss_functions import CrossEntropy, SquareLoss
+from Alchemy.deep_learning.layers import Dense, Dropout, Flatten, Activation, Reshape, BatchNormalization
+from Alchemy.deep_learning import NeuralNetwork
 
 
 class Autoencoder():

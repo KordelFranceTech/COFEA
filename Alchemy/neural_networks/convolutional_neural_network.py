@@ -10,13 +10,13 @@ import math
 import numpy as np
 import pandas as pd
 
-from MaciNet.deep_learning import NeuralNetwork
-from MaciNet.utils import train_test_split, to_categorical
-from MaciNet.utils import Plot
-from MaciNet.deep_learning.optimizers import Adam
-from MaciNet.deep_learning.loss_functions import CrossEntropy
-from MaciNet.deep_learning.layers import Dense, Dropout, Conv2D, Flatten, Activation
-from MaciNet.deep_learning.layers import BatchNormalization
+from Alchemy.deep_learning import NeuralNetwork
+from Alchemy.utils import train_test_split, to_categorical
+from Alchemy.utils import Plot
+from Alchemy.deep_learning.optimizers import Adam
+from Alchemy.deep_learning.loss_functions import CrossEntropy
+from Alchemy.deep_learning.layers import Dense, Dropout, Conv2D, Flatten, Activation
+from Alchemy.deep_learning.layers import BatchNormalization
 
 
 

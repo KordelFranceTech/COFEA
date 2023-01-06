@@ -2,8 +2,8 @@ from __future__ import print_function, division
 from terminaltables import AsciiTable
 import numpy as np
 import progressbar
-from MaciNet.utils import batch_iterator
-from MaciNet.utils.misc import bar_widgets
+from Alchemy.utils import batch_iterator
+from Alchemy.utils.misc import bar_widgets
 
 
 class NeuralNetwork():

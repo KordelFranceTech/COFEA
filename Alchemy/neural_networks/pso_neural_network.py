@@ -10,12 +10,12 @@ import numpy as np
 import pandas as pd
 
 
-from MaciNet.supervised_learning import ParticleSwarmOptimizedNN
-from MaciNet.utils import train_test_split, to_categorical, normalize, Plot
-from MaciNet.deep_learning import NeuralNetwork
-from MaciNet.deep_learning.layers import Activation, Dense
-from MaciNet.deep_learning.loss_functions import CrossEntropy
-from MaciNet.deep_learning.optimizers import Adam
+from Alchemy.supervised_learning import ParticleSwarmOptimizedNN
+from Alchemy.utils import train_test_split, to_categorical, normalize, Plot
+from Alchemy.deep_learning import NeuralNetwork
+from Alchemy.deep_learning.layers import Activation, Dense
+from Alchemy.deep_learning.loss_functions import CrossEntropy
+from Alchemy.deep_learning.optimizers import Adam
 
 
 def build_pso_neural_network(datapath:str, plot_results:bool=True):

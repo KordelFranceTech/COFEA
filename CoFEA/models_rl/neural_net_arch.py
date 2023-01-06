@@ -1,8 +1,8 @@
-from MaciNet.supervised_learning import ParticleSwarmOptimizedNN
-from MaciNet.deep_learning import NeuralNetwork
-from MaciNet.deep_learning.layers import Activation, Dense
-from MaciNet.deep_learning.loss_functions import CrossEntropy, MeanSquaredErrorLoss
-from MaciNet.deep_learning.optimizers import Adam
+from Alchemy.supervised_learning import ParticleSwarmOptimizedNN
+from Alchemy.deep_learning import NeuralNetwork
+from Alchemy.deep_learning.layers import Activation, Dense
+from Alchemy.deep_learning.loss_functions import CrossEntropy, MeanSquaredErrorLoss
+from Alchemy.deep_learning.optimizers import Adam
 import numpy as np
 
 

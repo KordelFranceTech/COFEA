@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from tensorflow import keras
-from MaciNet.utils import train_test_split, to_categorical, Plot
+from Alchemy.utils import train_test_split, to_categorical, Plot
 
 
 def build_neural_network_tf(datapath:str, plot_results:bool=True):
