@@ -147,13 +147,14 @@ class FactorArchitecture(object):
         """
         self.method = "ring"
         self.arbiters = list(range(0, self.dim))
+        # self.factors = zip(*[rotate(self.arbiters, n) for n in range(0, group_size)])
         self.factors = [rotate(self.arbiters, n) for n in range(0, group_size)]
         print([rotate(self.arbiters, n) for n in range(0, group_size)])
-        print(self.factors)
+        # print(self.factors)
         self.determine_neighbors()
-        print(self.neighbors)
+        # print(self.neighbors)
         self.calculate_optimizers()
-        print(self.optimizers)
+        # print(self.optimizers)
 
     def classic_random_grouping(self, group_size):
         """

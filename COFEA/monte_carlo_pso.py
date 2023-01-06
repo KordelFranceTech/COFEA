@@ -1,9 +1,9 @@
 
 import torch
-import model_utils_rl_osi as mu
-from util.data import data_process_rl_osi as dp
+from model_utils import model_utils_rl_pso as mu
+from util.data import data_process_rl as dp
 from config import ConfigRL
-from environments import env_frozen_lake, env_cliff_walking, environment
+from environments import env_frozen_lake, env_cliff_walking, env_racetrack, env_racetrack_v2, environment
 import models_rl as models
 import numpy as np
 import torch.multiprocessing as mp
@@ -55,6 +55,7 @@ def adjust_config(config, num_examples, iter_step):
 
 
 def spaco_rl_osi(map,
+                 map_type,
                  configs,
                  iter_steps=10,
                  gamma=0.8,
@@ -112,12 +113,12 @@ def spaco_rl_osi(map,
         net = models.create(configs[obs].model_name, map)
         if debug:
             print(type(net))
-        train_data, _, _, _ = mu.train(net, train_env, configs[obs])
+        train_data, _, _ = mu.train(net, train_env, map_type, configs[obs])
         # acc = mu.evaluate(net, test_env, configs[obs], obs)
         # print(acc)
         # x
         # untrain_data = mu.get_randomized_q_table(net.Q, untrain_env)
-        untrain_data, _, _, _ = mu.train(net, untrain_env, configs[obs])
+        untrain_data, _, _ = mu.train(net, untrain_env, map_type, configs[obs])
         # train_data = train_data[:5]
         # untrain_data = untrain_data[:5]
         # print(mu.predict_prob(net, untrain_env, configs[obs], obs).shape)
@@ -198,7 +199,7 @@ def spaco_rl_osi(map,
 
 
             net = models.create(configs[obs].model_name, map)
-            mu.train(net, train_env, configs[obs])
+            mu.train(net, train_env, map_type, configs[obs])
 
             # update y
             # print(pred_probs.shape)
@@ -255,26 +256,39 @@ def spaco_rl_osi(map,
     return avg
 
 
-# dataset = "cifar10"
-# cur_path = os.getcwd()
-# logs_dir = os.path.join(cur_path, 'logs')
-# data_dir = os.path.join(cur_path, 'data', dataset)
-# data = datasets.create(dataset, data_dir)
-
-
-# e = {"map":env_cliff_walking.CliffWalkingEnv(), "type": "small"}
-# environment.set_environment(e)
+e = {"map":env_cliff_walking.CliffWalkingEnv(), "type": "large"}
+environment.set_environment(e)
 # env_cliff_walking.update_map_type()
-#
-# config1 = ConfigRL(model_name='e_sarsa_osi', env=e)
-# config2 = ConfigRL(model_name='e_sarsa_osi', env=e)
+
+config1 = ConfigRL(model_name='e_sarsa_fea', env=e)
+config2 = ConfigRL(model_name='e_sarsa_fea', env=e)
+
+print(spaco_rl_osi(
+      e["map"],
+      e["type"],
+      [config1, config2],
+      iter_steps=3,
+      gamma=0.8,
+      regularizer="soft"))
+
+
+# e = {"map":env_racetrack_v2.Racetrack(), "type": "L"}
+# environment.set_environment(e)
+# # env_cliff_walking.update_map_type()
+# # print(e["map"].desc)
+# print(f"obs space: {e['map'].observation_space}")
+# print(f"action space: {e['map'].action_space}")
+# config1 = ConfigRL(model_name='e_sarsa_fea', env=e)
+# config2 = ConfigRL(model_name='e_sarsa_fea', env=e)
 #
 # print(spaco_rl_osi(
 #       e["map"],
+#       e["type"],
 #       [config1, config2],
 #       iter_steps=3,
 #       gamma=0.8,
 #       regularizer="soft"))
+# e["map"].render()
 
 
 # config1 = ConfigRL(model_name='q_learn_osi')

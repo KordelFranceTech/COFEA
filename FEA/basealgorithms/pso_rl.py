@@ -186,7 +186,7 @@ INITIAL = [0, 0]  # initial starting location [x1,x2...]
 # bounds = [(0, 47), (0, 23), (24, 47)]  # input bounds [(x1_min,x1_max),(x2_min,x2_max)...]
 BOUNDS = get_bounds(MAP_SIZE)
 NUM_PARTICLES: int = 8
-MAX_ITER: int = 100
+MAX_ITER: int = 10
 env = {"map": env_cliff_walking.CliffWalkingEnv(), "type": MAP_SIZE}
 environment.set_environment(env)
 env = env["map"]
@@ -299,7 +299,7 @@ def f(states):
             # Append the sum of reward at the end of the episode
             totalReward[type(agent).__name__].append(episodeReward)
         rewards += np.mean(totalReward[type(agent).__name__])
-    reward_error = float(rewards / float(len(states)) ** 2)
+    reward_error = -float(rewards / float(len(states)) ** 2)
     return reward_error
 
 
@@ -536,7 +536,7 @@ class Particle(object):
         return self
 
     def calculate_fitness(self, glob_solution, position=None):
-        print(self.position)
+        # print(self.position)
         if glob_solution is None:
             fitness = self.f(self.position)
         else:
@@ -768,21 +768,28 @@ class FEA:
 
 
 if __name__ == "__main__":
-    env.reset()
-    pso = PSO(generations=10, population_size=15, function=f, dim=len(BOUNDS))
-    # pso.run()
-    # print_map()
-    from FEA.FEA.factorarchitecture import FactorArchitecture
 
-    fa = FactorArchitecture(dim=2)
-    # fa.factors = fa.diff_grouping(f, 0.1)
+    # Factored PSO
+    from FEA.FEA.factorarchitecture import FactorArchitecture
+    env.reset()
+
+    fa = FactorArchitecture(dim=len(BOUNDS))
+    fa.diff_grouping(f, 0.1)
     # fa.factors = fa.random_grouping(min_groups=5, max_groups=15, overlap=True)
     # fa.factors = fa.linear_grouping(group_size=7, offset=5)
-    fa.ring_grouping(group_size=2)
-    # print(fa.factors)
+    # fa.ring_grouping(group_size=2)
+    print(fa.factors)
     fa.get_factor_topology_elements()
 
     # fa.load_csv_architecture(file="../../results/factors/F1_m4_diff_grouping.csv", dim=50)
     # func = Function(function_number=1, shift_data_file="f01_o.txt")
-    fea = FEA(f, fea_runs=10, generations=10, pop_size=15, factor_architecture=fa, base_algorithm=PSO)
+    fea = FEA(f, fea_runs=5, generations=10, pop_size=8, factor_architecture=fa, base_algorithm=PSO)
     fea.run()
+    print(fa.factors)
+    print_map()
+
+    # Regular PSO for comparison
+    env.reset()
+    pso = PSO(generations=10, population_size=8, function=f, dim=len(BOUNDS))
+    pso.run()
+    print_map()
