@@ -1,4 +1,4 @@
-# CoFEA
+# CoFEA for Swarm Intelligence
 (Policy) Co-Training for Factored Evolutionary Algorithms
 
 This repository is a work in progress. It builds off of the work conducted by Dr. John Sheppard, Dr. Shane Strasser, and
