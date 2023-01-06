@@ -1,4 +1,4 @@
-# COFEA
+# CoFEA
 (Policy) Co-Training for Factored Evolutionary Algorithms
 
 This repository is a work in progress. It builds off of the work conducted by Ma, et al. (2020) in their original paper of Self-paced Multi-view Co-training (SPaMCo) [1]. It has been adapted to learn a policy for a Markov decision process through reinforcement learning. The foundation of this work was taken from the repository constructed by Ma, et al. below:

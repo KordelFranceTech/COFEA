@@ -4,6 +4,8 @@ from environments import environment
 
 def get_best_policy(q_table, cheat=False):
     policy: list = []
+    if q_table is None:
+        return policy
     for state in q_table:
         a = np.argmax(state)
         policy.append(a)
