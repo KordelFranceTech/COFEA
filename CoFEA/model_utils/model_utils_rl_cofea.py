@@ -35,7 +35,6 @@ def compute_reward(state: int):
     return reward
 
 
-
 def f(states):
     rewards = 0
     total_episodes = 1
@@ -84,9 +83,7 @@ def f(states):
     return reward_error
 
 
-
 # --- MAIN ---------------------------------------------------------------------+
-
 class Particle(object):
     def __init__(self, f, size, position=None, factor=None, global_solution=None, lbest_pos=None):
         self.f = f
@@ -643,8 +640,6 @@ def evaluate(model, env, config, device):
     policy_str: str = print_policy_string(current_policy)
     print(f"\n\n\tCURRENT POLICY:\n{policy_str}")
     return accuracy, policy_str
-
-
 
 
 def get_state_action_table(q_table):
