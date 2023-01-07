@@ -917,7 +917,7 @@ def print_map(map_size: str):
     print(reward_map_str)
 
 
-def train_fea_racetrack_model(model, env, env_type, config, initial=[0, 0], num_particles=8, generations=10, fea_iter=1, debug=False):
+def train_fea_racetrack_model(model, env, env_type, config, initial=[0, 0], num_particles=8, generations=100, fea_iter=5, debug=False):
     """
     train model given the dataloader the criterion,
     stop when epochs are reached

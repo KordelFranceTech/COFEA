@@ -14,7 +14,7 @@ RIGHT = 1
 DOWN = 2
 LEFT = 3
 SIZE: str = "large"
-TRACK_FILE: str = "O-track"
+TRACK_FILE: str = "L-track"
 # TERMINAL_STATE: tuple = (2, 34)
 # TERMINAL_STATE: tuple = (27, 28)
 TERMINAL_STATE: tuple = (28, 8)
@@ -54,7 +54,7 @@ def build_cliff_R(shape):
     return _cliff
 
 
-def build_cliff_O(shape):
+def build_cliff_P(shape):
     _cliff = np.zeros(shape, dtype=bool)
     _cliff[:1, :] = True
     for i in range(2,6):
@@ -125,33 +125,22 @@ class Racetrack(Env):
         # self.shape = env_utils.get_track_shape(input_file=TRACK_FILE)
         # self.start_state_index = env_utils.get_new_initial_state(input_file=TRACK_FILE)
         # print(self.start_state_index)
+        global TERMINAL_STATE
         if TRACK_FILE == "L-track":
             self.shape = (11, 37)
             # self.start_state_index = np.ravel_multi_index((10, 0), self.shape
             self.start_state_index = 297
+            TERMINAL_STATE = (2, 35)
         elif TRACK_FILE == "R-track":
             self.shape = (28, 30)
             # self.start_state_index = np.ravel_multi_index((10, 0), self.shape
             self.start_state_index = 782
-        elif TRACK_FILE == "O-track":
+            TERMINAL_STATE = (26, 28)
+        elif TRACK_FILE == "P-track":
             self.shape = (30, 30)
             # self.start_state_index = np.ravel_multi_index((10, 0), self.shape
             self.start_state_index = 782
-        #     self.shape = (11, 37)
-        #     self.start_state_index = env_utils.get_new_initial_state(input_file=TRACK_FILE)
-        # if SIZE == "small":
-        #     self.shape = (4, 12)
-        #     self.start_state_index = np.ravel_multi_index((3, 0), self.shape)
-        # elif SIZE == "large":
-        #     self.shape = (8, 24)
-        #     self.start_state_index = np.ravel_multi_index((7, 0), self.shape)
-        # elif SIZE == "mega":
-        #     self.shape = (16, 48)
-        #     self.start_state_index = np.ravel_multi_index((15, 0), self.shape)
-        # elif SIZE == "giga":
-        #     self.shape = (32, 96)
-        #     self.start_state_index = np.ravel_multi_index((31, 0), self.shape)
-
+            TERMINAL_STATE = (28, 8)
 
         # print(np.ravel_multi_index((3, 0), self.shape))
         self.nS = np.prod(self.shape)
@@ -168,9 +157,9 @@ class Racetrack(Env):
         elif TRACK_FILE == "R-track":
         # self._cliff[-1, 1:-1] = True
             self._cliff = build_cliff_R(self.shape)
-        if TRACK_FILE == "O-track":
+        if TRACK_FILE == "P-track":
         # self._cliff[-1, 1:-1] = True
-            self._cliff = build_cliff_O(self.shape)
+            self._cliff = build_cliff_P(self.shape)
         # print(self._cliff)
         # elif SIZE == "large":
         #     self._cliff = np.zeros(self.shape, dtype=bool)

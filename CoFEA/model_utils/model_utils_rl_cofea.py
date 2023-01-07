@@ -2,6 +2,7 @@ import copy
 from torch import nn
 # from util.data_rl import data_process as dp
 from FEA.FEA.factorarchitecture import FactorArchitecture
+from environments import env_frozen_lake, env_cliff_walking, env_racetrack, env_racetrack_v2, environment
 from benchmark import get_best_policy, get_best_policy_osi, get_benchmark_policy, print_policy_string, k
 from copy import deepcopy
 from operator import attrgetter
@@ -24,9 +25,11 @@ def get_bounds(map_size: str):
     elif map_size == "giga":
         bounds = [(0, 31), (0, 95)]
     elif map_size == "L":
-        bounds = [(1, 11), (1, 37)]
+        bounds = [(0, 11), (0, 37)]
     elif map_size == "R":
         bounds = [(0, 28), (0, 30)]
+    elif map_size == "P":
+        bounds = [(0, 30), (0, 30)]
     return bounds
 
 
@@ -367,6 +370,7 @@ class FEA:
         self.solution_history.append(sol)
 
 
+
 def print_map(map_size: str):
     size: int = 48
     row_size: int = 12
@@ -388,12 +392,19 @@ def print_map(map_size: str):
     elif map_size == "R":
         size = 840
         row_size = 30
+    elif map_size == "P":
+        size = 900
+        row_size = 30
     map_str: str = ""
     reward_map_str: str = ""
     for i in range(len(AGENT.Q)):
         actions = AGENT.Q[i]
         action = np.argmax(actions)
-        if action == 0:
+        if i == (int(env_racetrack.TERMINAL_STATE[0]*row_size) + env_racetrack.TERMINAL_STATE[1]):
+            map_str += "G"
+        # elif i == (int(INITIAL[0]*row_size) + INITIAL[1]):
+        #     map_str += "S"
+        elif action == 0:
             map_str += "^"
         elif action == 1:
             map_str += ">"
@@ -446,7 +457,7 @@ def build_trajectories(agent, e, config):
     return trajectories
 
 
-def train_fea_model(model, env, env_type, config, initial=[0, 0], num_particles=8, generations=10, fea_iter=1, debug=False):
+def train_fea_model(model, env, env_type, config, initial=[0, 0], num_particles=8, generations=20, fea_iter=5, debug=False):
     """
     train model given the dataloader the criterion,
     stop when epochs are reached
