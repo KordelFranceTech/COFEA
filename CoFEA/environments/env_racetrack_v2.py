@@ -92,8 +92,7 @@ def generate_random_map(size: int = 8, p: float = 0.8) -> List[str]:
         res[0][0] = "S"
         res[-1][-1] = "G"
         valid = is_valid(res)
-    # return ["".join(x) for x in res]
-    return env_utils.construct_environment(TRACK_FILE)
+    return ["".join(x) for x in res]
 
 
 # DFS to check that it's a valid path.
@@ -117,7 +116,7 @@ def is_valid(board: List[List[str]], max_size: int) -> bool:
     return False
 
 
-def generate_random_map(size: int = 8, p: float = 0.8) -> List[str]:
+def generate_racetrack_map(size: int = 8, p: float = 0.8) -> List[str]:
     """Generates a random valid map (one that has a path from start to goal)
     Args:
         size: size of each side of the grid
@@ -214,10 +213,12 @@ class Racetrack(Env):
         is_slippery=False,
     ):
         if desc is None and map_name is None:
-            desc = generate_random_map()
+            # desc = generate_random_map()
+            desc = generate_racetrack_map()
             print(desc)
         elif desc is None:
-            desc = generate_random_map()
+            # desc = generate_random_map()
+            desc = generate_racetrack_map()
             print(desc)
         self.desc = desc = np.asarray(desc, dtype="c")
         nrow = 8

@@ -1,6 +1,6 @@
 
 import torch
-from model_utils import model_utils_rl_cofea as mu
+from model_utils import model_utils_rl_cofea_racetrack as mu
 from util.data import data_process_rl as dp
 from config import ConfigRL
 from environments import env_frozen_lake, env_cliff_walking, env_racetrack, env_racetrack_v2, environment
@@ -37,8 +37,6 @@ def parallel_train(nets, train_data, data_dir, configs):
         processes.append(p)
     for p in processes:
         p.join()
-
-
 
 
 def adjust_config(config, num_examples, iter_step):

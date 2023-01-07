@@ -7,7 +7,7 @@ import random
 
 
 
-def train_model(model, env, config, debug=False):
+def train_model(model, env, env_type, config, debug=False):
     """
     train model given the dataloader the criterion,
     stop when epochs are reached
@@ -71,11 +71,11 @@ def train_model(model, env, config, debug=False):
     return trajectory, current_policy, benchmark_policy
 
 
-def train(model, env, config):
+def train(model, env, env_type, config):
     #  model = models.create(config.model_name)
     #  model = nn.DataParallel(model).cuda()
     # dataloader = dp.get_dataloader(train_data, config, is_training=True)
-    trajectory, current_policy, benchmark_policy = train_model(model, env, config)
+    trajectory, current_policy, benchmark_policy = train_model(model, env, env_type, config)
     #  return model
     return trajectory, current_policy, benchmark_policy
 
@@ -161,8 +161,9 @@ def predict_prob(model, env, config, device):
             rewards.append([total_reward])
     env.close()
     # print(rewards)
-    # print(probs)
-    return np.concatenate(probs)
+    print(probs)
+    # return np.concatenate(probs)
+    return probs
     # k = []
     # for i in range(0, env.observation_space.n):
     #     i0 = []

@@ -23,8 +23,10 @@ def get_bounds(map_size: str):
         bounds = [(0, 15), (0, 47)]
     elif map_size == "giga":
         bounds = [(0, 31), (0, 95)]
-    else:
-        bounds = [(1, 10), (1, 35)]
+    elif map_size == "L":
+        bounds = [(1, 11), (1, 37)]
+    elif map_size == "R":
+        bounds = [(0, 28), (0, 30)]
     return bounds
 
 
@@ -69,7 +71,7 @@ def f(states):
                 state1 = state2
                 action1 = action2
 
-                # Updating the respective vaLues
+                # Updating the respective values
                 t += 1
                 episodeReward += reward
 
@@ -380,9 +382,12 @@ def print_map(map_size: str):
     elif map_size == "giga":
         size = 64*12*4
         row_size = 96
-    else:
+    elif map_size == "L":
         size = 407
         row_size = 37
+    elif map_size == "R":
+        size = 840
+        row_size = 30
     map_str: str = ""
     reward_map_str: str = ""
     for i in range(len(AGENT.Q)):
@@ -582,17 +587,18 @@ def predict_prob(model, env, config, device):
             rewards.append([total_reward])
     env.close()
     # print(rewards)
-    # print(probs)
+    print(probs)
     # return np.concatenate(probs)
-    k = []
-    for i in range(0, env.observation_space.n):
-        i0 = []
-        for j in range(0, env.action_space.n):
-            i0.append(random.randrange(0, 100) / 100)
-        k.append(i0)
-    print(k)
-    print(len(k))
-    return k
+    return probs
+    # k = []
+    # for i in range(0, env.observation_space.n):
+    #     i0 = []
+    #     for j in range(0, env.action_space.n):
+    #         i0.append(random.randrange(0, 100) / 100)
+    #     k.append(i0)
+    # print(k)
+    # print(len(k))
+    # return k
     # return [item for sublist in rewards for item in sublist]
 
 # def evaluate(model, data, config, device):

@@ -14,7 +14,63 @@ RIGHT = 1
 DOWN = 2
 LEFT = 3
 SIZE: str = "large"
-TRACK_FILE: str = "L-track.txt"
+TRACK_FILE: str = "O-track"
+# TERMINAL_STATE: tuple = (2, 34)
+# TERMINAL_STATE: tuple = (27, 28)
+TERMINAL_STATE: tuple = (28, 8)
+
+def build_cliff_L(shape):
+    _cliff = np.zeros(shape, dtype=bool)
+    _cliff[0, :] = True
+    for i in range(1,6):
+        _cliff[i, :-5] = True
+        _cliff[i, -1:] = True
+    for i in range(6,10):
+        _cliff[i, :1] = True
+        _cliff[i, -1:] = True
+    _cliff[10, :] = True
+    return _cliff
+
+
+def build_cliff_R(shape):
+    _cliff = np.zeros(shape, dtype=bool)
+    _cliff[:1, :] = True
+    for i in range(2,5):
+        _cliff[i, :1] = True
+        _cliff[i, -1:] = True
+    for i in range(5,15):
+        _cliff[i, :1] = True
+        _cliff[i, 5:-6] = True
+        _cliff[i, -1:] = True
+    for i in range(15,20):
+        _cliff[i, :1] = True
+        _cliff[i, 5:10] = True
+        _cliff[i, -1:] = True
+    for i in range(20,shape[0] - 1):
+        _cliff[i, :1] = True
+        _cliff[i, 5:20] = True
+        _cliff[i, -1:] = True
+    _cliff[-1, :] = True
+    return _cliff
+
+
+def build_cliff_O(shape):
+    _cliff = np.zeros(shape, dtype=bool)
+    _cliff[:1, :] = True
+    for i in range(2,6):
+        _cliff[i, :1] = True
+        _cliff[i, -1:] = True
+    for i in range(6,24):
+        _cliff[i, :1] = True
+        _cliff[i, 5:-6] = True
+        _cliff[i, -1:] = True
+    for i in range(24,shape[0] - 1):
+        _cliff[i, :1] = True
+        _cliff[i, 5:7] = True # uncomment this to test policy sensitivity
+        _cliff[i, -1:] = True
+    _cliff[-1, :] = True
+    return _cliff
+
 
 
 class Racetrack(Env):
@@ -66,10 +122,23 @@ class Racetrack(Env):
     metadata = {"render_modes": ["human", "ansi"], "render_fps": 4}
 
     def __init__(self):
-        self.shape = env_utils.get_track_shape(input_file=TRACK_FILE)
-        print(self.shape)
-        if TRACK_FILE == "L-track.txt":
-            self.start_state_index = env_utils.get_new_initial_state(input_file=TRACK_FILE)
+        # self.shape = env_utils.get_track_shape(input_file=TRACK_FILE)
+        # self.start_state_index = env_utils.get_new_initial_state(input_file=TRACK_FILE)
+        # print(self.start_state_index)
+        if TRACK_FILE == "L-track":
+            self.shape = (11, 37)
+            # self.start_state_index = np.ravel_multi_index((10, 0), self.shape
+            self.start_state_index = 297
+        elif TRACK_FILE == "R-track":
+            self.shape = (28, 30)
+            # self.start_state_index = np.ravel_multi_index((10, 0), self.shape
+            self.start_state_index = 782
+        elif TRACK_FILE == "O-track":
+            self.shape = (30, 30)
+            # self.start_state_index = np.ravel_multi_index((10, 0), self.shape
+            self.start_state_index = 782
+        #     self.shape = (11, 37)
+        #     self.start_state_index = env_utils.get_new_initial_state(input_file=TRACK_FILE)
         # if SIZE == "small":
         #     self.shape = (4, 12)
         #     self.start_state_index = np.ravel_multi_index((3, 0), self.shape)
@@ -83,16 +152,26 @@ class Racetrack(Env):
         #     self.shape = (32, 96)
         #     self.start_state_index = np.ravel_multi_index((31, 0), self.shape)
 
+
         # print(np.ravel_multi_index((3, 0), self.shape))
         self.nS = np.prod(self.shape)
         self.nA = 4
 
         # Cliff Location
-        self._cliff = np.zeros(self.shape, dtype=bool)
-        self._cliff[env_utils.get_track_boundaries(input_file=TRACK_FILE)] = True
+        # self._cliff = np.zeros(self.shape, dtype=bool)
+        # self._cliff[env_utils.get_track_boundaries(input_file=TRACK_FILE)] = True
         # if SIZE == "small":
-        #     self._cliff = np.zeros(self.shape, dtype=bool)
-        #     self._cliff[-1, 1:-1] = True
+        self._cliff = np.zeros(self.shape, dtype=bool)
+        if TRACK_FILE == "L-track":
+        # self._cliff[-1, 1:-1] = True
+            self._cliff = build_cliff_L(self.shape)
+        elif TRACK_FILE == "R-track":
+        # self._cliff[-1, 1:-1] = True
+            self._cliff = build_cliff_R(self.shape)
+        if TRACK_FILE == "O-track":
+        # self._cliff[-1, 1:-1] = True
+            self._cliff = build_cliff_O(self.shape)
+        # print(self._cliff)
         # elif SIZE == "large":
         #     self._cliff = np.zeros(self.shape, dtype=bool)
         #     self._cliff[-2:, 2:-2] = True
@@ -145,8 +224,8 @@ class Racetrack(Env):
         if self._cliff[tuple(new_position)]:
             return [(1.0, self.start_state_index, -100, False)]
 
-        terminal_state = (self.shape[0] - 1, self.shape[1] - 1)
-        is_done = tuple(new_position) == terminal_state
+        # terminal_state = (self.shape[0] - 1, self.shape[1] - 1)
+        is_done = tuple(new_position) == TERMINAL_STATE
         return [(1.0, new_state, -1, is_done)]
 
     def step(self, a):

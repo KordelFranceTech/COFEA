@@ -1,5 +1,5 @@
 import numpy as np
-from environments import env_frozen_lake, env_cliff_walking, env_racetrack_v2, environment
+from environments import env_frozen_lake, env_cliff_walking, env_racetrack, env_racetrack_v2, environment
 import random
 import gym
 
@@ -162,24 +162,32 @@ class ExpectedSarsaAgent(Agent):
 
 def get_bounds(map_size: str):
     bounds = []
-    if map_size == "L":
-        bounds = [(0,11), (0,37)]
-    elif map_size == "O":
+    if map_size == "small":
+        bounds = [(0,3), (0,11)]
+    elif map_size == "large":
         bounds = [(0, 7), (0, 23)]
-    elif map_size == "R":
+    elif map_size == "mega":
         bounds = [(0, 15), (0, 47)]
+    elif map_size == "giga":
+        bounds = [(0, 31), (0, 95)]
+    elif map_size == "L":
+        bounds = [(1, 11), (1, 37)]
+    elif map_size == "R":
+        bounds = [(0, 28), (0, 30)]
+    elif map_size == "O":
+        bounds = [(0, 30), (0, 30)]
     return bounds
 
 
-MAP_SIZE: str = "L"
-INITIAL = [0, 0]  # initial starting location [x1,x2...]
+MAP_SIZE: str = "O"
+INITIAL = [27, 2]  # initial starting location [x1,x2...]
 # overlapping intervals to emulate OSI
 # bounds = [(0, 47), (0, 23), (24, 47)]  # input bounds [(x1_min,x1_max),(x2_min,x2_max)...]
 BOUNDS = get_bounds(MAP_SIZE)
 NUM_PARTICLES: int = 8
-MAX_ITER: int = 10
+MAX_ITER: int = 1000
 # env = {"map": env_cliff_walking.CliffWalkingEnv(), "type": MAP_SIZE}
-env = {"map":env_racetrack_v2.Racetrack(), "type": MAP_SIZE}
+env = {"map":env_racetrack.Racetrack(), "type": MAP_SIZE}
 environment.set_environment(env)
 env = env["map"]
 # env = gym.make('CliffWalking-v0')
@@ -208,8 +216,8 @@ totalReward = {
 # Defining all the required parameters
 epsilon = 0.1
 total_episodes = 1
-max_steps = 10
-alpha = 0.5
+max_steps = 100
+alpha = 0.9
 gamma = 1
 episodeReward = 0
 
@@ -434,24 +442,38 @@ class PSO():
         print(err_best_g)
 
 
-def print_map():
-    size: int = 11
-    row_size: int = 37
-    if MAP_SIZE == "L":
-        size = 11
-        row_size = 37
-    elif MAP_SIZE == "O":
+def print_map(map_size: str):
+    size: int = 48
+    row_size: int = 12
+    if map_size == "small":
+        size = 48
+        row_size = 12
+    elif map_size == "large":
         size = 4*12*4
         row_size = 24
-    elif MAP_SIZE == "R":
+    elif map_size == "mega":
         size = 16*12*4
         row_size = 48
+    elif map_size == "giga":
+        size = 64*12*4
+        row_size = 96
+    elif map_size == "L":
+        size = 407
+        row_size = 37
+    elif map_size == "R":
+        size = 840
+        row_size = 30
+    elif map_size == "O":
+        size = 900
+        row_size = 30
     map_str: str = ""
     reward_map_str: str = ""
     for i in range(len(agent.Q)):
         actions = agent.Q[i]
         action = np.argmax(actions)
-        if action == 0:
+        if i == (int(env_racetrack.TERMINAL_STATE[0]*row_size) + env_racetrack.TERMINAL_STATE[1]):
+            map_str += "G"
+        elif action == 0:
             map_str += "^"
         elif action == 1:
             map_str += ">"
@@ -475,4 +497,4 @@ def print_map():
 if __name__ == "__main__":
     env.reset()
     PSO(f, INITIAL, BOUNDS, num_particles=NUM_PARTICLES, maxiter=MAX_ITER)
-    print_map()
+    print_map(map_size=MAP_SIZE)

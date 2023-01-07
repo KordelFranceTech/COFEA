@@ -39,8 +39,6 @@ def parallel_train(nets, train_data, data_dir, configs):
         p.join()
 
 
-
-
 def adjust_config(config, num_examples, iter_step):
     repeat = 20 * (1.1 ** iter_step)
     epochs = list(range(60, 20, -20))
@@ -257,7 +255,6 @@ def spaco_rl_osi(map,
 e = {"map":env_cliff_walking.CliffWalkingEnv(), "type": "large"}
 environment.set_environment(e)
 # env_cliff_walking.update_map_type()
-
 config1 = ConfigRL(model_name='e_sarsa_fea', env=e)
 config2 = ConfigRL(model_name='e_sarsa_fea', env=e)
 
@@ -265,8 +262,8 @@ print(spaco_rl_osi(
       e["map"],
       e["type"],
       [config1, config2],
-      iter_steps=3,
-      gamma=0.8,
+      iter_steps=1,
+      gamma=0.3,
       regularizer="soft"))
 
 

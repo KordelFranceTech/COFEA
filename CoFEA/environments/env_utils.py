@@ -33,8 +33,8 @@ def construct_environment(input_file):
                     continue
                 env_line = [x for x in track_line]
                 # env_space.append(env_line)
-                env_space.append([x for x in track_line])
-
+                # env_space.append([x for x in track_line])
+                env_space.append(track_line)
     # for monte carlo simulation or other analysis
     else:
         with open(f'{config.IO_DIRECTORY}/{input_file}', 'r') as track_file:
@@ -48,7 +48,8 @@ def construct_environment(input_file):
                     continue
                 env_line = [x for x in track_line]
                 # env_space.append(env_line)
-                env_space.append([x for x in track_line])
+                # env_space.append([x for x in track_line])
+                env_space.append(track_line)
 
     return env_space
 

@@ -208,7 +208,7 @@ def get_lambda_class(score, pred_y, train_data, max_add):
         # print(cls)
         # print(idx_sort)
         # print(add_num)
-        # lambdas[cls] = cls_score[idx_sort[-add_num]] - 0.1
+        lambdas[cls] = cls_score[idx_sort[-add_num]] - 0.1
     return add_ids.astype('bool'), lambdas, pred_y
 
 
