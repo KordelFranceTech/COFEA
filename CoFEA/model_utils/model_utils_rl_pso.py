@@ -1,6 +1,4 @@
 import copy
-from torch import nn
-# from util.data_rl import data_process as dp
 from benchmark import get_best_policy, get_best_policy_osi, get_benchmark_policy, print_policy_string, k
 import numpy as np
 import random
@@ -311,57 +309,6 @@ def get_policy_accuracy(current: list, benchmark: list):
     return count / len(current)
 
 
-# def predict_prob(model, trajectories, config, device):
-    probs = []
-    # c_dict: dict = {}
-    # # print(trajectories)
-    # for t in trajectories:
-    #     if len(t) > 1:
-    #         t0 = t[0]
-    #
-    #         t1 = t[1]
-    #         print(c_dict.keys())
-    #         if t0 in c_dict.keys():
-    #             # print(t0)
-    #             # print(c_dict)
-    #             t1x = c_dict[str(t0)]
-    #             print(c_dict[t0])
-    #             print(t1)
-    #             x
-    #             t2x = t1x.append(t1)
-    #             c_dict[str(t0)] = t2x
-    #         else:
-    #             # print(t)
-    #             # print(t0)
-    #             # print(t[1])
-    #             c_dict[str(t0)] = [t1]
-    #     print(c_dict)
-    #
-    # for k in c_dict.keys():
-    #     l = c_dict[k]
-    #     l_dict: dict = {}
-    #     for l0 in l:
-    #         if l0 in l_dict.keys():
-    #             l1 = l_dict[l0]
-    #             l_dict[l0] = l1 + 1
-    #         else:
-    #             l_dict[l0] = 1
-
-
-
-# def predict_prob(model, data, config, device):
-#     model.eval()
-#     dataloader = dp.get_dataloader(data, config)
-#     probs = []
-#     with torch.no_grad():
-#         for batch_idx, (inputs, targets, _) in enumerate(dataloader):
-#             inputs, targets = inputs.to(device), targets.to(device)
-#             output = model(inputs)
-#             prob = nn.functional.softmax(output, dim=1)
-#             probs += [prob.data.cpu().numpy()]
-#     return np.concatenate(probs)
-
-
 def predict_prob(model, env, config, device):
     q_table = model.Q
     n, max_steps = config.epochs, config.max_steps
@@ -386,32 +333,7 @@ def predict_prob(model, env, config, device):
     # print(rewards)
     # print(probs)
     # return np.concatenate(probs)
-    k = []
-    for i in range(0, env.observation_space.n):
-        i0 = []
-        for j in range(0, env.action_space.n):
-            i0.append(random.randrange(0, 100) / 100)
-        k.append(i0)
-    print(k)
-    print(len(k))
-    return k
-    # return [item for sublist in rewards for item in sublist]
-
-# def evaluate(model, data, config, device):
-#     model.eval()
-#     correct = 0
-#     total = 0
-#     dataloader = dp.get_dataloader(data, config)
-#     with torch.no_grad():
-#         for batch_idx, (inputs, targets, _) in enumerate(dataloader):
-#             inputs, targets = inputs.to(device), targets.to(device)
-#             outputs = model(inputs)
-#             _, predicted = outputs.max(1)
-#             total += targets.size(0)
-#             correct += predicted.eq(targets).sum().item()
-#     acc = 100. * correct / total
-#     print('Accuracy on Test data: %0.5f' % acc)
-#     return acc
+    return probs
 
 
 def evaluate(model, env, config, device):
@@ -442,8 +364,6 @@ def evaluate(model, env, config, device):
     policy_str: str = print_policy_string(current_policy)
     print(f"\n\n\tCURRENT POLICY:\n{policy_str}")
     return accuracy, policy_str
-
-
 
 
 def get_state_action_table(q_table):

@@ -30,71 +30,48 @@ def compute_reward(state: int):
     return reward
 
 def f(states):
-    "Objective function"
-    # return (x - 3.14) ** 2 + (y - 2.72) ** 2 + np.sin(3 * x + 1.41) + np.sin(4 * y - 1.73)
-    # train_data, _, _ = mu.train(model, env, agent)
-    # acc, status = mu.evaluate(model, env, agent, 0)
-    # model.update(state1, state2, reward, action1, action2)
-    # t = 0
     rewards = 0
-    rewards_list: list = []
-    actions_list: list = []
+    totalReward = {
+        'SarsaAgent': [],
+        'QLearningAgent': [],
+        'ExpectedSarsaAgent': []
+    }
     for i in range(len(states)):
-        action1 = model.choose_action(int(states[i]))
-        # action1 = np.argmax(model.Q[states[i], :])
-        # action1 = model.choose_action_osi(states[i], env)
+        for episode in range(total_episodes):
+            # Initialize the necessary parameters before
+            # the start of the episode
+            t = 0
+            # state1 = env.reset()
+            state1 = states[i]
+            action1 = agent.choose_action(state1)
+            episodeReward = 0
+            while t < max_steps:
 
-        state2, reward, done, info = env.step(action1)
-        # reward = compute_reward(states[i])
-        # action2 = model.choose_action(state2)
-        # action2 = np.argmax(model.Q[states[i], :])
-        # model.update(int(states[i]), state2, reward, action1, action2)
-        # print(model.Q)
-        # rewards += reward + 100
-        rewards_list.append(reward)
-        actions_list.append(action1)
+                # Getting the next state, reward, and other parameters
+                state2, reward, done, info = env.step(action1)
+                # reward = compute_reward(state2)
 
-    # episodeReward = 0
-    # while t < 100:
-    #
-    #     # Getting the next state, reward, and other parameters
-    #     state2, reward, done, info = env.step(action1)
-    #
-    #     # Choosing the next action
-    #     action2 = model.choose_action(state2)
-    #
-    #     # Learning the Q-value
-    #     model.update(state1, state2, reward, action1, action2)
-    #     # trajectory.append([state1, action1, state2, action2])
-    #     # trajectory.append([state1, action1])
-    #     state1 = state2
-    #     action1 = action2
-    #
-    #     # Updating the respective vaLues
-    #     t += 1
-    #     episodeReward += reward
-    #
-    #     # If at the end of learning process
-    #     if done:
-    #         break
+                # Choosing the next action
+                action2 = agent.choose_action(state2)
 
-    s_index = np.argmax(rewards_list)
-    print(f"states: {states}")
-    print(f"s_index: {s_index}")
-    print(f"rewards_list: {rewards_list}")
-    print(f"actions_list: {actions_list}")
+                # Learning the Q-value
+                agent.update(state1, state2, reward, action1, action2)
+                # print(f'episode: {episode}\n\tstate: {state1}\taction: {action2}\treward: {reward}\tnew state: {state2}\ttarget: {target}')
 
-    state1 = int(states[s_index])
-    action1 = actions_list[s_index]
-    state2, reward, done, info = env.step(action1)
-    action2 = model.choose_action(state2)
-    model.update(state1, state2, rewards_list[s_index], action1, action2)
-    print(model.Q)
-    # reward_error = abs(compute_reward(int(states[s_index])) - reward)
-    # reward_error = 47 - compute_reward(int(states[s_index]))
-    reward_error = -reward
-    print(f"reward: {reward}")
-    print(f"reward_error: {reward_error}")
+                state1 = state2
+                action1 = action2
+
+                # Updating the respective vaLues
+                t += 1
+                episodeReward += reward
+
+                # If at the end of learning process
+                if done:
+                    break
+            # Append the sum of reward at the end of the episode
+            totalReward[type(agent).__name__].append(episodeReward)
+        rewards += np.mean(totalReward[type(agent).__name__])
+    reward_error = -float(rewards / float(len(states)) ** 2)
     return reward_error
 
 
@@ -224,4 +201,4 @@ if __name__ == "__main__":
     bounds = [(0, 47)]  # input bounds [(x1_min,x1_max),(x2_min,x2_max)...]
     PSO(f, initial, bounds, num_particles=5, maxiter=30)
     print_map()
-    #--- END ----------------------------------------------------------------------+ptimal at f({})={}".format([x_min, y_min], f(x_min, y_min)))
+    #--- END ----------------------------------------------------------------------+
