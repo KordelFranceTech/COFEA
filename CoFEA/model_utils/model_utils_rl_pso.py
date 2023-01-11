@@ -1,5 +1,6 @@
 import copy
-from benchmark import get_best_policy, get_best_policy_osi, get_benchmark_policy, print_policy_string, k
+from CoFEA import experiment as EXP
+from CoFEA.benchmark import get_best_policy, get_best_policy_osi, get_benchmark_policy, print_policy_string, k
 import numpy as np
 import random
 
@@ -7,37 +8,12 @@ global AGENT
 global ENV
 
 
-def get_bounds(map_size: str):
-    bounds = []
-    if map_size == "small":
-        bounds = [(0,3), (0,11)]
-    elif map_size == "large":
-        bounds = [(0, 7), (0, 23)]
-    elif map_size == "mega":
-        bounds = [(0, 15), (0, 47)]
-    elif map_size == "giga":
-        bounds = [(0, 31), (0, 95)]
-    else:
-        bounds = [(1, 10), (1, 35)]
-    return bounds
-
-
-def compute_reward(state: int):
-    reward = 48 - (((4 - int(state / 12)) ** 2) + ((12 - (state % 12)) ** 2)) ** 0.5
-    if state in [37, 38, 39, 40, 41, 42, 43, 44, 45, 46]:
-        reward = -100
-    return reward
-
-
 def f(states):
     rewards = 0
-    total_episodes = 1
-    max_steps = 10
-    totalReward = {
-        'SarsaFeaAgent': [],
-        'QLearningFeaAgent': [],
-        'ExpectedSarsaFeaAgent': []
-    }
+    total_episodes = EXP.TOTAL_EPISODES
+    max_steps = EXP.MAX_STEPS
+    totalReward = EXP.REWARDS_TRACKER
+
     for i in range(len(states)):
         for episode in range(total_episodes):
             # Initialize the necessary parameters before
@@ -194,15 +170,25 @@ def print_map(map_size: str):
     elif map_size == "giga":
         size = 64*12*4
         row_size = 96
-    else:
+    elif map_size == "L":
         size = 407
         row_size = 37
+    elif map_size == "R":
+        size = 840
+        row_size = 30
+    elif map_size == "P":
+        size = 900
+        row_size = 30
     map_str: str = ""
     reward_map_str: str = ""
     for i in range(len(AGENT.Q)):
         actions = AGENT.Q[i]
         action = np.argmax(actions)
-        if action == 0:
+        if i == (int(EXP.TERMINAL_STATE[0]*row_size) + EXP.TERMINAL_STATE[1]):
+            map_str += "G"
+        # elif i == (int(INITIAL[0]*row_size) + INITIAL[1]):
+        #     map_str += "S"
+        elif action == 0:
             map_str += "^"
         elif action == 1:
             map_str += ">"
@@ -215,12 +201,11 @@ def print_map(map_size: str):
         if (i + 1) % row_size == 0:
             map_str += "\n"
     for i in range(0, size):
-        reward_map_str += f"{int(compute_reward(i))} "
+        reward_map_str += f"{int(EXP.compute_reward(i))} "
         if (i + 1) % size == 0:
             reward_map_str += "\n"
     print(map_str)
     print("----")
-    print(reward_map_str)
 
 
 def build_trajectories(agent, e, config):
@@ -255,7 +240,7 @@ def build_trajectories(agent, e, config):
     return trajectories
 
 
-def train_pso_model(model, env, env_type, config, initial=[0, 0], num_particles=8, max_iter=10, debug=False):
+def train_pso_model(model, env, env_type, config, debug=False):
     """
     train model given the dataloader the criterion,
     stop when epochs are reached
@@ -268,7 +253,6 @@ def train_pso_model(model, env, env_type, config, initial=[0, 0], num_particles=
     global AGENT, ENV
     AGENT = model
     ENV = env
-    bounds = get_bounds(env_type)
     totalReward = {
         type(model).__name__: [],
     }
@@ -278,7 +262,7 @@ def train_pso_model(model, env, env_type, config, initial=[0, 0], num_particles=
         print(f"reward: {totalReward}\n")
 
     env.reset()
-    PSO(f, initial, bounds, num_particles=num_particles, maxiter=max_iter)
+    PSO(f, EXP.INITIAL, EXP.BOUNDS, num_particles=EXP.NUM_PARTICLES, maxiter=EXP.MAX_ITER)
     print_map(env_type)
     current_policy = get_best_policy(q_table=model.Q)
     benchmark_policy = get_best_policy(get_benchmark_policy(type(model).__name__))

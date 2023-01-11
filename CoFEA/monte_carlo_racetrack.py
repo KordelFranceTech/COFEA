@@ -1,22 +1,13 @@
 
 import torch
-from model_utils import model_utils_rl_racetrack as mu
-from util.data import data_process_rl as dp
-from config import ConfigRL
-from environments import env_frozen_lake, env_cliff_walking, env_racetrack, env_racetrack_v2, environment
-import models_rl as models
+from CoFEA import experiment as EXP
+from CoFEA.model_utils import model_utils_rl_racetrack as mu
+from CoFEA.util.data import data_process_rl as dp
+from CoFEA.config import ConfigRL
+from CoFEA.environments import env_frozen_lake, env_cliff_walking, env_racetrack, env_racetrack_v2, environment
+import CoFEA.models_rl as models
 import numpy as np
 import torch.multiprocessing as mp
-
-
-# parser = argparse.ArgumentParser(description='soft_spaco')
-# parser.add_argument('-s', '--seed', type=int, default=0)
-# parser.add_argument('-r', '--regularizer', type=str, default='hard')
-# parser.add_argument('-d', '--dataset', type=str, default='cifar10')
-# parser.add_argument('--gamma', type=float, default=0.3)
-# parser.add_argument('--iter-steps', type=int, default=5)
-# parser.add_argument('--num-per-class', type=int, default=400)
-
 
 
 torch.manual_seed(0)
@@ -270,14 +261,10 @@ def spaco_rl_osi(map,
 #       regularizer="soft"))
 
 
-e = {"map":env_racetrack_v2.Racetrack(), "type": "L"}
-environment.set_environment(e)
-# env_cliff_walking.update_map_type()
-# print(e["map"].desc)
-print(f"obs space: {e['map'].observation_space}")
-print(f"action space: {e['map'].action_space}")
+e = EXP.ENV
 config1 = ConfigRL(model_name='e_sarsa_fea', env=e)
 config2 = ConfigRL(model_name='e_sarsa_fea', env=e)
+
 
 print(spaco_rl_osi(
       e["map"],

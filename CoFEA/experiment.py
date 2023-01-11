@@ -69,7 +69,6 @@ MAX_STEPS = 10
 ALPHA = 0.5
 GAMMA = 1
 EPISODE_REWARD = 0
-
 REWARDS_TRACKER: dict  = {
 	'SarsaAgent': [],
 	'QLearningAgent': [],
@@ -78,6 +77,10 @@ REWARDS_TRACKER: dict  = {
 	'QLearningFeaAgent': [],
 	'ExpectedSarsaFeaAgent': []
 }
+
+TRAJECTORIES: int = 3
+COTRAIN_ITERS: int = 3
+COTRAIN_GAMMA: float = 0.8
 
 
 

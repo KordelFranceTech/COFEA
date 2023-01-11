@@ -1,7 +1,8 @@
 import copy
 from FEA.FEA.factorarchitecture import FactorArchitecture
-from environments import env_frozen_lake, env_cliff_walking, env_racetrack, env_racetrack_v2, environment
-from benchmark import get_best_policy, get_best_policy_osi, get_benchmark_policy, print_policy_string, k
+from CoFEA import experiment as EXP
+from CoFEA.environments import env_frozen_lake, env_cliff_walking, env_racetrack, env_racetrack_v2, environment
+from CoFEA.benchmark import get_best_policy, get_best_policy_osi, get_benchmark_policy, print_policy_string, k
 from copy import deepcopy
 from operator import attrgetter
 import numpy as np
@@ -12,41 +13,12 @@ global ENV
 global BOUNDS
 
 
-def get_bounds(map_size: str):
-    bounds = []
-    if map_size == "small":
-        bounds = [(0,3), (0,11)]
-    elif map_size == "large":
-        bounds = [(0, 7), (0, 23)]
-    elif map_size == "mega":
-        bounds = [(0, 15), (0, 47)]
-    elif map_size == "giga":
-        bounds = [(0, 31), (0, 95)]
-    elif map_size == "L":
-        bounds = [(0, 11), (0, 37)]
-    elif map_size == "R":
-        bounds = [(0, 28), (0, 30)]
-    elif map_size == "P":
-        bounds = [(0, 30), (0, 30)]
-    return bounds
-
-
-def compute_reward(state: int):
-    reward = 48 - (((4 - int(state / 12)) ** 2) + ((12 - (state % 12)) ** 2)) ** 0.5
-    if state in [37, 38, 39, 40, 41, 42, 43, 44, 45, 46]:
-        reward = -100
-    return reward
-
-
-def f(states, updates=3):
+def f(states, updates=EXP.TRAJECTORIES):
     rewards = 0
-    total_episodes = 1
-    max_steps = 10
-    totalReward = {
-        'SarsaFeaAgent': [],
-        'QLearningFeaAgent': [],
-        'ExpectedSarsaFeaAgent': []
-    }
+    total_episodes = EXP.TOTAL_EPISODES
+    max_steps = EXP.MAX_STEPS
+    totalReward = EXP.REWARDS_TRACKER
+
     for i in range(len(states)):
         for episode in range(total_episodes):
             # Initialize the necessary parameters before
@@ -382,7 +354,6 @@ class FEA:
         self.solution_history.append(sol)
 
 
-
 def print_map(map_size: str):
     size: int = 48
     row_size: int = 12
@@ -412,7 +383,7 @@ def print_map(map_size: str):
     for i in range(len(AGENT.Q)):
         actions = AGENT.Q[i]
         action = np.argmax(actions)
-        if i == (int(env_racetrack.TERMINAL_STATE[0]*row_size) + env_racetrack.TERMINAL_STATE[1]):
+        if i == (int(EXP.TERMINAL_STATE[0]*row_size) + EXP.TERMINAL_STATE[1]):
             map_str += "G"
         # elif i == (int(INITIAL[0]*row_size) + INITIAL[1]):
         #     map_str += "S"
@@ -429,12 +400,11 @@ def print_map(map_size: str):
         if (i + 1) % row_size == 0:
             map_str += "\n"
     for i in range(0, size):
-        reward_map_str += f"{int(compute_reward(i))} "
+        reward_map_str += f"{int(EXP.compute_reward(i))} "
         if (i + 1) % size == 0:
             reward_map_str += "\n"
     print(map_str)
     print("----")
-    print(reward_map_str)
 
 
 def build_trajectories(agent, e, config):
@@ -469,7 +439,7 @@ def build_trajectories(agent, e, config):
     return trajectories
 
 
-def train_fea_model(model, env, env_type, config, initial=[0, 0], num_particles=8, generations=20, fea_iter=5, debug=False):
+def train_fea_model(model, env, env_type, config, debug=False):
     """
     train model given the dataloader the criterion,
     stop when epochs are reached
@@ -482,7 +452,7 @@ def train_fea_model(model, env, env_type, config, initial=[0, 0], num_particles=
     global AGENT, ENV, BOUNDS
     AGENT = model
     ENV = env
-    bounds = get_bounds(env_type)
+    bounds = EXP.get_bounds(env_type)
     BOUNDS = bounds
     totalReward = {
         type(model).__name__: [],
@@ -492,11 +462,6 @@ def train_fea_model(model, env, env_type, config, initial=[0, 0], num_particles=
         print(f"model name: {type(model).__name__}")
         print(f"reward: {totalReward}\n")
 
-    # pso = PSO(generations=10, population_size=8, function=f, dim=len(BOUNDS))
-    # pso.run()
-    # print_map()
-    # env.reset()
-
     fa = FactorArchitecture(dim=len(bounds))
     fa.diff_grouping(f, 0.1)
     # fa.overlapping_diff_grouping(_function=f, epsilon=0.1, m=0)
@@ -504,7 +469,8 @@ def train_fea_model(model, env, env_type, config, initial=[0, 0], num_particles=
     # fa.factors = fa.linear_grouping(group_size=7, offset=5)
     # fa.ring_grouping(group_size=2)
     fa.get_factor_topology_elements()
-    fea = FEA(f, fea_runs=fea_iter, generations=generations, pop_size=num_particles, factor_architecture=fa, base_algorithm=PSO)
+    generations = int(EXP.MAX_ITER / EXP.FEA_RUNS)
+    fea = FEA(f, fea_runs=EXP.FEA_RUNS, generations=generations, pop_size=EXP.NUM_PARTICLES, factor_architecture=fa, base_algorithm=PSO)
     fea.run()
 
     print_map(env_type)
@@ -518,6 +484,7 @@ def train_fea_model(model, env, env_type, config, initial=[0, 0], num_particles=
     # print(f"model name: {type(model).__name__}")
     # print(f"reward: {totalReward}\n")
     return trajectories, current_policy, benchmark_policy
+
 
 
 def train(model, env, env_type, config):

@@ -1,10 +1,11 @@
 
 import torch
-from model_utils import model_utils_rl_pso_ext as mu
-from util.data import data_process_rl as dp
-from config import ConfigRL
-from environments import env_frozen_lake, env_cliff_walking, env_racetrack, env_racetrack_v2, environment
-import models_rl as models
+from CoFEA import experiment as EXP
+from CoFEA.model_utils import model_utils_rl_pso_ext as mu
+from CoFEA.util.data import data_process_rl as dp
+from CoFEA.config import ConfigRL
+from CoFEA.environments import env_frozen_lake, env_cliff_walking, env_racetrack, env_racetrack_v2, environment
+import CoFEA.models_rl as models
 import numpy as np
 import torch.multiprocessing as mp
 
@@ -244,13 +245,10 @@ def spaco_rl_osi(map,
     return avg
 
 
-# e = {"map":env_cliff_walking.CliffWalkingEnv(), "type": "large"}
-e = {"map":env_racetrack.Racetrack(), "type": "R"}
-environment.set_environment(e)
-# env_cliff_walking.update_map_type()
-
+e = EXP.ENV
 config1 = ConfigRL(model_name='e_sarsa', env=e)
 config2 = ConfigRL(model_name='e_sarsa', env=e)
+
 
 print(spaco_rl_osi(
       e["map"],
