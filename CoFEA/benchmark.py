@@ -69,6 +69,11 @@ def get_benchmark_policy(model_name: str):
             return benchmark_q_table_mega_q
         else:
             return benchmark_q_table_mega_e
+    else:
+        if "Q" in model_name:
+            return benchmark_q_table_small_q
+        else:
+            return benchmark_q_table_small_e
 
 
 def print_policy_string(current_policy: list):

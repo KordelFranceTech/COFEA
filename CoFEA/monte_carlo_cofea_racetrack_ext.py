@@ -1,7 +1,7 @@
 
 import torch
 from CoFEA import experiment as EXP
-from CoFEA.model_utils import model_utils_rl_pso as mu
+from CoFEA.model_utils import model_utils_rl_cofea_ext as mu
 from CoFEA.util.data import data_process_rl as dp
 from CoFEA.config import ConfigRL
 from CoFEA.environments import env_frozen_lake, env_cliff_walking, env_racetrack, env_racetrack_v2, environment
@@ -37,7 +37,6 @@ def adjust_config(config, num_examples, iter_step):
     epochs = list(range(60, 20, -20))
     config.epochs = epochs[iter_step]
     config.epochs = int((50000 * repeat) // num_examples / 50)
-    # config.epochs = 200
     config.epochs = 20
     config.step_size = max(int(config.epochs // 3), 1)
     return config
@@ -77,6 +76,7 @@ def spaco_rl_osi(map,
     # train_env = copy.deepcopy(map)
     # untrain_env = copy.deepcopy(map)
     # test_env = copy.deepcopy(map)
+    map.reset()
     train_env = map
     untrain_env = map
     test_env = map
@@ -249,13 +249,12 @@ e = EXP.ENV
 config1 = ConfigRL(model_name='e_sarsa_fea', env=e)
 config2 = ConfigRL(model_name='e_sarsa_fea', env=e)
 
-
 print(spaco_rl_osi(
       e["map"],
       e["type"],
       [config1, config2],
-      iter_steps=3,
-      gamma=0.8,
+      iter_steps=EXP.COTRAIN_ITERS,
+      gamma=EXP.COTRAIN_GAMMA,
       regularizer="soft"))
 
 

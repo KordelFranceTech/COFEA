@@ -1,25 +1,47 @@
-import copy
-from FEA.FEA.factorarchitecture import FactorArchitecture
 from CoFEA import experiment as EXP
-from CoFEA.environments import env_frozen_lake, env_cliff_walking, env_racetrack, env_racetrack_v2, environment
-from CoFEA.benchmark import get_best_policy, get_best_policy_osi, get_benchmark_policy, print_policy_string, k
-from copy import deepcopy
-from operator import attrgetter
+from CoFEA.baselines.agents import ExpectedSarsaAgent, SarsaAgent, QLearningAgent
+import random
 import numpy as np
 import random
+from operator import attrgetter
+from copy import deepcopy, copy
 
-global AGENT
-global ENV
-global BOUNDS
 
+MAP_SIZE: str = EXP.MAP_SIZE
+INITIAL: list = EXP.INITIAL
+BOUNDS = EXP.BOUNDS
+NUM_PARTICLES: int = EXP.NUM_PARTICLES
+MAX_ITER: int = EXP.MAX_ITER
+FEA_RUNS: int = EXP.FEA_RUNS
+env = EXP.ENV
+
+env = env["map"]
+totalReward = EXP.REWARDS_TRACKER
+epsilon = EXP.EPSILON
+total_episodes = EXP.TOTAL_EPISODES
+max_steps = EXP.MAX_STEPS
+alpha = EXP.ALPHA
+gamma = EXP.GAMMA
+episodeReward = EXP.EPISODE_REWARD
+
+
+agent = ExpectedSarsaAgent(
+    epsilon=epsilon,
+    alpha=alpha,
+    gamma=gamma,
+    num_state=env.observation_space.n,
+    num_actions=env.action_space.n,
+    action_space=env.action_space
+)
 
 
 def f(states):
     rewards = 0
-    total_episodes = EXP.TOTAL_EPISODES
-    max_steps = EXP.MAX_STEPS
-    totalReward = EXP.REWARDS_TRACKER
-
+    totalReward = {
+        'SarsaAgent': [],
+        'QLearningAgent': [],
+        'ExpectedSarsaAgent': []
+    }
     for i in range(len(states)):
         for episode in range(total_episodes):
             # Initialize the necessary parameters before
@@ -27,25 +49,25 @@ def f(states):
             t = 0
             # state1 = env.reset()
             state1 = round(states[i])
-            action1 = AGENT.choose_action(state1)
+            action1 = agent.choose_action(state1)
             episodeReward = 0
             while t < max_steps:
 
                 # Getting the next state, reward, and other parameters
-                state2, reward, done, info = ENV.step(action1)
+                state2, reward, done, info = env.step(action1)
                 # reward = compute_reward(state2)
 
                 # Choosing the next action
-                action2 = AGENT.choose_action(state2)
+                action2 = agent.choose_action(state2)
 
                 # Learning the Q-value
-                AGENT.update(state1, state2, reward, action1, action2)
+                agent.update(state1, state2, reward, action1, action2)
                 # print(f'episode: {episode}\n\tstate: {state1}\taction: {action2}\treward: {reward}\tnew state: {state2}\ttarget: {target}')
 
                 state1 = state2
                 action1 = action2
 
-                # Updating the respective values
+                # Updating the respective vaLues
                 t += 1
                 episodeReward += reward
 
@@ -53,13 +75,167 @@ def f(states):
                 if done:
                     break
             # Append the sum of reward at the end of the episode
-            totalReward[type(AGENT).__name__].append(episodeReward)
-        rewards += np.mean(totalReward[type(AGENT).__name__])
+            totalReward[type(agent).__name__].append(episodeReward)
+        rewards += np.mean(totalReward[type(agent).__name__])
     reward_error = -float(rewards / float(len(states)) ** 2)
     return reward_error
 
 
 # --- MAIN ---------------------------------------------------------------------+
+
+class ParticleA:
+    def __init__(self, x0):
+        self.position_i = []  # particle position
+        self.velocity_i = []  # particle velocity
+        self.pos_best_i = []  # best position individual
+        self.err_best_i = -1  # best error individual
+        self.err_i = -1  # error individual
+
+        for i in range(0, num_dimensions):
+            self.velocity_i.append(random.uniform(-1, 1))
+            self.position_i.append(x0[i])
+
+    # evaluate current fitness
+    def evaluate(self, costFunc):
+        self.err_i = costFunc(self.position_i)
+
+        # check to see if the current position is an individual best
+        if self.err_i < self.err_best_i or self.err_best_i == -1:
+            self.pos_best_i = self.position_i
+            self.err_best_i = self.err_i
+
+    # update new particle velocity
+    def update_velocity(self, pos_best_g):
+        w = 0.5  # constant inertia weight (how much to weigh the previous velocity)
+        c1 = 1  # cognitive constant
+        c2 = 2  # social constant
+
+        for i in range(0, num_dimensions):
+            r1 = random.random()
+            r2 = random.random()
+
+            vel_cognitive = c1 * r1 * (self.pos_best_i[i] - self.position_i[i])
+            vel_social = c2 * r2 * (pos_best_g[i] - self.position_i[i])
+            self.velocity_i[i] = w * self.velocity_i[i] + vel_cognitive + vel_social
+
+    # update the particle position based off new velocity updates
+    def update_position(self, bounds):
+        for i in range(0, num_dimensions):
+            # print(f"position pre: {self.position_i[i]}")
+            # self.position_i[i] = self.position_i[i] + self.velocity_i[i]
+            # self.position_i[i] = self.position_i[i] + 1
+            self.position_i[i], reward, done, info = env.step(np.argmax(agent.Q.tolist()[self.position_i[i]]))
+            # if done: break
+            # print(f"position post: {self.position_i[i]}")
+
+            # adjust maximum position if necessary
+            if self.position_i[i] > bounds[i][1]:
+                self.position_i[i] = bounds[i][1]
+
+            # adjust minimum position if neseccary
+            if self.position_i[i] < bounds[i][0]:
+                self.position_i[i] = bounds[i][0]
+
+
+class PSOA():
+    def __init__(self, costFunc, x0, bounds, num_particles, maxiter):
+        global num_dimensions
+
+        num_dimensions = len(x0)
+        err_best_g = -1000  # best error for group
+        pos_best_g = []  # best position for group
+
+        # establish the swarm
+        swarm = []
+        for i in range(0, num_particles):
+            swarm.append(Particle(x0))
+
+        # begin optimization loop
+        i = 0
+        while i < maxiter:
+            # print i,err_best_g
+            # cycle through particles in swarm and evaluate fitness
+            for j in range(0, num_particles):
+                swarm[j].evaluate(costFunc)
+
+                # determine if current particle is the best (globally)
+                if swarm[j].err_i < err_best_g or err_best_g == -1000:
+                    pos_best_g = list(swarm[j].position_i)
+                    err_best_g = float(swarm[j].err_i)
+
+            # cycle through swarm and update velocities and position
+            for j in range(0, num_particles):
+                swarm[j].update_velocity(pos_best_g)
+                swarm[j].update_position(bounds)
+                for k in range(0, len(swarm[j].position_i)):
+                    state1 = swarm[j].position_i[k]
+                    action1 = agent.choose_action(state1)
+                    state2, reward, done, info = env.step(action1)
+                    action2 = agent.choose_action(state2)
+                    agent.update(state1, state2, reward, action1, action2)
+                    if done: break
+            i += 1
+
+        # print final results
+        print('FINAL:')
+        print(pos_best_g)
+        print(err_best_g)
+
+
+def print_map(map_size: str):
+    size: int = 48
+    row_size: int = 12
+    if map_size == "small":
+        size = 48
+        row_size = 12
+    elif map_size == "large":
+        size = 4*12*4
+        row_size = 24
+    elif map_size == "mega":
+        size = 16*12*4
+        row_size = 48
+    elif map_size == "giga":
+        size = 64*12*4
+        row_size = 96
+    elif map_size == "L":
+        size = 407
+        row_size = 37
+    elif map_size == "R":
+        size = 840
+        row_size = 30
+    elif map_size == "P":
+        size = 900
+        row_size = 30
+    map_str: str = ""
+    reward_map_str: str = ""
+    for i in range(len(agent.Q)):
+        actions = agent.Q[i]
+        action = np.argmax(actions)
+        if i == (int(EXP.TERMINAL_STATE[0]*row_size) + EXP.TERMINAL_STATE[1]):
+            map_str += "G"
+        elif i == (int(INITIAL[0]*row_size) + INITIAL[1]):
+            map_str += "S"
+        elif action == 0:
+            map_str += "^"
+        elif action == 1:
+            map_str += ">"
+        elif action == 2:
+            map_str += "v"
+        elif action == 3:
+            map_str += "<"
+        else:
+            map_str += "-"
+        if (i + 1) % row_size == 0:
+            map_str += "\n"
+    for i in range(0, size):
+        reward_map_str += f"{int(EXP.compute_reward(i))} "
+        if (i + 1) % size == 0:
+            reward_map_str += "\n"
+    print(map_str)
+    print("----")
+
+
+
 class Particle(object):
     def __init__(self, f, size, position=None, factor=None, global_solution=None, lbest_pos=None):
         self.f = f
@@ -153,10 +329,11 @@ class Particle(object):
     # update the particle position based off new velocity updates
     def update_position(self, global_solution=None):
         for i in range(0, self.dim):
+            # print(f"\n___\nposition {i}, velocity {self.velocity[i]}")
             # print(f"position pre: {self.position_i[i]}")
             # self.position_i[i] = self.position_i[i] + self.velocity_i[i]
             # self.position_i[i] = self.position_i[i] + 1
-            self.position[i], reward, done, info = ENV.step(np.argmax(AGENT.Q.tolist()[round(self.position[i])]))
+            self.position[i], reward, done, info = env.step(np.argmax(agent.Q.tolist()[round(self.position[i])]))
             self.position[i] += self.velocity[i]
             # if done: break
             # print(f"position post: {self.position_i[i]}")
@@ -218,14 +395,16 @@ class PSO(object):
             global_solution = None
         omega, phi, v_max = self.omega, self.phi, self.v_max
         global_best_position = [x for x in self.gbest.position]
+        # print("\n\n____")
         for p in self.pop:
             p.update_particle(omega, phi, global_best_position, v_max, global_solution)
+            # print(f"position {p.position}\tvelocity: {p.velocity}")
             for k in range(0, len(p.position)):
                 state1 = round(p.position[k])
-                action1 = AGENT.choose_action(state1)
-                state2, reward, done, info = ENV.step(action1)
-                action2 = AGENT.choose_action(state2)
-                AGENT.update(state1, state2, reward, action1, action2)
+                action1 = agent.choose_action(state1)
+                state2, reward, done, info = env.step(action1)
+                action2 = agent.choose_action(state2)
+                agent.update(state1, state2, reward, action1, action2)
                 if done: break
         curr_best = self.find_current_best()
         self.pbest_history.append(curr_best)
@@ -342,240 +521,31 @@ class FEA:
         self.solution_history.append(sol)
 
 
-def print_map(map_size: str):
-    size: int = 48
-    row_size: int = 12
-    if map_size == "small":
-        size = 48
-        row_size = 12
-    elif map_size == "large":
-        size = 4*12*4
-        row_size = 24
-    elif map_size == "mega":
-        size = 16*12*4
-        row_size = 48
-    elif map_size == "giga":
-        size = 64*12*4
-        row_size = 96
-    elif map_size == "L":
-        size = 407
-        row_size = 37
-    elif map_size == "R":
-        size = 840
-        row_size = 30
-    elif map_size == "P":
-        size = 900
-        row_size = 30
-    map_str: str = ""
-    reward_map_str: str = ""
-    for i in range(len(AGENT.Q)):
-        actions = AGENT.Q[i]
-        action = np.argmax(actions)
-        if i == (int(EXP.TERMINAL_STATE[0]*row_size) + EXP.TERMINAL_STATE[1]):
-            map_str += "G"
-        # elif i == (int(INITIAL[0]*row_size) + INITIAL[1]):
-        #     map_str += "S"
-        elif action == 0:
-            map_str += "^"
-        elif action == 1:
-            map_str += ">"
-        elif action == 2:
-            map_str += "v"
-        elif action == 3:
-            map_str += "<"
-        else:
-            map_str += "-"
-        if (i + 1) % row_size == 0:
-            map_str += "\n"
-    for i in range(0, size):
-        reward_map_str += f"{int(EXP.compute_reward(i))} "
-        if (i + 1) % size == 0:
-            reward_map_str += "\n"
-    print(map_str)
-    print("----")
+if __name__ == "__main__":
 
+    # Factored PSO
+    from FEA.FEA.factorarchitecture import FactorArchitecture
+    env.reset()
 
-def build_trajectories(agent, e, config):
-    model = copy.deepcopy(agent)
-    env = copy.deepcopy(e)
-    q_table = model.Q
-    trajectories: list = []
-    n, max_steps = config.epochs, config.max_steps
-    rewards = []
-    num_steps = []
-    state1 = env.reset()
-    action1 = model.choose_action(state1)
-    for episode in range(n):
-        total_reward = 0
-        for i in range(max_steps):
-            state2, reward, done, info = env.step(action1)
-            action2 = model.choose_action(state2)
-            # trajectory.append([state1, action1, state2, action2])
-            trajectories.append([state1, action1])
-
-            state1 = state2
-            action1 = action2
-
-            total_reward += reward
-            if done:
-                rewards.append(total_reward)
-                num_steps.append(i + 1)
-                break
-    env.close()
-    del env
-    del model
-    return trajectories
-
-
-def train_fea_model(model, env, env_type, config, debug=False):
-    """
-    train model given the dataloader the criterion,
-    stop when epochs are reached
-    params:
-        model: model for training
-        dataloader: training data
-        config: training config
-        criterion
-    """
-    global AGENT, ENV, BOUNDS
-    AGENT = model
-    ENV = env
-    bounds = EXP.get_bounds(env_type)
-    BOUNDS = bounds
-    totalReward = {
-        type(model).__name__: [],
-    }
-
-    if debug:
-        print(f"model name: {type(model).__name__}")
-        print(f"reward: {totalReward}\n")
-
-    fa = FactorArchitecture(dim=len(bounds))
+    fa = FactorArchitecture(dim=len(BOUNDS))
     fa.diff_grouping(f, 0.1)
     # fa.overlapping_diff_grouping(_function=f, epsilon=0.1, m=0)
     # fa.factors = fa.random_grouping(min_groups=5, max_groups=15, overlap=True)
     # fa.factors = fa.linear_grouping(group_size=7, offset=5)
     # fa.ring_grouping(group_size=2)
+    print(fa.factors)
     fa.get_factor_topology_elements()
-    generations = int(EXP.MAX_ITER / EXP.FEA_RUNS)
-    fea = FEA(f, fea_runs=EXP.FEA_RUNS, generations=generations, pop_size=EXP.NUM_PARTICLES, factor_architecture=fa, base_algorithm=PSO)
+
+    # fa.load_csv_architecture(file="../../results/factors/F1_m4_diff_grouping.csv", dim=50)
+    # func = Function(function_number=1, shift_data_file="f01_o.txt")
+    generations = int(MAX_ITER / FEA_RUNS)
+    fea = FEA(f, fea_runs=FEA_RUNS, generations=generations, pop_size=NUM_PARTICLES, factor_architecture=fa, base_algorithm=PSO)
     fea.run()
+    print(fa.factors)
+    print_map(MAP_SIZE)
 
-    print_map(env_type)
-    # current_policy = get_best_policy(q_table=model.Q)
-    # benchmark_policy = get_best_policy(get_benchmark_policy(type(model).__name__))
-    # if debug:
-    #     print(f"accuracy: {get_policy_accuracy(current_policy, benchmark_policy)}")
-
-    trajectories: list = build_trajectories(AGENT, ENV, config)
-
-    # print(f"model name: {type(model).__name__}")
-    # print(f"reward: {totalReward}\n")
-    # return trajectories, current_policy, benchmark_policy
-    return trajectories, [], []
-
-
-def train(model, env, env_type, config):
-    #  model = models.create(config.model_name)
-    #  model = nn.DataParallel(model).cuda()
-    # dataloader = dp.get_dataloader(train_data, config, is_training=True)
-    trajectory, current_policy, benchmark_policy = train_fea_model(model, env, env_type, config)
-    #  return model
-    return trajectory, current_policy, benchmark_policy
-
-
-def get_policy_accuracy(current: list, benchmark: list):
-    count = 0
-    for i in range(0, len(current)):
-        if current[i] == benchmark[i]:
-            count += 1
-    return count / len(current)
-
-
-def predict_prob(model, env, config, device):
-    q_table = model.Q
-    n, max_steps = config.epochs, config.max_steps
-    rewards = []
-    num_steps = []
-    probs = []
-    for episode in range(n):
-        s = env.reset()
-        total_reward = 0
-        for i in range(max_steps):
-            a = np.argmax(q_table[s, :])
-            prob = softmax(q_table[s, :])
-            probs += [prob]
-            s, r, done, info = env.step(a)
-            total_reward += r
-            if done:
-                # rewards.append([total_reward])
-                num_steps.append(i + 1)
-                break
-            rewards.append([total_reward])
-    env.close()
-    # print(rewards)
-    print(probs)
-    # return np.concatenate(probs)
-    return probs
-
-
-def evaluate(model, env, config, device):
-    q_table = model.Q
-    n, max_steps = config.epochs, config.max_steps
-    rewards = []
-    num_steps = []
-    cum_reward = 0
-    for episode in range(n):
-        s = env.reset()
-        total_reward = 0
-        for i in range(max_steps):
-            a = np.argmax(q_table[s, :])
-            # a = np.argmax(q_table.best_individual.predict(np.identity(env.observation_space.n)[s, :]))
-            s, r, done, info = env.step(a)
-            total_reward += r
-            if done:
-                rewards.append(total_reward)
-                num_steps.append(i + 1)
-                break
-        cum_reward += total_reward
-    env.close()
-    print(f"rewards: {100*np.sum(rewards)/len(rewards)}")
-    return cum_reward, ""
-    # current_policy = get_best_policy(q_table=model.Q)
-    # benchmark_policy = get_best_policy(get_benchmark_policy(type(model).__name__))
-    # accuracy = get_policy_accuracy(current_policy, benchmark_policy)
-    #
-    # curr_policy_str: str = print_policy_string(benchmark_policy)
-    # print(f"\n\n\tOPTIMAL POLICY:\n{curr_policy_str}")
-    # policy_str: str = print_policy_string(current_policy)
-    # print(f"\n\n\tCURRENT POLICY:\n{policy_str}")
-    # return accuracy, policy_str
-
-
-def get_state_action_table(q_table):
-    table: list = []
-    for i in range(len(q_table)):
-        for j in range(len(q_table[0])):
-            table.append([i, j])
-    return table
-
-
-def get_randomized_q_table(q_table, env):
-    table: list = []
-    for i in range(len(q_table)):
-        for j in range(len(q_table[0])):
-            table.append(random.randrange(env.action_space.n))
-    return table
-
-
-def get_zeroed_q_table(q_table, env):
-    return np.zeros([env.observation_space.n, env.action_space.n])
-
-
-def softmax(x):
-    e_x = np.exp(x - np.max(x))
-    return e_x / e_x.sum(axis=0)
-
-
-
-
+    # Regular PSO for comparison
+    env.reset()
+    pso = PSO(generations=MAX_ITER, population_size=NUM_PARTICLES, function=f, dim=len(BOUNDS))
+    pso.run()
+    print_map(MAP_SIZE)

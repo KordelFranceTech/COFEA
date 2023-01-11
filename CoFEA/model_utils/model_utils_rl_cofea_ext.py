@@ -13,8 +13,7 @@ global ENV
 global BOUNDS
 
 
-
-def f(states):
+def f(states, updates=EXP.TRAJECTORIES):
     rewards = 0
     total_episodes = EXP.TOTAL_EPISODES
     max_steps = EXP.MAX_STEPS
@@ -32,22 +31,35 @@ def f(states):
             while t < max_steps:
 
                 # Getting the next state, reward, and other parameters
-                state2, reward, done, info = ENV.step(action1)
+                state2, reward1, done, info = ENV.step(action1)
                 # reward = compute_reward(state2)
 
                 # Choosing the next action
                 action2 = AGENT.choose_action(state2)
 
                 # Learning the Q-value
-                AGENT.update(state1, state2, reward, action1, action2)
+                AGENT.update(state1, state2, reward1, action1, action2)
                 # print(f'episode: {episode}\n\tstate: {state1}\taction: {action2}\treward: {reward}\tnew state: {state2}\ttarget: {target}')
+
+                rewards = 0
+                state_prev_i = state2
+                action_prev_i = action2
+                for k in range(1, updates):
+                    state_i, reward_i, done, info = ENV.step(action_prev_i)
+                    action_i = AGENT.choose_action(state_i)
+
+                    # Learning the Q-value
+                    AGENT.update(state_prev_i, state_i, reward_i, action_prev_i, action_i)
+                    state_prev_i = state_i
+                    action_prev_i = action_i
+                    rewards += reward_i
 
                 state1 = state2
                 action1 = action2
 
-                # Updating the respective values
+                # Updating the respective vaLues
                 t += 1
-                episodeReward += reward
+                episodeReward += reward1 + rewards
 
                 # If at the end of learning process
                 if done:
@@ -462,17 +474,17 @@ def train_fea_model(model, env, env_type, config, debug=False):
     fea.run()
 
     print_map(env_type)
-    # current_policy = get_best_policy(q_table=model.Q)
-    # benchmark_policy = get_best_policy(get_benchmark_policy(type(model).__name__))
-    # if debug:
-    #     print(f"accuracy: {get_policy_accuracy(current_policy, benchmark_policy)}")
+    current_policy = get_best_policy(q_table=model.Q)
+    benchmark_policy = get_best_policy(get_benchmark_policy(type(model).__name__))
+    if debug:
+        print(f"accuracy: {get_policy_accuracy(current_policy, benchmark_policy)}")
 
     trajectories: list = build_trajectories(AGENT, ENV, config)
 
     # print(f"model name: {type(model).__name__}")
     # print(f"reward: {totalReward}\n")
-    # return trajectories, current_policy, benchmark_policy
-    return trajectories, [], []
+    return trajectories, current_policy, benchmark_policy
+
 
 
 def train(model, env, env_type, config):
@@ -524,7 +536,6 @@ def evaluate(model, env, config, device):
     n, max_steps = config.epochs, config.max_steps
     rewards = []
     num_steps = []
-    cum_reward = 0
     for episode in range(n):
         s = env.reset()
         total_reward = 0
@@ -537,19 +548,17 @@ def evaluate(model, env, config, device):
                 rewards.append(total_reward)
                 num_steps.append(i + 1)
                 break
-        cum_reward += total_reward
     env.close()
-    print(f"rewards: {100*np.sum(rewards)/len(rewards)}")
-    return cum_reward, ""
-    # current_policy = get_best_policy(q_table=model.Q)
-    # benchmark_policy = get_best_policy(get_benchmark_policy(type(model).__name__))
-    # accuracy = get_policy_accuracy(current_policy, benchmark_policy)
-    #
-    # curr_policy_str: str = print_policy_string(benchmark_policy)
-    # print(f"\n\n\tOPTIMAL POLICY:\n{curr_policy_str}")
-    # policy_str: str = print_policy_string(current_policy)
-    # print(f"\n\n\tCURRENT POLICY:\n{policy_str}")
-    # return accuracy, policy_str
+    # return 100*np.sum(rewards)/len(rewards)
+    current_policy = get_best_policy(q_table=model.Q)
+    benchmark_policy = get_best_policy(get_benchmark_policy(type(model).__name__))
+    accuracy = get_policy_accuracy(current_policy, benchmark_policy)
+
+    curr_policy_str: str = print_policy_string(benchmark_policy)
+    print(f"\n\n\tOPTIMAL POLICY:\n{curr_policy_str}")
+    policy_str: str = print_policy_string(current_policy)
+    print(f"\n\n\tCURRENT POLICY:\n{policy_str}")
+    return accuracy, policy_str
 
 
 def get_state_action_table(q_table):

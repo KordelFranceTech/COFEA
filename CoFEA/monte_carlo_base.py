@@ -4,6 +4,7 @@ import gym
 from model_utils import model_utils_rl as mu
 from util.data import data_process_rl as dp
 from config import ConfigRL
+from environments import env_frozen_lake, env_cliff_walking, env_racetrack, env_racetrack_v2, environment
 import models_rl as models
 import numpy as np
 import torch.multiprocessing as mp
@@ -40,8 +41,6 @@ def parallel_train(nets, train_data, data_dir, configs):
         p.join()
 
 
-
-
 def adjust_config(config, num_examples, iter_step):
     repeat = 20 * (1.1 ** iter_step)
     epochs = list(range(300, 20, -20))
@@ -52,36 +51,42 @@ def adjust_config(config, num_examples, iter_step):
     return config
 
 
-def spaco(configs,
+def spaco(map,
+          map_type,
+          configs,
           iter_steps=10,
           gamma=0,
           train_ratio=0.2,
           regularizer='soft',
           debug=False):
     """
-    self-paced co-training model implementation based on Pytroch
-    params:
-    model_names: model names for spaco, such as ['resnet50','densenet121']
-    data: dataset for spaco model
-    save_patts: save paths for two models
-    iter_step: iteration round for spaco
-    gamma: spaco hyperparameter
-    train_ratio: initiate training dataset ratio
-    """
+       self-paced co-training model implementation based on Pytroch
+       params:
+       model_names: model names for spaco, such as ['resnet50','densenet121']
+       data: dataset for spaco model
+       save_pathts: save paths for two models
+       iter_step: iteration round for spaco
+       gamma: spaco hyperparameter
+       train_ratio: initiate training dataset ratio
+       """
     num_obs = len(configs)
     add_num = 40
-    train_env = gym.make('CliffWalking-v0')
-    untrain_env = gym.make('CliffWalking-v0')
-    test_env = gym.make('CliffWalking-v0')
-    # train_env = gym.make('FrozenLake-v1', desc=None, map_name="4x4", is_slippery=False)
-    # untrain_env = gym.make('FrozenLake-v1', desc=None, map_name="4x4", is_slippery=False)
-    # test_env = gym.make('FrozenLake-v1', desc=None, map_name="4x4", is_slippery=False)
-    # train_env = gym.make('FrozenLake-v0')
-    # untrain_env = gym.make('FrozenLake-v0')
-    # test_env = gym.make('FrozenLake-v0')
-    # train_env = gym.make('Gridworld-v0')
-    # untrain_env = gym.make('Gridworld-v0')
-    # test_env = gym.make('Gridworld-v0')
+    # train_env = gym.make('CliffWalking-v0')
+    # untrain_env = gym.make('CliffWalking-v0')
+    # test_env = gym.make('CliffWalking-v0')
+    # train_env = gym.make('FrozenLake8x8-v1', is_slippery=False)
+    # untrain_env = gym.make('FrozenLake8x8-v1', is_slippery=False)
+    # test_env = gym.make('FrozenLake8x8-v1', is_slippery=False)
+    # train_env = copy.deepcopy(map)
+    # untrain_env = copy.deepcopy(map)
+    # test_env = copy.deepcopy(map)
+    map.reset()
+    train_env = map
+    untrain_env = map
+    test_env = map
+    # train_env = gym.make('FrozenLake-v1', desc=None, map_name="4x4", is_slippery=True)
+    # untrain_env = gym.make('FrozenLake-v1', desc=None, map_name="4x4", is_slippery=True)
+    # test_env = gym.make('FrozenLake-v1', desc=None, map_name="4x4", is_slippery=True)
     global train_data
     train_data = []
     global untrain_data
@@ -98,20 +103,25 @@ def spaco(configs,
 
     for obs in range(num_obs):
         configs[obs] = adjust_config(configs[obs], 1000, 0)
-        net = models.create(configs[obs].model_name, train_env)
+        net = models.create(configs[obs].model_name, map)
         if debug:
             print(type(net))
-        train_data, _, _ = mu.train(net, train_env, configs[obs])
+        train_data, _, _ = mu.train(net, train_env, map_type, configs[obs])
         # acc = mu.evaluate(net, test_env, configs[obs], obs)
         # print(acc)
         # x
         # untrain_data = mu.get_randomized_q_table(net.Q, untrain_env)
-        untrain_data, _, _ = mu.train(net, untrain_env, configs[obs])
+        untrain_data, _, _ = mu.train(net, untrain_env, map_type, configs[obs])
         # train_data = train_data[:5]
         # untrain_data = untrain_data[:5]
-        pred_probs.append(mu.predict_prob(net, untrain_env, configs[obs], obs).tolist())
-        test_preds.append(mu.predict_prob(net, test_env, configs[obs], obs).tolist())
-        acc = mu.evaluate(net, test_env, configs[obs], obs)
+        # print(mu.predict_prob(net, untrain_env, configs[obs], obs).shape)
+        # print(np.concatenate(mu.predict_prob(net, untrain_env, configs[obs], obs),axis=0).shape)
+        # x
+        pred_probs.append(np.concatenate(mu.predict_prob(net, untrain_env, configs[obs], obs), axis=0).tolist())
+        test_preds.append(np.concatenate(mu.predict_prob(net, test_env, configs[obs], obs), axis=0).tolist())
+        # pred_probs.append(mu.predict_prob(net, untrain_env, configs[obs], obs).tolist())
+        # test_preds.append(mu.predict_prob(net, test_env, configs[obs], obs).tolist())
+        acc, p = mu.evaluate(net, test_env, configs[obs], obs)
         # print(f"accuracy is: {acc}")
         # save_checkpoint(
         #   {
@@ -126,7 +136,7 @@ def spaco(configs,
     # print(len(pred_probs[0]))
     pred_y = []
     for k in range(0, len(pred_probs[0])):
-        pred_y.append(np.array([np.argmax(i) for i in k]))
+        # pred_y.append(np.array([np.argmax(i) for i in k]))
         a = pred_probs[0][k]
         b = pred_probs[1][k]
         # print(a)
@@ -135,7 +145,6 @@ def spaco(configs,
     # pred_y = pred_probs
     # print(len(pred_y))
     # print(len(pred_y[0]))
-
 
     # initiate weights for unlabled examples
     pred_probs = np.array(pred_probs)
@@ -146,6 +155,7 @@ def spaco(configs,
 
     pred_y = np.array(pred_y)
     # print(pred_y.shape)
+    # print(pred_probs.shape)
     # print(pred_probs.shape)
     # print(pred_y[:5])
     # print(pred_probs[:5])
@@ -167,31 +177,30 @@ def spaco(configs,
         results: list = []
         for obs in range(0, 1):
             if debug:
-                print('Iter step: %d, obs: %d, model name: %s' % (step+1,obs,configs[obs].model_name))
+                print('Iter step: %d, obs: %d, model name: %s' % (step + 1, obs, configs[obs].model_name))
 
             # update sample weights
             sel_ids[obs], weights[obs] = dp.update_ids_weights(
-              obs, pred_probs, sel_ids, weights, pred_y, train_data,
-              add_num, gamma, regularizer)
+                obs, pred_probs, sel_ids, weights, pred_y, train_data,
+                add_num, gamma, regularizer)
             # update model parameter
             new_train_data, _ = dp.update_train_untrain_rl(
-              sel_ids[obs], train_data, untrain_data, pred_y, weights[obs])
+                sel_ids[obs], train_data, untrain_data, pred_y, weights[obs])
             configs[obs] = adjust_config(configs[obs], len(train_data), 0)
             new_train_data = train_data
 
-
-            net = models.create(configs[obs].model_name)
-            mu.train(net, train_env, configs[obs])
+            net = models.create(configs[obs].model_name, map)
+            mu.train(net, train_env, map_type, configs[obs])
 
             # update y
             # print(pred_probs.shape)
+            # (1, 2, 8000)
             # pred_probs.reshape(pred_probs.shape[0], pred_probs.shape[1])
-            pred_probs[obs] = mu.predict_prob(net, untrain_env,
-                                               configs[obs], obs)
+            pred_probs[obs] = np.concatenate(mu.predict_prob(net, untrain_env, configs[obs], obs), axis=0)
 
             # evaluation current model and save it
-            acc = mu.evaluate(net, test_env, configs[obs], obs)
-            predictions = mu.predict_prob(net, train_env, configs[obs], device=obs)
+            acc, p = mu.evaluate(net, test_env, configs[obs], obs)
+            predictions = np.concatenate(mu.predict_prob(net, train_env, configs[obs], device=obs), axis=0)
             # save_checkpoint(
             #   {
             #     'state_dict': net.state_dict(),
@@ -202,14 +211,17 @@ def spaco(configs,
             #   False,
             #   fpath=os.path.join(
             #     'spaco/%s.epoch%d' % (configs[view].model_name, step + 1)))
-            test_preds[obs] = mu.predict_prob(net, test_env, configs[obs], device=obs)
+            test_preds[obs] = np.concatenate(mu.predict_prob(net, test_env, configs[obs], device=obs), axis=0)
             if debug:
                 print(f"accuracy: {acc}\n\n_____")
             results.append(acc)
 
         final_results.append(results)
-        add_num +=  4000 * num_obs
+        add_num += 4000 * num_obs
         fuse_y = []
+        # print(len(test_preds)) # 2
+        # print(len(test_preds[0])) #12000
+        # print(len(test_preds[1])) #12000
         for k in range(0, len(test_preds[0])):
             a = test_preds[0][k]
             b = test_preds[1][k]
@@ -235,20 +247,26 @@ def spaco(configs,
     return avg
 
 
-dataset = "cifar10"
-cur_path = os.getcwd()
-logs_dir = os.path.join(cur_path, 'logs')
-data_dir = os.path.join(cur_path, 'data', dataset)
+# dataset = "cifar10"
+# cur_path = os.getcwd()
+# logs_dir = os.path.join(cur_path, 'logs')
+# data_dir = os.path.join(cur_path, 'data', dataset)
 # data = datasets.create(dataset, data_dir)
 
+e = {"map":env_cliff_walking.CliffWalkingEnv(), "type": "large"}
+environment.set_environment(e)
+# env_cliff_walking.update_map_type()
 
-config1 = ConfigRL(model_name='sarsa')
-config2 = ConfigRL(model_name='sarsa')
-spaco([config1, config2],
+# config1 = ConfigRL(model_name='sarsa')
+# config2 = ConfigRL(model_name='sarsa')
+config1 = ConfigRL(model_name='e_sarsa_fea', env=e)
+config2 = ConfigRL(model_name='e_sarsa_fea', env=e)
+spaco(e["map"],
+      e["type"],
+      [config1, config2],
       iter_steps=1,
       gamma=0.3,
       regularizer="soft")
-x
 sys.exit()
 
 

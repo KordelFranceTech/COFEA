@@ -8,7 +8,7 @@ global AGENT
 global ENV
 
 
-def f(states):
+def f(states, updates=EXP.TRAJECTORIES):
     rewards = 0
     total_episodes = EXP.TOTAL_EPISODES
     max_steps = EXP.MAX_STEPS
@@ -26,22 +26,35 @@ def f(states):
             while t < max_steps:
 
                 # Getting the next state, reward, and other parameters
-                state2, reward, done, info = ENV.step(action1)
+                state2, reward1, done, info = ENV.step(action1)
                 # reward = compute_reward(state2)
 
                 # Choosing the next action
                 action2 = AGENT.choose_action(state2)
 
                 # Learning the Q-value
-                AGENT.update(state1, state2, reward, action1, action2)
+                AGENT.update(state1, state2, reward1, action1, action2)
                 # print(f'episode: {episode}\n\tstate: {state1}\taction: {action2}\treward: {reward}\tnew state: {state2}\ttarget: {target}')
+
+                rewards = 0
+                state_prev_i = state2
+                action_prev_i = action2
+                for k in range(1, updates):
+                    state_i, reward_i, done, info = ENV.step(action_prev_i)
+                    action_i = AGENT.choose_action(state_i)
+
+                    # Learning the Q-value
+                    AGENT.update(state_prev_i, state_i, reward_i, action_prev_i, action_i)
+                    state_prev_i = state_i
+                    action_prev_i = action_i
+                    rewards += reward_i
 
                 state1 = state2
                 action1 = action2
 
                 # Updating the respective vaLues
                 t += 1
-                episodeReward += reward
+                episodeReward += reward1 + rewards
 
                 # If at the end of learning process
                 if done:
@@ -51,7 +64,6 @@ def f(states):
         rewards += np.mean(totalReward[type(AGENT).__name__])
     reward_error = -float(rewards / float(len(states)) ** 2)
     return reward_error
-
 
 
 # --- MAIN ---------------------------------------------------------------------+

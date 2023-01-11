@@ -1,229 +1,29 @@
-import numpy as np
-from CoFEA.environments import env_frozen_lake, env_cliff_walking, environment
+import CoFEA.experiment as EXP
+from CoFEA.baselines.agents import ExpectedSarsaAgent, SarsaAgent, QLearningAgent
 import random
-import gym
 import numpy as np
 import random
 from operator import attrgetter
 from copy import deepcopy, copy
 
-# Agent.py
 
-class Agent:
-	"""
-	The Base class that is implemented by
-	other classes to avoid the duplicate 'choose_action'
-	method
-	"""
-	def choose_action(self, state):
-		action = 0
-		if np.random.uniform(0, 1) < self.epsilon:
-			action = self.action_space.sample()
-		else:
-			action = np.argmax(self.Q[state, :])
-		return action
+MAP_SIZE: str = EXP.MAP_SIZE
+INITIAL: list = EXP.INITIAL
+BOUNDS = EXP.BOUNDS
+NUM_PARTICLES: int = EXP.NUM_PARTICLES
+MAX_ITER: int = EXP.MAX_ITER
+FEA_RUNS: int = EXP.FEA_RUNS
+env = EXP.ENV
 
-
-# SarsaAgent.py
-
-class SarsaAgent(Agent):
-	"""
-	The Agent that uses SARSA update to improve it's behaviour
-	"""
-	def __init__(self, epsilon, alpha, gamma, num_state, num_actions, action_space):
-		"""
-		Constructor
-		Args:
-			epsilon: The degree of exploration
-			gamma: The discount factor
-			num_state: The number of states
-			num_actions: The number of actions
-			action_space: To call the random action
-		"""
-		self.epsilon = epsilon
-		self.alpha = alpha
-		self.gamma = gamma
-		self.num_state = num_state
-		self.num_actions = num_actions
-
-		self.Q = np.zeros((self.num_state, self.num_actions))
-		self.action_space = action_space
-
-
-	def update(self, prev_state, next_state, reward, prev_action, next_action):
-		"""
-		Update the action value function using the SARSA update.
-		Q(S, A) = Q(S, A) + alpha(reward + (gamma * Q(S_, A_) - Q(S, A))
-		Args:
-			prev_state: The previous state
-			next_state: The next state
-			reward: The reward for taking the respective action
-			prev_action: The previous action
-			next_action: The next action
-		Returns:
-			None
-		"""
-		predict = self.Q[prev_state, prev_action]
-		target = reward + self.gamma * self.Q[next_state, next_action]
-		self.Q[prev_state, prev_action] += self.alpha * (target - predict)
-
-
-
-# QLearningAgent.py
-
-class QLearningAgent(Agent):
-	def __init__(self, epsilon, alpha, gamma, num_state, num_actions, action_space):
-		"""
-		Constructor
-		Args:
-			epsilon: The degree of exploration
-			gamma: The discount factor
-			num_state: The number of states
-			num_actions: The number of actions
-			action_space: To call the max reward action
-		"""
-		self.epsilon = epsilon
-		self.alpha = alpha
-		self.gamma = gamma
-		self.num_state = num_state
-		self.num_actions = num_actions
-
-		self.Q = np.zeros((self.num_state, self.num_actions))
-		self.action_space = action_space
-
-
-	def update(self, state, state2, reward, action, action2):
-		"""
-		Update the action value function using the Q-Learning update.
-		Q(S, A) = Q(S, A) + alpha(reward + (gamma * Q(S_, A_) - Q(S, A))
-		Args:
-			prev_state: The previous state
-			next_state: The next state
-			reward: The reward for taking the respective action
-			prev_action: The previous action
-			next_action: The next action
-		Returns:
-			None
-		"""
-		predict = self.Q[state, action]
-		target = reward + self.gamma * np.max(self.Q[state2, :])
-		self.Q[state, action] += self.alpha * (target - predict)
-
-
-# ExpectedSarsaAgent.py
-
-class ExpectedSarsaAgent(Agent):
-    def __init__(self, epsilon, alpha, gamma, num_state, num_actions, action_space):
-        """
-        Constructor
-        Args:
-            epsilon: The degree of exploration
-            gamma: The discount factor
-            num_state: The number of states
-            num_actions: The number of actions
-            action_space: To call the expected action
-        """
-        self.epsilon = epsilon
-        self.alpha = alpha
-        self.gamma = gamma
-        self.num_state = num_state
-        self.num_actions = num_actions
-
-        self.Q = np.zeros((self.num_state, self.num_actions))
-        self.action_space = action_space
-
-    def update(self, prev_state, next_state, reward, prev_action, next_action):
-        """
-        Update the action value function using the Expected SARSA update.
-        Q(S, A) = Q(S, A) + alpha(reward + (pi * Q(S_, A_) - Q(S, A))
-        Args:
-            prev_state: The previous state
-            next_state: The next state
-            reward: The reward for taking the respective action
-            prev_action: The previous action
-            next_action: The next action
-        Returns:
-            None
-        """
-        predict = self.Q[prev_state, prev_action]
-
-        expected_q = 0
-        q_max = np.max(self.Q[next_state, :])
-        greedy_actions = 0
-        for i in range(self.num_actions):
-            if self.Q[next_state][i] == q_max:
-                greedy_actions += 1
-
-        non_greedy_action_probability = self.epsilon / self.num_actions
-        greedy_action_probability = ((1 - self.epsilon) / greedy_actions) + non_greedy_action_probability
-
-        for i in range(self.num_actions):
-            if self.Q[next_state][i] == q_max:
-                expected_q += self.Q[next_state][i] * greedy_action_probability
-            else:
-                expected_q += self.Q[next_state][i] * non_greedy_action_probability
-
-        target = reward + self.gamma * expected_q
-        self.Q[prev_state, prev_action] += self.alpha * (target - predict)
-
-
-def get_bounds(map_size: str):
-    bounds = []
-    if map_size == "small":
-        bounds = [(0,3), (0,11)]
-    elif map_size == "large":
-        bounds = [(0, 7), (0, 23)]
-    elif map_size == "mega":
-        bounds = [(0, 15), (0, 47)]
-    elif map_size == "giga":
-        bounds = [(0, 31), (0, 95)]
-    return bounds
-
-
-MAP_SIZE: str = "large"
-INITIAL = [0, 0]  # initial starting location [x1,x2...]
-# overlapping intervals to emulate OSI
-# bounds = [(0, 47), (0, 23), (24, 47)]  # input bounds [(x1_min,x1_max),(x2_min,x2_max)...]
-BOUNDS = get_bounds(MAP_SIZE)
-NUM_PARTICLES: int = 8
-MAX_ITER: int = 10
-env = {"map": env_cliff_walking.CliffWalkingEnv(), "type": MAP_SIZE}
-environment.set_environment(env)
 env = env["map"]
-# env = gym.make('CliffWalking-v0')
-# env = gym.make('FrozenLake-v1', desc=None, map_name="8x8", is_slippery=False, new_step_api=False)
-# print(env.observation_space)
+totalReward = EXP.REWARDS_TRACKER
+epsilon = EXP.EPSILON
+total_episodes = EXP.TOTAL_EPISODES
+max_steps = EXP.MAX_STEPS
+alpha = EXP.ALPHA
+gamma = EXP.GAMMA
+episodeReward = EXP.EPISODE_REWARD
 
-# Defining all the required parameters
-totalReward = {
-	'SarsaAgent': [],
-	'QLearningAgent': [],
-	'ExpectedSarsaAgent': []
-}
-
-# # Defining all the three agents
-# expectedSarsaAgent = ExpectedSarsaAgent(
-# 	epsilon, alpha, gamma, env.observation_space.n,
-# 	env.action_space.n, env.action_space)
-# qLearningAgent = QLearningAgent(
-# 	epsilon, alpha, gamma, env.observation_space.n,
-# 	env.action_space.n, env.action_space)
-# sarsaAgent = SarsaAgent(
-# 	epsilon, alpha, gamma, env.observation_space.n,
-# 	env.action_space.n, env.action_space)
-
-
-# Defining all the required parameters
-epsilon = 0.1
-total_episodes = 1
-max_steps = 10
-alpha = 0.5
-gamma = 1
-episodeReward = 0
-
-# agent = ExpectedSarsaAgent(
-#     epsilon, alpha, gamma, env.observation_space.n,
-#     env.action_space.n, env.action_space)
 
 agent = ExpectedSarsaAgent(
     epsilon=epsilon,
@@ -233,31 +33,9 @@ agent = ExpectedSarsaAgent(
     num_actions=env.action_space.n,
     action_space=env.action_space
 )
-# agent = QLearningAgent(
-# 	epsilon,
-#     alpha,
-#     gamma,
-#     env.observation_space.n,
-# 	env.action_space.n,
-#     env.action_space
-# )
 
 
-def test_func(x):
-    total = 0
-    for i in range(len(x)):
-        total += x[i] ** 2
-    return total
-
-
-def compute_reward(state: int):
-    reward = 48 - (((4 - int(state / 12)) ** 2) + ((12 - (state % 12)) ** 2)) ** 0.5
-    if state in [37, 38, 39, 40, 41, 42, 43, 44, 45, 46]:
-        reward = -100
-    return reward
-
-
-def f(states):
+def f(states, updates=3):
     rewards = 0
     totalReward = {
         'SarsaAgent': [],
@@ -276,22 +54,35 @@ def f(states):
             while t < max_steps:
 
                 # Getting the next state, reward, and other parameters
-                state2, reward, done, info = env.step(action1)
+                state2, reward1, done, info = env.step(action1)
                 # reward = compute_reward(state2)
 
                 # Choosing the next action
                 action2 = agent.choose_action(state2)
 
                 # Learning the Q-value
-                agent.update(state1, state2, reward, action1, action2)
+                agent.update(state1, state2, reward1, action1, action2)
                 # print(f'episode: {episode}\n\tstate: {state1}\taction: {action2}\treward: {reward}\tnew state: {state2}\ttarget: {target}')
+
+                rewards = 0
+                state_prev_i = state2
+                action_prev_i = action2
+                for k in range(1, updates):
+                    state_i, reward_i, done, info = env.step(action_prev_i)
+                    action_i = agent.choose_action(state_i)
+
+                    # Learning the Q-value
+                    agent.update(state_prev_i, state_i, reward_i, action_prev_i, action_i)
+                    state_prev_i = state_i
+                    action_prev_i = action_i
+                    rewards += reward_i
 
                 state1 = state2
                 action1 = action2
 
                 # Updating the respective vaLues
                 t += 1
-                episodeReward += reward
+                episodeReward += reward1 + rewards
 
                 # If at the end of learning process
                 if done:
@@ -302,43 +93,6 @@ def f(states):
     reward_error = -float(rewards / float(len(states)) ** 2)
     return reward_error
 
-
-def f0(states):
-    "Objective function"
-    t = 0
-    episodeReward = 0
-
-    rewards = 0
-    rewards_list: list = []
-    actions_list: list = []
-    for i in range(len(states)):
-        env.reset()
-        state1 = int(states[i])
-        action1 = agent.choose_action(state1)
-        state2, reward, done, info = env.step(action1)
-        reward = compute_reward(state2)
-        # action2 = agent.choose_action(state2)
-        # agent.update(state1, state2, reward, action1, action2)
-        rewards += reward
-
-    # s_index = np.argmax(rewards_list)
-    # print(f"states: {states}")
-    # print(f"s_index: {s_index}")
-    # print(f"rewards_list: {rewards_list}")
-    # print(f"actions_list: {actions_list}")
-
-    # state1 = int(states[i])
-    # action1 = actions_list[s_index]
-    # state2, reward, done, info = env.step(action1)
-    # action2 = model.choose_action(state2)
-    # model.update(state1, state2, rewards_list[s_index], action1, action2)
-    # print(model.Q)
-    # # reward_error = abs(compute_reward(int(states[s_index])) - reward)
-    # # reward_error = 47 - compute_reward(int(states[s_index]))
-    reward_error = -rewards
-    print(f"rewards: {rewards}")
-    print(f"reward_error: {reward_error}")
-    return reward_error
 
 
 # --- MAIN ---------------------------------------------------------------------+
@@ -442,27 +196,40 @@ class PSOA():
         print(err_best_g)
 
 
-def print_map():
+def print_map(map_size: str):
     size: int = 48
     row_size: int = 12
-    if MAP_SIZE == "small":
+    if map_size == "small":
         size = 48
         row_size = 12
-    elif MAP_SIZE == "large":
+    elif map_size == "large":
         size = 4*12*4
         row_size = 24
-    elif MAP_SIZE == "mega":
+    elif map_size == "mega":
         size = 16*12*4
         row_size = 48
-    elif MAP_SIZE == "giga":
+    elif map_size == "giga":
         size = 64*12*4
         row_size = 96
+    elif map_size == "L":
+        size = 407
+        row_size = 37
+    elif map_size == "R":
+        size = 840
+        row_size = 30
+    elif map_size == "P":
+        size = 900
+        row_size = 30
     map_str: str = ""
     reward_map_str: str = ""
     for i in range(len(agent.Q)):
         actions = agent.Q[i]
         action = np.argmax(actions)
-        if action == 0:
+        if i == (int(EXP.TERMINAL_STATE[0]*row_size) + EXP.TERMINAL_STATE[1]):
+            map_str += "G"
+        elif i == (int(INITIAL[0]*row_size) + INITIAL[1]):
+            map_str += "S"
+        elif action == 0:
             map_str += "^"
         elif action == 1:
             map_str += ">"
@@ -475,12 +242,11 @@ def print_map():
         if (i + 1) % row_size == 0:
             map_str += "\n"
     for i in range(0, size):
-        reward_map_str += f"{int(compute_reward(i))} "
+        reward_map_str += f"{int(EXP.compute_reward(i))} "
         if (i + 1) % size == 0:
             reward_map_str += "\n"
     print(map_str)
     print("----")
-    print(reward_map_str)
 
 
 
@@ -577,6 +343,7 @@ class Particle(object):
     # update the particle position based off new velocity updates
     def update_position(self, global_solution=None):
         for i in range(0, self.dim):
+            # print(f"\n___\nposition {i}, velocity {self.velocity[i]}")
             # print(f"position pre: {self.position_i[i]}")
             # self.position_i[i] = self.position_i[i] + self.velocity_i[i]
             # self.position_i[i] = self.position_i[i] + 1
@@ -620,7 +387,8 @@ class PSO(object):
         pbest_particle.set_fitness(float('inf'))
         self.pbest_history = [pbest_particle]
         self.gbest = pbest_particle
-        self.v_max = abs((BOUNDS[1][1] - BOUNDS[0][0]))
+        # self.v_max = abs((BOUNDS[1][1] - BOUNDS[0][0]))
+        self.v_max = 5
         self.generations = generations
         self.current_loop = 0
         self.factor = np.array(factor)
@@ -641,8 +409,10 @@ class PSO(object):
             global_solution = None
         omega, phi, v_max = self.omega, self.phi, self.v_max
         global_best_position = [x for x in self.gbest.position]
+        # print("\n\n____")
         for p in self.pop:
             p.update_particle(omega, phi, global_best_position, v_max, global_solution)
+            # print(f"position {p.position}\tvelocity: {p.velocity}")
             for k in range(0, len(p.position)):
                 state1 = round(p.position[k])
                 action1 = agent.choose_action(state1)
@@ -782,13 +552,14 @@ if __name__ == "__main__":
 
     # fa.load_csv_architecture(file="../../results/factors/F1_m4_diff_grouping.csv", dim=50)
     # func = Function(function_number=1, shift_data_file="f01_o.txt")
-    fea = FEA(f, fea_runs=5, generations=10, pop_size=8, factor_architecture=fa, base_algorithm=PSO)
+    generations = int(MAX_ITER / FEA_RUNS)
+    fea = FEA(f, fea_runs=FEA_RUNS, generations=generations, pop_size=NUM_PARTICLES, factor_architecture=fa, base_algorithm=PSO)
     fea.run()
     print(fa.factors)
-    print_map()
+    print_map(MAP_SIZE)
 
     # Regular PSO for comparison
     env.reset()
-    pso = PSO(generations=10, population_size=8, function=f, dim=len(BOUNDS))
+    pso = PSO(generations=MAX_ITER, population_size=NUM_PARTICLES, function=f, dim=len(BOUNDS))
     pso.run()
-    print_map()
+    print_map(MAP_SIZE)
