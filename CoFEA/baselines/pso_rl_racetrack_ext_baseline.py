@@ -4,6 +4,7 @@ from CoFEA.baselines.agents import ExpectedSarsaAgent, SarsaAgent, QLearningAgen
 import random
 
 
+
 MAP_SIZE: str = EXP.MAP_SIZE
 INITIAL: list = EXP.INITIAL
 BOUNDS = EXP.BOUNDS
@@ -32,7 +33,7 @@ agent = ExpectedSarsaAgent(
 )
 
 
-def f(states):
+def f(states, updates=3):
     rewards = 0
     totalReward = {
         'SarsaAgent': [],
@@ -51,22 +52,35 @@ def f(states):
             while t < max_steps:
 
                 # Getting the next state, reward, and other parameters
-                state2, reward, done, info = env.step(action1)
+                state2, reward1, done, info = env.step(action1)
                 # reward = compute_reward(state2)
 
                 # Choosing the next action
                 action2 = agent.choose_action(state2)
 
                 # Learning the Q-value
-                agent.update(state1, state2, reward, action1, action2)
+                agent.update(state1, state2, reward1, action1, action2)
                 # print(f'episode: {episode}\n\tstate: {state1}\taction: {action2}\treward: {reward}\tnew state: {state2}\ttarget: {target}')
+
+                rewards = 0
+                state_prev_i = state2
+                action_prev_i = action2
+                for k in range(1, updates):
+                    state_i, reward_i, done, info = env.step(action_prev_i)
+                    action_i = agent.choose_action(state_i)
+
+                    # Learning the Q-value
+                    agent.update(state_prev_i, state_i, reward_i, action_prev_i, action_i)
+                    state_prev_i = state_i
+                    action_prev_i = action_i
+                    rewards += reward_i
 
                 state1 = state2
                 action1 = action2
 
                 # Updating the respective vaLues
                 t += 1
-                episodeReward += reward
+                episodeReward += reward1 + rewards
 
                 # If at the end of learning process
                 if done:
@@ -236,4 +250,4 @@ def print_map(map_size: str):
 if __name__ == "__main__":
     env.reset()
     PSO(f, INITIAL, BOUNDS, num_particles=NUM_PARTICLES, maxiter=MAX_ITER)
-    print_map(EXP.MAP_SIZE)
+    print_map(map_size=MAP_SIZE)

@@ -1,4 +1,4 @@
-from CoFEA import experiment as EXP
+import CoFEA.experiment as EXP
 from CoFEA.baselines.agents import ExpectedSarsaAgent, SarsaAgent, QLearningAgent
 import random
 import numpy as np
@@ -35,7 +35,7 @@ agent = ExpectedSarsaAgent(
 )
 
 
-def f(states):
+def f(states, updates=3):
     rewards = 0
     totalReward = {
         'SarsaAgent': [],
@@ -54,22 +54,35 @@ def f(states):
             while t < max_steps:
 
                 # Getting the next state, reward, and other parameters
-                state2, reward, done, info = env.step(action1)
+                state2, reward1, done, info = env.step(action1)
                 # reward = compute_reward(state2)
 
                 # Choosing the next action
                 action2 = agent.choose_action(state2)
 
                 # Learning the Q-value
-                agent.update(state1, state2, reward, action1, action2)
+                agent.update(state1, state2, reward1, action1, action2)
                 # print(f'episode: {episode}\n\tstate: {state1}\taction: {action2}\treward: {reward}\tnew state: {state2}\ttarget: {target}')
+
+                rewards = 0
+                state_prev_i = state2
+                action_prev_i = action2
+                for k in range(1, updates):
+                    state_i, reward_i, done, info = env.step(action_prev_i)
+                    action_i = agent.choose_action(state_i)
+
+                    # Learning the Q-value
+                    agent.update(state_prev_i, state_i, reward_i, action_prev_i, action_i)
+                    state_prev_i = state_i
+                    action_prev_i = action_i
+                    rewards += reward_i
 
                 state1 = state2
                 action1 = action2
 
                 # Updating the respective vaLues
                 t += 1
-                episodeReward += reward
+                episodeReward += reward1 + rewards
 
                 # If at the end of learning process
                 if done:
@@ -80,43 +93,6 @@ def f(states):
     reward_error = -float(rewards / float(len(states)) ** 2)
     return reward_error
 
-
-def f0(states):
-    "Objective function"
-    t = 0
-    episodeReward = 0
-
-    rewards = 0
-    rewards_list: list = []
-    actions_list: list = []
-    for i in range(len(states)):
-        env.reset()
-        state1 = int(states[i])
-        action1 = agent.choose_action(state1)
-        state2, reward, done, info = env.step(action1)
-        reward = compute_reward(state2)
-        # action2 = agent.choose_action(state2)
-        # agent.update(state1, state2, reward, action1, action2)
-        rewards += reward
-
-    # s_index = np.argmax(rewards_list)
-    # print(f"states: {states}")
-    # print(f"s_index: {s_index}")
-    # print(f"rewards_list: {rewards_list}")
-    # print(f"actions_list: {actions_list}")
-
-    # state1 = int(states[i])
-    # action1 = actions_list[s_index]
-    # state2, reward, done, info = env.step(action1)
-    # action2 = model.choose_action(state2)
-    # model.update(state1, state2, rewards_list[s_index], action1, action2)
-    # print(model.Q)
-    # # reward_error = abs(compute_reward(int(states[s_index])) - reward)
-    # # reward_error = 47 - compute_reward(int(states[s_index]))
-    reward_error = -rewards
-    print(f"rewards: {rewards}")
-    print(f"reward_error: {reward_error}")
-    return reward_error
 
 
 # --- MAIN ---------------------------------------------------------------------+

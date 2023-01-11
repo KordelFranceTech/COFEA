@@ -13,6 +13,8 @@ DOWN = 2
 LEFT = 3
 SIZE = "large"
 
+global TERMINAL_STATE
+
 
 class CliffWalkingEnv(Env):
     """
@@ -76,6 +78,8 @@ class CliffWalkingEnv(Env):
             self.shape = (32, 96)
             self.start_state_index = np.ravel_multi_index((31, 0), self.shape)
 
+        global TERMINAL_STATE
+        TERMINAL_STATE = (self.shape[0] - 1, self.shape[1] - 1)
         # print(np.ravel_multi_index((3, 0), self.shape))
         self.nS = np.prod(self.shape)
         self.nA = 4
