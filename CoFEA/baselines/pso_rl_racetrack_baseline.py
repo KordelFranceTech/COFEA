@@ -69,6 +69,8 @@ def f(states):
                 t += 1
                 episodeReward += reward
 
+                EXP.COUNTER += 1
+
                 # If at the end of learning process
                 if done:
                     break
@@ -77,45 +79,6 @@ def f(states):
         rewards += np.mean(totalReward[type(agent).__name__])
     reward_error = -float(rewards / float(len(states)) ** 2)
     return reward_error
-
-
-def f0(states):
-    "Objective function"
-    t = 0
-    episodeReward = 0
-
-    rewards = 0
-    rewards_list: list = []
-    actions_list: list = []
-    for i in range(len(states)):
-        env.reset()
-        state1 = int(states[i])
-        action1 = agent.choose_action(state1)
-        state2, reward, done, info = env.step(action1)
-        reward = compute_reward(state2)
-        # action2 = agent.choose_action(state2)
-        # agent.update(state1, state2, reward, action1, action2)
-        rewards += reward
-
-    # s_index = np.argmax(rewards_list)
-    # print(f"states: {states}")
-    # print(f"s_index: {s_index}")
-    # print(f"rewards_list: {rewards_list}")
-    # print(f"actions_list: {actions_list}")
-
-    # state1 = int(states[i])
-    # action1 = actions_list[s_index]
-    # state2, reward, done, info = env.step(action1)
-    # action2 = model.choose_action(state2)
-    # model.update(state1, state2, rewards_list[s_index], action1, action2)
-    # print(model.Q)
-    # # reward_error = abs(compute_reward(int(states[s_index])) - reward)
-    # # reward_error = 47 - compute_reward(int(states[s_index]))
-    reward_error = -rewards
-    print(f"rewards: {rewards}")
-    print(f"reward_error: {reward_error}")
-    return reward_error
-
 
 # --- MAIN ---------------------------------------------------------------------+
 
@@ -209,6 +172,7 @@ class PSO():
                     state2, reward, done, info = env.step(action1)
                     action2 = agent.choose_action(state2)
                     agent.update(state1, state2, reward, action1, action2)
+                    EXP.SWARM_UPDATE_COUNTER += 1
                     if done: break
             i += 1
 
@@ -275,3 +239,5 @@ if __name__ == "__main__":
     env.reset()
     PSO(f, INITIAL, BOUNDS, num_particles=NUM_PARTICLES, maxiter=MAX_ITER)
     print_map(map_size=MAP_SIZE)
+    print(f"\n\nTotal steps: {EXP.COUNTER}")
+    print(f"Total swarm  updates: {EXP.SWARM_UPDATE_COUNTER}\n\n")

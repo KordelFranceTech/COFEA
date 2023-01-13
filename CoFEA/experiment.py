@@ -82,6 +82,9 @@ TRAJECTORIES: int = 3
 COTRAIN_ITERS: int = 3
 COTRAIN_GAMMA: float = 0.8
 
+COUNTER: int = 0
+SWARM_UPDATE_COUNTER: int = 0
+
 
 
 

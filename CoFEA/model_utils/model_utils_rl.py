@@ -1,4 +1,5 @@
-from benchmark import get_best_policy, get_best_policy_osi, get_benchmark_policy, print_policy_string, k
+from CoFEA import experiment as EXP
+from CoFEA.benchmark import get_best_policy, get_best_policy_osi, get_benchmark_policy, print_policy_string, k
 import numpy as np
 import random
 
@@ -51,6 +52,8 @@ def train_model(model, env, env_type, config, debug=False):
             # Updating the respective vaLues
             t += 1
             episodeReward += reward
+
+            EXP.COUNTER += 1
 
             # If at the end of learning process
             if done:

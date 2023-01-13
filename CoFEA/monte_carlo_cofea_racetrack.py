@@ -98,7 +98,7 @@ def spaco_rl_osi(map,
     ###########
 
     for obs in range(num_obs):
-        configs[obs] = adjust_config(configs[obs], 1000, 0)
+        configs[obs] = adjust_config(configs[obs], train_env.observation_space.n, 0)
         net = models.create(configs[obs].model_name, map)
         if debug:
             print(type(net))
@@ -183,7 +183,7 @@ def spaco_rl_osi(map,
             # update model parameter
             new_train_data, _ = dp.update_train_untrain_rl(
               sel_ids[obs], train_data, untrain_data, pred_y, weights[obs])
-            configs[obs] = adjust_config(configs[obs], len(train_data), 0)
+            configs[obs] = adjust_config(configs[obs], len(train_data), step)
             new_train_data = train_data
 
 
@@ -226,7 +226,7 @@ def spaco_rl_osi(map,
             fuse_y.append(np.argmax([a, b]))
         # fuse_y = np.array(fuse_y)
         # print(f"fuse_y: {fuse_y}")
-        # print('Acc:%0.4f' % np.mean(fuse_y== gt_y))
+        print('Acc:%0.4f' % np.mean(fuse_y== gt_y))
 
     # i_res = 0.0
     # j_res = 0.0
@@ -244,18 +244,24 @@ def spaco_rl_osi(map,
     print(avg)
     return avg
 
+if __name__ == "__main__":
 
-e = EXP.ENV
-config1 = ConfigRL(model_name='e_sarsa_fea', env=e)
-config2 = ConfigRL(model_name='e_sarsa_fea', env=e)
+    e = EXP.ENV
+    config1 = ConfigRL(model_name='e_sarsa_fea', env=e)
+    config2 = ConfigRL(model_name='e_sarsa_fea', env=e)
 
-print(spaco_rl_osi(
-      e["map"],
-      e["type"],
-      [config1, config2],
-      iter_steps=EXP.COTRAIN_ITERS,
-      gamma=EXP.COTRAIN_GAMMA,
-      regularizer="soft"))
+    print(spaco_rl_osi(
+          e["map"],
+          e["type"],
+          [config1, config2],
+          iter_steps=EXP.COTRAIN_ITERS,
+          gamma=EXP.COTRAIN_GAMMA,
+          regularizer="soft"))
+
+    print(f"\n\nTotal steps: {EXP.COUNTER}")
+    print(f"Total swarm  updates: {EXP.SWARM_UPDATE_COUNTER}\n\n")
+    EXP.COUNTER = 0
+    EXP.SWARM_UPDATE_COUNTER = 0
 
 
 # e = {"map":env_racetrack_v2.Racetrack(), "type": "L"}

@@ -268,24 +268,28 @@ def spaco_rl_osi(map,
 #       regularizer="soft"))
 
 
-e = {"map":env_racetrack_v2.Racetrack(), "type": "L"}
-environment.set_environment(e)
-# env_cliff_walking.update_map_type()
-# print(e["map"].desc)
-print(f"obs space: {e['map'].observation_space}")
-print(f"action space: {e['map'].action_space}")
-config1 = ConfigRL(model_name='e_sarsa_fea', env=e)
-config2 = ConfigRL(model_name='e_sarsa_fea', env=e)
+if __name__ == "__main__":
+    e = {"map":env_racetrack_v2.Racetrack(), "type": "L"}
+    environment.set_environment(e)
+    # env_cliff_walking.update_map_type()
+    # print(e["map"].desc)
+    print(f"obs space: {e['map'].observation_space}")
+    print(f"action space: {e['map'].action_space}")
+    config1 = ConfigRL(model_name='e_sarsa_fea', env=e)
+    config2 = ConfigRL(model_name='e_sarsa_fea', env=e)
 
-print(spaco_rl_osi(
-      e["map"],
-      e["type"],
-      [config1, config2],
-      iter_steps=3,
-      gamma=0.8,
-      regularizer="soft"))
-e["map"].render()
-
+    print(spaco_rl_osi(
+          e["map"],
+          e["type"],
+          [config1, config2],
+          iter_steps=3,
+          gamma=0.8,
+          regularizer="soft"))
+    e["map"].render()
+    print(f"\n\nTotal steps: {EXP.COUNTER}")
+    print(f"Total swarm  updates: {EXP.SWARM_UPDATE_COUNTER}\n\n")
+    EXP.COUNTER = 0
+    EXP.SWARM_UPDATE_COUNTER = 0
 
 # config1 = ConfigRL(model_name='q_learn_osi')
 # config2 = ConfigRL(model_name='q_learn_osi')

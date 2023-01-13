@@ -3,7 +3,7 @@
 
 This repository is a work in progress. It builds off of the work conducted by Dr. John Sheppard, Dr. Shane Strasser, and
 Dr. Stephyn Butcher in Factored Evolutionary Algorithms (FEA) [1]. See the references below for the particular works that
-this repository credits in regards to FEA:
+this repository credits in regards to FEA.
 
 In addition to the work of Sheppard, et al., this repository also builds off of the work of Ma, et al. (2020) in their original paper 
 of Self-paced Multi-view Co-training (SPaMCo) [8]. It has been adapted to learn a policy for a Markov decision process 

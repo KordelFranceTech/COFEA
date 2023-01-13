@@ -43,6 +43,8 @@ def f(states):
                 t += 1
                 episodeReward += reward
 
+                EXP.COUNTER += 1
+
                 # If at the end of learning process
                 if done:
                     break
@@ -146,6 +148,7 @@ class PSO():
                     state2, reward, done, info = ENV.step(action1)
                     action2 = AGENT.choose_action(state2)
                     AGENT.update(state1, state2, reward, action1, action2)
+                    EXP.SWARM_UPDATE_COUNTER += 1
                     if done: break
             i += 1
 

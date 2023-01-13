@@ -61,6 +61,8 @@ def f(states, updates=EXP.TRAJECTORIES):
                 t += 1
                 episodeReward += reward1 + rewards
 
+                EXP.COUNTER += 1
+
                 # If at the end of learning process
                 if done:
                     break
@@ -238,6 +240,9 @@ class PSO(object):
                 state2, reward, done, info = ENV.step(action1)
                 action2 = AGENT.choose_action(state2)
                 AGENT.update(state1, state2, reward, action1, action2)
+
+                EXP.SWARM_UPDATE_COUNTER += 1
+
                 if done: break
         curr_best = self.find_current_best()
         self.pbest_history.append(curr_best)
@@ -474,16 +479,19 @@ def train_fea_model(model, env, env_type, config, debug=False):
     fea.run()
 
     print_map(env_type)
-    current_policy = get_best_policy(q_table=model.Q)
-    benchmark_policy = get_best_policy(get_benchmark_policy(type(model).__name__))
-    if debug:
-        print(f"accuracy: {get_policy_accuracy(current_policy, benchmark_policy)}")
+    # current_policy = get_best_policy(q_table=model.Q)
+    # benchmark_policy = get_best_policy(get_benchmark_policy(type(model).__name__))
+    # if debug:
+    #     print(f"accuracy: {get_policy_accuracy(current_policy, benchmark_policy)}")
 
     trajectories: list = build_trajectories(AGENT, ENV, config)
 
     # print(f"model name: {type(model).__name__}")
     # print(f"reward: {totalReward}\n")
-    return trajectories, current_policy, benchmark_policy
+    # return trajectories, current_policy, benchmark_policy
+    print(f"\n\nTotal steps: {EXP.COUNTER}")
+    print(f"Total swarm  updates: {EXP.SWARM_UPDATE_COUNTER}\n\n")
+    return trajectories, [], []
 
 
 

@@ -244,20 +244,24 @@ def spaco_rl_osi(map,
     print(avg)
     return avg
 
+if __name__ == "__main__":
 
-e = EXP.ENV
-config1 = ConfigRL(model_name='e_sarsa', env=e)
-config2 = ConfigRL(model_name='e_sarsa', env=e)
+    e = EXP.ENV
+    config1 = ConfigRL(model_name='e_sarsa', env=e)
+    config2 = ConfigRL(model_name='e_sarsa', env=e)
 
 
-print(spaco_rl_osi(
-      e["map"],
-      e["type"],
-      [config1, config2],
-      iter_steps=3,
-      gamma=0.8,
-      regularizer="soft"))
-
+    print(spaco_rl_osi(
+          e["map"],
+          e["type"],
+          [config1, config2],
+          iter_steps=EXP.COTRAIN_ITERS,
+          gamma=EXP.COTRAIN_GAMMA,
+          regularizer="soft"))
+    print(f"\n\nTotal steps: {EXP.COUNTER}")
+    print(f"Total swarm  updates: {EXP.SWARM_UPDATE_COUNTER}\n\n")
+    EXP.COUNTER = 0
+    EXP.SWARM_UPDATE_COUNTER = 0
 
 # e = {"map":env_racetrack_v2.Racetrack(), "type": "L"}
 # environment.set_environment(e)

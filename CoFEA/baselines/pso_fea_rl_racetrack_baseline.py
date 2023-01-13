@@ -71,6 +71,8 @@ def f(states):
                 t += 1
                 episodeReward += reward
 
+                EXP.COUNTER += 1
+
                 # If at the end of learning process
                 if done:
                     break
@@ -405,6 +407,7 @@ class PSO(object):
                 state2, reward, done, info = env.step(action1)
                 action2 = agent.choose_action(state2)
                 agent.update(state1, state2, reward, action1, action2)
+                EXP.SWARM_UPDATE_COUNTER += 1
                 if done: break
         curr_best = self.find_current_best()
         self.pbest_history.append(curr_best)
@@ -543,9 +546,15 @@ if __name__ == "__main__":
     fea.run()
     print(fa.factors)
     print_map(MAP_SIZE)
+    print(f"\n\nTotal steps: {EXP.COUNTER}")
+    print(f"Total swarm  updates: {EXP.SWARM_UPDATE_COUNTER}\n\n")
 
     # Regular PSO for comparison
+    EXP.COUNTER = 0
+    EXP.SWARM_UPDATE_COUNTER = 0
     env.reset()
     pso = PSO(generations=MAX_ITER, population_size=NUM_PARTICLES, function=f, dim=len(BOUNDS))
     pso.run()
     print_map(MAP_SIZE)
+    print(f"\n\nTotal steps: {EXP.COUNTER}")
+    print(f"Total swarm  updates: {EXP.SWARM_UPDATE_COUNTER}\n\n")

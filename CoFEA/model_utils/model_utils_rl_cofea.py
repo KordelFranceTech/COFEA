@@ -49,6 +49,8 @@ def f(states):
                 t += 1
                 episodeReward += reward
 
+                EXP.COUNTER += 1
+
                 # If at the end of learning process
                 if done:
                     break
@@ -226,6 +228,7 @@ class PSO(object):
                 state2, reward, done, info = ENV.step(action1)
                 action2 = AGENT.choose_action(state2)
                 AGENT.update(state1, state2, reward, action1, action2)
+                EXP.SWARM_UPDATE_COUNTER += 1
                 if done: break
         curr_best = self.find_current_best()
         self.pbest_history.append(curr_best)
@@ -472,6 +475,8 @@ def train_fea_model(model, env, env_type, config, debug=False):
     # print(f"model name: {type(model).__name__}")
     # print(f"reward: {totalReward}\n")
     # return trajectories, current_policy, benchmark_policy
+    print(f"\n\nTotal steps: {EXP.COUNTER}")
+    print(f"Total swarm  updates: {EXP.SWARM_UPDATE_COUNTER}\n\n")
     return trajectories, [], []
 
 
@@ -492,26 +497,49 @@ def get_policy_accuracy(current: list, benchmark: list):
     return count / len(current)
 
 
+# def predict_prob(model, env, config, device):
+#     q_table = model.Q
+#     n, max_steps = config.epochs, config.max_steps
+#     rewards = []
+#     num_steps = []
+#     probs = []
+#     for episode in range(n):
+#         s = env.reset()
+#         total_reward = 0
+#         for i in range(max_steps):
+#             a = np.argmax(q_table[s, :])
+#             prob = softmax(q_table[s, :])
+#             probs += [prob]
+#             s, r, done, info = env.step(a)
+#             total_reward += r
+#             if done:
+#                 # rewards.append([total_reward])
+#                 num_steps.append(i + 1)
+#                 break
+#             rewards.append([total_reward])
+#     env.close()
+#     # print(rewards)
+#     print(probs)
+#     # return np.concatenate(probs)
+#     return probs
+
+
 def predict_prob(model, env, config, device):
     q_table = model.Q
     n, max_steps = config.epochs, config.max_steps
     rewards = []
-    num_steps = []
     probs = []
-    for episode in range(n):
-        s = env.reset()
+    for s in range(len(q_table)):
         total_reward = 0
-        for i in range(max_steps):
-            a = np.argmax(q_table[s, :])
-            prob = softmax(q_table[s, :])
-            probs += [prob]
-            s, r, done, info = env.step(a)
-            total_reward += r
-            if done:
-                # rewards.append([total_reward])
-                num_steps.append(i + 1)
-                break
-            rewards.append([total_reward])
+        a = np.argmax(q_table[s, :])
+        prob = softmax(q_table[s, :])
+        probs += [prob]
+        # s, r, done, info = env.step(a)
+        # total_reward += r
+        # if done:
+        #     # rewards.append([total_reward])
+        #     break
+        # rewards.append([total_reward])
     env.close()
     # print(rewards)
     print(probs)

@@ -74,6 +74,8 @@ def f(states, updates=3):
                     state_prev_i = state_i
                     action_prev_i = action_i
                     rewards += reward_i
+                    if done:
+                        break
 
                 state1 = state2
                 action1 = action2
@@ -81,6 +83,8 @@ def f(states, updates=3):
                 # Updating the respective vaLues
                 t += 1
                 episodeReward += reward1 + rewards
+
+                EXP.COUNTER += 1
 
                 # If at the end of learning process
                 if done:
@@ -185,6 +189,7 @@ class PSO():
                     state2, reward, done, info = env.step(action1)
                     action2 = agent.choose_action(state2)
                     agent.update(state1, state2, reward, action1, action2)
+                    EXP.SWARM_UPDATE_COUNTER += 1
                     if done: break
             i += 1
 
@@ -251,3 +256,5 @@ if __name__ == "__main__":
     env.reset()
     PSO(f, INITIAL, BOUNDS, num_particles=NUM_PARTICLES, maxiter=MAX_ITER)
     print_map(map_size=MAP_SIZE)
+    print(f"\n\nTotal steps: {EXP.COUNTER}")
+    print(f"Total swarm  updates: {EXP.SWARM_UPDATE_COUNTER}\n\n")

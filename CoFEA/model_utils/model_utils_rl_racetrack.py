@@ -602,15 +602,16 @@ def train_cofea_racetrack_model(model, env, env_type, config, initial=[0, 0], nu
     #     step_list.append(step_count / LAP_COUNT)
 
 
-    benchmark_policy = get_best_policy(get_benchmark_policy(type(model).__name__))
-    if debug:
-        print(f"accuracy: {get_policy_accuracy(current_policy, benchmark_policy)}")
+    # benchmark_policy = get_best_policy(get_benchmark_policy(type(model).__name__))
+    # if debug:
+    #     print(f"accuracy: {get_policy_accuracy(current_policy, benchmark_policy)}")
 
     trajectories: list = build_trajectories(AGENT, ENV, config)
 
     # print(f"model name: {type(model).__name__}")
     # print(f"reward: {totalReward}\n")
-    return trajectories, current_policy, benchmark_policy
+    # return trajectories, current_policy, benchmark_policy
+    return trajectories, [], []
 
 
 def train(model, env, env_type, config):

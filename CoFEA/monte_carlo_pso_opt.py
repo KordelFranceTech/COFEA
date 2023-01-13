@@ -251,18 +251,23 @@ def spaco_rl_osi(map,
 # data = datasets.create(dataset, data_dir)
 
 
-e = EXP.ENV
-config1 = ConfigRL(model_name='e_sarsa_osi', env=e)
-config2 = ConfigRL(model_name='e_sarsa_osi', env=e)
+if __name__ == "__main__":
 
-#
-# print(spaco_rl_osi(
-#       e["map"],
-#       [config1, config2],
-#       iter_steps=3,
-#       gamma=0.8,
-#       regularizer="soft"))
+    e = EXP.ENV
+    config1 = ConfigRL(model_name='e_sarsa_osi', env=e)
+    config2 = ConfigRL(model_name='e_sarsa_osi', env=e)
 
+
+    print(spaco_rl_osi(
+          e["map"],
+          [config1, config2],
+          iter_steps=EXP.COTRAIN_ITERS,
+          gamma=EXP.COTRAIN_GAMMA,
+          regularizer="soft"))
+    print(f"\n\nTotal steps: {EXP.COUNTER}")
+    print(f"Total swarm  updates: {EXP.SWARM_UPDATE_COUNTER}\n\n")
+    EXP.COUNTER = 0
+    EXP.SWARM_UPDATE_COUNTER = 0
 
 # config1 = ConfigRL(model_name='q_learn_osi')
 # config2 = ConfigRL(model_name='q_learn_osi')

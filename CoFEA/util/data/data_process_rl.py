@@ -57,16 +57,21 @@ def update_train_untrain(sel_idx,
     train_data = np.array(train_data)
     untrain_data = np.array(untrain_data)
     pred_y = np.array(pred_y)
-    weights = np.array(weights)
+    # weights = np.array(weights)
+    print(sel_idx.shape)
+    print(train_data.shape)
+    print(untrain_data.shape)
+    print(pred_y.shape)
     assert len(train_data) == len(untrain_data)
     if weights is None:
-        weights = np.ones(len(untrain_data[0]), dtype=np.float32)
+        weights = np.ones(untrain_data.shape, dtype=np.float32)
+    print(weights.shape)
     add_data = [untrain_data[sel_idx], pred_y[sel_idx], weights[sel_idx]]
     new_untrain = [
-      untrain_data[0][~sel_idx], pred_y[~sel_idx], weights[~sel_idx]
+      untrain_data[~sel_idx], pred_y[~sel_idx], weights[~sel_idx]
     ]
     new_train = [
-      np.concatenate((d1, d2)) for d1, d2 in zip(train_data, add_data)
+      np.array((d1, d2)) for d1, d2 in zip(train_data, add_data)
     ]
     return new_train, new_untrain
 
@@ -168,6 +173,29 @@ def select_ids(score, train_data, max_add):
         cls_score = score[indices, cls]
         idx_sort = np.argsort(cls_score)
         add_num = min(int(np.ceil(ratio_per_class[cls] * max_add)),
+                      indices.shape[0])
+        add_indices[indices[idx_sort[-add_num:]]] = 1
+    return add_indices.astype('bool')
+
+
+def sel_idx(score,train_data,ratio=0.5):
+
+    y = np.array([label for label in range(0,train_data)])
+    # y = train_data[1]
+    add_indices = np.zeros(score.shape[0])
+    clss = np.unique(y)
+    print(f"classes: {clss}, length: {clss.shape}")
+    # print(f"y: {y}")
+    print(f"score: {score}, length: {score.shape}")
+    score = score.T
+    assert score.shape[1] == len(clss)
+    count_per_class = [sum(y == c) for c in clss]
+    pred_y = np.argmax(score,axis=1)
+    for cls in range(len(clss)):
+        indices = np.where(pred_y == cls)[0]
+        cls_score = score[indices,cls]
+        idx_sort = np.argsort(cls_score)
+        add_num = min(int(np.ceil(count_per_class[cls] * ratio)),
                       indices.shape[0])
         add_indices[indices[idx_sort[-add_num:]]] = 1
     return add_indices.astype('bool')
